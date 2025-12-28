@@ -1,136 +1,94 @@
 -- =====================================================
 -- STORAGE BUCKET CONFIGURATION FOR CERTIFICATIONS
 -- =====================================================
--- This SQL creates and configures the storage bucket for certification files
--- with proper RLS policies for user isolation and public access control.
 
--- Note: If bucket already exists from initial schema, these commands will update it
--- Run this in Supabase SQL Editor
-
--- =====================================================
--- CREATE BUCKET
--- =====================================================
-
--- Create the certifications bucket (if not exists)
--- Set public: false to require authentication by default
+-- Create or update the `certifications` bucket (idempotent).
+-- This is the single source-of-truth for bucket creation.
 INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 VALUES (
   'certifications',
   'certifications',
-  false, -- Not public by default (controlled per-file)
-  10485760, -- 10MB limit
-  ARRAY[
-    'application/pdf',
-    'image/jpeg',
-    'image/jpg',
-    'image/png',
-    'image/webp'
-  ]
+  false,
+  10485760,
+  ARRAY['application/pdf','image/jpeg','image/jpg','image/png','image/webp']
 )
 ON CONFLICT (id) DO UPDATE SET
-  file_size_limit = 10485760,
-  allowed_mime_types = ARRAY[
-    'application/pdf',
-    'image/jpeg',
-    'image/jpg',
-    'image/png',
-    'image/webp'
-  ];
+  file_size_limit = EXCLUDED.file_size_limit,
+  allowed_mime_types = EXCLUDED.allowed_mime_types,
+  public = EXCLUDED.public;
 
--- =====================================================
--- STORAGE RLS POLICIES
--- =====================================================
 
--- Enable RLS on storage.objects
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  -- Attempt to enable RLS; report permission issues instead of skipping silently
+  BEGIN
+    EXECUTE 'ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY';
+    RAISE NOTICE 'Enabled RLS on storage.objects';
+  EXCEPTION WHEN insufficient_privilege THEN
+    RAISE NOTICE 'Could not enable RLS on storage.objects: insufficient_privilege';
+  WHEN others THEN
+    RAISE NOTICE 'Could not enable RLS on storage.objects: %', SQLERRM;
+  END;
 
--- Drop existing policies if they exist (for clean re-run)
-DROP POLICY IF EXISTS "Users can upload their own certification files" ON storage.objects;
-DROP POLICY IF EXISTS "Users can view their own certification files" ON storage.objects;
-DROP POLICY IF EXISTS "Users can update their own certification files" ON storage.objects;
-DROP POLICY IF EXISTS "Users can delete their own certification files" ON storage.objects;
-DROP POLICY IF EXISTS "Public certification files are viewable by anyone" ON storage.objects;
+  -- Create policies (idempotent-ish: catch duplicate errors and permission issues)
+  BEGIN
+    EXECUTE 'CREATE POLICY "Users can upload their own certification files" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = ''certifications'' AND (storage.foldername(name))[1] = auth.uid()::text)';
+    RAISE NOTICE 'Created policy: Users can upload their own certification files';
+  EXCEPTION WHEN SQLSTATE '42710' THEN
+    RAISE NOTICE 'Policy already exists: Users can upload their own certification files';
+  WHEN insufficient_privilege THEN
+    RAISE NOTICE 'Skipping create policy (upload): insufficient_privilege';
+  WHEN others THEN
+    RAISE NOTICE 'Could not create upload policy: %', SQLERRM;
+  END;
 
--- =====================================================
--- POLICY 1: Upload (INSERT)
--- =====================================================
--- Users can upload files to their own folder
--- Folder structure: {userId}/{certificationId}/{filename}
--- The first folder must match the authenticated user's ID
+  BEGIN
+    EXECUTE 'CREATE POLICY "Users can view their own certification files" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = ''certifications'' AND (storage.foldername(name))[1] = auth.uid()::text)';
+    RAISE NOTICE 'Created policy: Users can view their own certification files';
+  EXCEPTION WHEN SQLSTATE '42710' THEN
+    RAISE NOTICE 'Policy already exists: Users can view their own certification files';
+  WHEN insufficient_privilege THEN
+    RAISE NOTICE 'Skipping create policy (view): insufficient_privilege';
+  WHEN others THEN
+    RAISE NOTICE 'Could not create view policy: %', SQLERRM;
+  END;
 
-CREATE POLICY "Users can upload their own certification files"
-ON storage.objects FOR INSERT
-TO authenticated
-WITH CHECK (
-  bucket_id = 'certifications' AND
-  (storage.foldername(name))[1] = auth.uid()::text
-);
+  BEGIN
+    EXECUTE 'CREATE POLICY "Public certification files are viewable by anyone" ON storage.objects FOR SELECT TO public USING (bucket_id = ''certifications'' AND EXISTS (SELECT 1 FROM certifications c WHERE c.file_path = storage.objects.name AND c.is_public = true AND c.is_deleted = false))';
+    RAISE NOTICE 'Created policy: Public certification files are viewable by anyone';
+  EXCEPTION WHEN SQLSTATE '42710' THEN
+    RAISE NOTICE 'Policy already exists: Public certification files are viewable by anyone';
+  WHEN insufficient_privilege THEN
+    RAISE NOTICE 'Skipping create policy (public): insufficient_privilege';
+  WHEN others THEN
+    RAISE NOTICE 'Could not create public policy: %', SQLERRM;
+  END;
 
--- =====================================================
--- POLICY 2: View/Download (SELECT)
--- =====================================================
--- Users can view their own files
+  BEGIN
+    EXECUTE 'CREATE POLICY "Users can update their own certification files" ON storage.objects FOR UPDATE TO authenticated USING (bucket_id = ''certifications'' AND (storage.foldername(name))[1] = auth.uid()::text) WITH CHECK (bucket_id = ''certifications'' AND (storage.foldername(name))[1] = auth.uid()::text)';
+    RAISE NOTICE 'Created policy: Users can update their own certification files';
+  EXCEPTION WHEN SQLSTATE '42710' THEN
+    RAISE NOTICE 'Policy already exists: Users can update their own certification files';
+  WHEN insufficient_privilege THEN
+    RAISE NOTICE 'Skipping create policy (update): insufficient_privilege';
+  WHEN others THEN
+    RAISE NOTICE 'Could not create update policy: %', SQLERRM;
+  END;
 
-CREATE POLICY "Users can view their own certification files"
-ON storage.objects FOR SELECT
-TO authenticated
-USING (
-  bucket_id = 'certifications' AND
-  (storage.foldername(name))[1] = auth.uid()::text
-);
+  BEGIN
+    EXECUTE 'CREATE POLICY "Users can delete their own certification files" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = ''certifications'' AND (storage.foldername(name))[1] = auth.uid()::text)';
+    RAISE NOTICE 'Created policy: Users can delete their own certification files';
+  EXCEPTION WHEN SQLSTATE '42710' THEN
+    RAISE NOTICE 'Policy already exists: Users can delete their own certification files';
+  WHEN insufficient_privilege THEN
+    RAISE NOTICE 'Skipping create policy (delete): insufficient_privilege';
+  WHEN others THEN
+    RAISE NOTICE 'Could not create delete policy: %', SQLERRM;
+  END;
 
--- =====================================================
--- POLICY 3: Public Access (SELECT)
--- =====================================================
--- Allow public access to certification files that belong to public certifications
--- This requires checking the certifications table
+END
+$$;
 
-CREATE POLICY "Public certification files are viewable by anyone"
-ON storage.objects FOR SELECT
-TO public
-USING (
-  bucket_id = 'certifications' AND
-  EXISTS (
-    SELECT 1 FROM certifications c
-    WHERE c.file_path = storage.objects.name
-      AND c.is_public = true
-      AND c.is_deleted = false
-  )
-);
-
--- =====================================================
--- POLICY 4: Update (UPDATE)
--- =====================================================
--- Users can update (overwrite) their own files
-
-CREATE POLICY "Users can update their own certification files"
-ON storage.objects FOR UPDATE
-TO authenticated
-USING (
-  bucket_id = 'certifications' AND
-  (storage.foldername(name))[1] = auth.uid()::text
-)
-WITH CHECK (
-  bucket_id = 'certifications' AND
-  (storage.foldername(name))[1] = auth.uid()::text
-);
-
--- =====================================================
--- POLICY 5: Delete (DELETE)
--- =====================================================
--- Users can delete their own files
-
-CREATE POLICY "Users can delete their own certification files"
-ON storage.objects FOR DELETE
-TO authenticated
-USING (
-  bucket_id = 'certifications' AND
-  (storage.foldername(name))[1] = auth.uid()::text
-);
-
--- =====================================================
--- VERIFICATION QUERIES
--- =====================================================
 
 -- Verify bucket exists
 -- SELECT * FROM storage.buckets WHERE id = 'certifications';

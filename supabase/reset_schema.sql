@@ -40,19 +40,9 @@ $$;
 -- 4) Recreate a minimal `certifications` bucket row so the following schema run can
 --    insert policies/rows without failing. If you prefer the bucket recreated by
 --    the main schema, you can remove this block.
-DO $$
-BEGIN
-	IF EXISTS (
-		SELECT 1 FROM pg_class c
-		JOIN pg_namespace n ON c.relnamespace = n.oid
-		WHERE n.nspname = 'storage' AND c.relname = 'buckets'
-	) THEN
-		INSERT INTO storage.buckets (id, name, public)
-		VALUES ('certifications', 'certifications', false)
-		ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, public = EXCLUDED.public;
-	END IF;
-END;
-$$;
+-- Removed: bucket creation is centralized in `supabase/storage-buckets.sql`
+-- The reset now only deletes existing storage metadata; the bucket will be
+-- created by running `supabase/storage-buckets.sql` as the DB owner.
 
 -- 4.a) Remove storage-level policies that may conflict when re-applying schema
 -- These policies live in the `storage` schema (not `public`) and can cause
@@ -74,7 +64,43 @@ BEGIN
 		EXECUTE 'DROP POLICY IF EXISTS "Users can view their own certification files" ON storage.objects';
 		EXECUTE 'DROP POLICY IF EXISTS "Users can update their own certification files" ON storage.objects';
 		EXECUTE 'DROP POLICY IF EXISTS "Users can delete their own certification files" ON storage.objects';
+		EXECUTE 'DROP POLICY IF EXISTS "Public certification files are viewable by anyone" ON storage.objects';
 	END IF;
+END;
+$$;
+
+-- 4.b) Owner-safe removal: disable RLS and delete certification-specific metadata
+-- This block attempts to disable RLS and delete rows for the certifications bucket
+-- but will not fail the script if run by a non-owner (it reports errors silently).
+DO $$
+BEGIN
+	-- Disable RLS if possible
+	BEGIN
+		EXECUTE 'ALTER TABLE IF EXISTS storage.objects DISABLE ROW LEVEL SECURITY';
+	EXCEPTION WHEN others THEN
+		-- ignore if not owner/permission denied
+		NULL;
+	END;
+
+	-- Delete only rows that belong to the certifications bucket
+	IF EXISTS (
+		SELECT 1 FROM pg_class c
+		JOIN pg_namespace n ON c.relnamespace = n.oid
+		WHERE n.nspname = 'storage' AND c.relname = 'objects'
+	) THEN
+		EXECUTE 'DELETE FROM storage.objects WHERE bucket_id = ''certifications''';
+	END IF;
+
+	IF EXISTS (
+		SELECT 1 FROM pg_class c
+		JOIN pg_namespace n ON c.relnamespace = n.oid
+		WHERE n.nspname = 'storage' AND c.relname = 'buckets'
+	) THEN
+		EXECUTE 'DELETE FROM storage.buckets WHERE id = ''certifications''';
+	END IF;
+EXCEPTION WHEN others THEN
+	-- swallow errors to keep reset safe
+	NULL;
 END;
 $$;
 

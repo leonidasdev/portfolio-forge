@@ -942,39 +942,13 @@ CREATE TRIGGER update_themes_updated_at BEFORE UPDATE ON themes
 -- =====================================================
 
 -- Create storage bucket for certification files
-INSERT INTO storage.buckets (id, name, public)
-VALUES ('certifications', 'certifications', false)
-ON CONFLICT (id) DO NOTHING;
+-- Bucket creation is managed in `supabase/storage-buckets.sql` (single source of truth).
+-- The bucket will be created by running supabase/storage-buckets.sql as the DB owner.
 
 -- Storage policies for certifications bucket
--- Make policy creation idempotent: drop any existing policies with the same names
-CREATE POLICY "Users can upload their own certification files"
-ON storage.objects FOR INSERT
-WITH CHECK (
-  bucket_id = 'certifications' AND
-  auth.uid()::text = (storage.foldername(name))[1]
-);
-
-CREATE POLICY "Users can view their own certification files"
-ON storage.objects FOR SELECT
-USING (
-  bucket_id = 'certifications' AND
-  auth.uid()::text = (storage.foldername(name))[1]
-);
-
-CREATE POLICY "Users can update their own certification files"
-ON storage.objects FOR UPDATE
-USING (
-  bucket_id = 'certifications' AND
-  auth.uid()::text = (storage.foldername(name))[1]
-);
-
-CREATE POLICY "Users can delete their own certification files"
-ON storage.objects FOR DELETE
-USING (
-  bucket_id = 'certifications' AND
-  auth.uid()::text = (storage.foldername(name))[1]
-);
+-- Storage policies are managed in `supabase/storage-buckets.sql`.
+-- If you want policies applied as part of the main schema run,
+-- move or include the contents of `storage-buckets.sql` here.
 
 -- Public access for certification files marked as public
 -- Note: This requires additional logic in application layer to generate signed URLs
