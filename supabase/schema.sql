@@ -893,12 +893,15 @@ CREATE POLICY "Public portfolio items viewable via public_links"
 
 -- Auto-update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SET search_path = pg_catalog, public
+AS $$
 BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 -- Apply trigger to all tables with updated_at
 CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON profiles
@@ -983,7 +986,10 @@ USING (
 
 -- Function to generate secure random token for public links
 CREATE OR REPLACE FUNCTION generate_public_link_token()
-RETURNS TEXT AS $$
+RETURNS TEXT
+LANGUAGE plpgsql
+SET search_path = pg_catalog, public
+AS $$
 DECLARE
   characters TEXT := 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   token TEXT := '';
@@ -994,11 +1000,15 @@ BEGIN
   END LOOP;
   RETURN token;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 -- Function to increment view count on public links
 CREATE OR REPLACE FUNCTION increment_view_count(link_token TEXT)
-RETURNS void AS $$
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, public
+AS $$
 BEGIN
   UPDATE public_links
   SET view_count = view_count + 1,
@@ -1007,7 +1017,7 @@ BEGIN
     AND is_active = true
     AND (expires_at IS NULL OR expires_at > NOW());
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 -- =====================================================
 -- VIEWS (for easier querying)
