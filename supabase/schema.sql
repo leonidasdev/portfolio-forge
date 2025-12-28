@@ -1,13 +1,10 @@
 -- =====================================================
 -- PORTFOLIO FORGE - SUPABASE DATABASE SCHEMA
 -- =====================================================
--- This schema supports multi-user portfolio management with:
--- - Certifications (uploads, links, external providers)
--- - Projects, skills, work experience
--- - Tag-based organization
--- - Drag-and-drop portfolio sections
--- - Public/private visibility controls
--- - Row-level security for data isolation
+-- Multi-user portfolio schema: certifications, projects, skills,
+-- work experience, tags, drag-and-drop sections, and public links.
+-- Includes RLS, storage policies, triggers, and views.
+-- Run: psql "<PG_CONN>" -f supabase/schema.sql
 -- =====================================================
 
 -- Enable UUID extension
@@ -603,16 +600,7 @@ CREATE POLICY "Users can view their own portfolios"
   ON portfolios FOR SELECT
   USING (auth.uid() = user_id AND is_deleted = false);
 
-CREATE POLICY "Public portfolios viewable via public_links"
-  ON portfolios FOR SELECT
-  USING (
-    is_public = true AND is_deleted = false AND
-    EXISTS (
-      SELECT 1 FROM public_links pl
-      WHERE pl.portfolio_id = portfolios.id
-      AND pl.is_active = true
-    )
-  );
+-- Public-facing policy for portfolios (moved later after `public_links` table)
 
 CREATE POLICY "Users can create their own portfolios"
   ON portfolios FOR INSERT
@@ -661,18 +649,7 @@ CREATE POLICY "Users can view their own portfolio sections"
     )
   );
 
-CREATE POLICY "Public portfolio sections viewable via public_links"
-  ON portfolio_sections FOR SELECT
-  USING (
-    is_visible = true AND
-    EXISTS (
-      SELECT 1 FROM portfolios p
-      JOIN public_links pl ON pl.portfolio_id = p.id
-      WHERE p.id = portfolio_sections.portfolio_id
-      AND p.is_public = true
-      AND pl.is_active = true
-    )
-  );
+-- Public-facing policy for portfolio sections (moved later after `public_links` table)
 
 CREATE POLICY "Users can create sections in their own portfolios"
   ON portfolio_sections FOR INSERT
@@ -739,39 +716,7 @@ CREATE POLICY "Users can view their own portfolio items"
     )
   );
 
-CREATE POLICY "Public portfolio items viewable via public_links"
-  ON portfolio_items FOR SELECT
-  USING (
-    is_visible = true AND
-    EXISTS (
-      SELECT 1 FROM portfolio_sections ps
-      JOIN portfolios p ON p.id = ps.portfolio_id
-      JOIN public_links pl ON pl.portfolio_id = p.id
-      WHERE ps.id = portfolio_items.portfolio_section_id
-      AND p.is_public = true
-      AND ps.is_visible = true
-      AND pl.is_active = true
-    ) AND
-    -- Ensure the referenced item is public
-    (
-      (item_type = 'certification' AND EXISTS (
-        SELECT 1 FROM certifications c
-        WHERE c.id = portfolio_items.item_id AND c.is_public = true
-      )) OR
-      (item_type = 'project' AND EXISTS (
-        SELECT 1 FROM projects pr
-        WHERE pr.id = portfolio_items.item_id AND pr.is_public = true
-      )) OR
-      (item_type = 'skill' AND EXISTS (
-        SELECT 1 FROM skills s
-        WHERE s.id = portfolio_items.item_id AND s.is_public = true
-      )) OR
-      (item_type = 'work_experience' AND EXISTS (
-        SELECT 1 FROM work_experience we
-        WHERE we.id = portfolio_items.item_id AND we.is_public = true
-      ))
-    )
-  );
+-- Public-facing policy for portfolio items (moved later after `public_links` table)
 
 CREATE POLICY "Users can create items in their own portfolios"
   ON portfolio_items FOR INSERT
@@ -879,7 +824,68 @@ CREATE POLICY "Users can delete their own public links"
 -- Indexes
 CREATE INDEX idx_public_links_portfolio_id ON public_links(portfolio_id);
 CREATE INDEX idx_public_links_token ON public_links(token);
-CREATE INDEX idx_public_links_is_active ON public_links(is_active) WHERE expires_at IS NULL OR expires_at > NOW();
+CREATE INDEX idx_public_links_is_active ON public_links(is_active, expires_at);
+
+-- Public-facing policies that allow viewing portfolios, sections, and items
+-- via active public links. These reference `public_links`, so create them
+-- after the `public_links` table and its indexes exist to avoid forward-reference errors.
+
+CREATE POLICY "Public portfolios viewable via public_links"
+  ON portfolios FOR SELECT
+  USING (
+    is_public = true AND is_deleted = false AND
+    EXISTS (
+      SELECT 1 FROM public_links pl
+      WHERE pl.portfolio_id = portfolios.id
+      AND pl.is_active = true
+    )
+  );
+
+CREATE POLICY "Public portfolio sections viewable via public_links"
+  ON portfolio_sections FOR SELECT
+  USING (
+    is_visible = true AND
+    EXISTS (
+      SELECT 1 FROM portfolios p
+      JOIN public_links pl ON pl.portfolio_id = p.id
+      WHERE p.id = portfolio_sections.portfolio_id
+      AND p.is_public = true
+      AND pl.is_active = true
+    )
+  );
+
+CREATE POLICY "Public portfolio items viewable via public_links"
+  ON portfolio_items FOR SELECT
+  USING (
+    is_visible = true AND
+    EXISTS (
+      SELECT 1 FROM portfolio_sections ps
+      JOIN portfolios p ON p.id = ps.portfolio_id
+      JOIN public_links pl ON pl.portfolio_id = p.id
+      WHERE ps.id = portfolio_items.portfolio_section_id
+      AND p.is_public = true
+      AND ps.is_visible = true
+      AND pl.is_active = true
+    ) AND
+    (
+      (item_type = 'certification' AND EXISTS (
+        SELECT 1 FROM certifications c
+        WHERE c.id = portfolio_items.item_id AND c.is_public = true
+      )) OR
+      (item_type = 'project' AND EXISTS (
+        SELECT 1 FROM projects pr
+        WHERE pr.id = portfolio_items.item_id AND pr.is_public = true
+      )) OR
+      (item_type = 'skill' AND EXISTS (
+        SELECT 1 FROM skills s
+        WHERE s.id = portfolio_items.item_id AND s.is_public = true
+      )) OR
+      (item_type = 'work_experience' AND EXISTS (
+        SELECT 1 FROM work_experience we
+        WHERE we.id = portfolio_items.item_id AND we.is_public = true
+      ))
+    )
+  );
 
 -- =====================================================
 -- TRIGGERS
@@ -934,9 +940,11 @@ CREATE TRIGGER update_themes_updated_at BEFORE UPDATE ON themes
 
 -- Create storage bucket for certification files
 INSERT INTO storage.buckets (id, name, public)
-VALUES ('certifications', 'certifications', false);
+VALUES ('certifications', 'certifications', false)
+ON CONFLICT (id) DO NOTHING;
 
 -- Storage policies for certifications bucket
+-- Make policy creation idempotent: drop any existing policies with the same names
 CREATE POLICY "Users can upload their own certification files"
 ON storage.objects FOR INSERT
 WITH CHECK (
@@ -1023,18 +1031,41 @@ SELECT
     WHEN pi.item_type = 'work_experience' THEN (SELECT row_to_json(we.*) FROM work_experience we WHERE we.id = pi.item_id)
   END AS item_data
 FROM portfolio_items pi
-JOIN portfolio_sections ps ON ps.id = pi.portfolio_section_id;
+JOIN portfolio_sections ps ON ps.id = pi.portfolio_section_id
+JOIN portfolios p ON p.id = ps.portfolio_id
+WHERE (
+  -- Owner may always see their portfolio items
+  p.user_id = auth.uid()
+  OR
+  -- Public access via an active public link and the item/section marked visible
+  (
+    p.is_public = true
+    AND pi.is_visible = true
+    AND EXISTS (
+      SELECT 1 FROM public_links pl
+      WHERE pl.portfolio_id = p.id
+      AND pl.is_active = true
+      AND (pl.expires_at IS NULL OR pl.expires_at > NOW())
+    )
+    AND (
+      (pi.item_type = 'certification' AND EXISTS (SELECT 1 FROM certifications c WHERE c.id = pi.item_id AND c.is_public = true)) OR
+      (pi.item_type = 'project' AND EXISTS (SELECT 1 FROM projects pr WHERE pr.id = pi.item_id AND pr.is_public = true)) OR
+      (pi.item_type = 'skill' AND EXISTS (SELECT 1 FROM skills s WHERE s.id = pi.item_id AND s.is_public = true)) OR
+      (pi.item_type = 'work_experience' AND EXISTS (SELECT 1 FROM work_experience we WHERE we.id = pi.item_id AND we.is_public = true))
+    )
+  )
+);
 
 -- =====================================================
 -- INITIAL SETUP COMPLETE
 -- =====================================================
 
 -- Notes:
--- 1. After running this schema, enable RLS on storage.objects if not already enabled
--- 2. Configure OAuth providers in Supabase dashboard
--- 3. Set up email templates for authentication
--- 4. Configure CORS settings for your Next.js frontend
--- 5. Generate TypeScript types: npx supabase gen types typescript --local > types/database.ts
+-- Notes:
+-- - After running this schema, enable RLS on `storage.objects` if required.
+-- - Configure OAuth providers and email templates in the Supabase dashboard.
+-- - Configure CORS for the Next.js frontend as needed.
+-- - To generate types: npx supabase gen types typescript --local > types/database.ts
 
 -- =====================================================
 -- SEED DATA: DEFAULT TEMPLATES
