@@ -29,14 +29,14 @@ export async function GET(request: NextRequest) {
   if (error) {
     console.error('OAuth error:', error, errorDescription)
     return NextResponse.redirect(
-      `${requestUrl.origin}/login?error=${encodeURIComponent(errorDescription || error)}`
+      `${requestUrl.origin}/auth/login?error=${encodeURIComponent(errorDescription || error)}`
     )
   }
 
   // Code must be present for OAuth flow
   if (!code) {
     return NextResponse.redirect(
-      `${requestUrl.origin}/login?error=No authorization code provided`
+      `${requestUrl.origin}/auth/login?error=No authorization code provided`
     )
   }
 
@@ -72,13 +72,13 @@ export async function GET(request: NextRequest) {
     if (sessionError) {
       console.error('Session exchange error:', sessionError)
       return NextResponse.redirect(
-        `${requestUrl.origin}/login?error=${encodeURIComponent(sessionError.message)}`
+        `${requestUrl.origin}/auth/login?error=${encodeURIComponent(sessionError.message)}`
       )
     }
 
     if (!session) {
       return NextResponse.redirect(
-        `${requestUrl.origin}/login?error=Failed to create session`
+        `${requestUrl.origin}/auth/login?error=Failed to create session`
       )
     }
 
@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Callback handler error:', error)
     return NextResponse.redirect(
-      `${requestUrl.origin}/login?error=Authentication failed`
+      `${requestUrl.origin}/auth/login?error=Authentication failed`
     )
   }
 }
