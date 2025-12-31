@@ -87,7 +87,14 @@ npm install
 #### C. Configure Storage
 1. Go to **Storage** in Supabase dashboard
 2. Copy contents of `supabase/storage-buckets.sql`
-3. Run in SQL Editor to create storage buckets with policies
+3. Run in SQL Editor to create storage buckets with policies.
+
+Note: `storage-buckets.sql` creates the `certifications` bucket and attempts to enable RLS
+and create storage policies. Policy creation requires ownership privileges on the
+`storage.objects` table; when run as a non-owner you will see NOTICE messages and
+the file will still create/update the bucket metadata but may skip creating policies.
+If you want the policies guaranteed to be created, run the file as the DB owner
+(Supabase project owner/service role) or ask the owner to run the policy-only section.
 
 #### D. Enable Authentication Providers
 1. Go to **Authentication > Providers**
