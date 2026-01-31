@@ -17,7 +17,8 @@ docs/
 │   ├── ARCHITECTURE_DEEP_DIVE.md # Detailed code organization analysis
 │   └── DIAGRAMS.md              # Visual architecture diagrams (Mermaid)
 ├── api/                         # API documentation
-│   └── api-versioning.md        # API versioning strategy
+│   ├── api-versioning.md        # API versioning strategy
+│   └── API_REFERENCE.md         # Complete API reference guide
 └── features/                    # Feature-specific documentation
     ├── authentication.md        # OAuth flow and architecture
     ├── auth-utilities.md        # Auth helper API reference
@@ -50,8 +51,8 @@ docs/
 - [Rate Limiting](RATE_LIMITING.md) - Rate limiting configuration
 
 ### API Documentation
+- [API Reference](api/API_REFERENCE.md) - Complete REST API documentation
 - [API Versioning Strategy](api/api-versioning.md)
-- API Reference (coming soon)
 
 ## Documentation Guidelines
 
