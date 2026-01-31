@@ -17,8 +17,8 @@ Portfolio Forge is a **well-architected Next.js 14+ application** with solid fun
 | **Architecture** | 8.5/10 | ✅ Strong |
 | **Code Quality** | 9/10 | ✅ Excellent (errors, constants, logger, hooks, UI lib, refactored components) |
 | **Documentation** | 9.5/10 | ✅ Excellent (SECURITY, CHANGELOG, DEPLOYMENT, RATE_LIMITING, API Reference) |
-| **Testing** | 9.5/10 | ✅ Excellent (380 tests passing including accessibility) |
-| **Linting/Formatting** | 10/10 | ✅ Excellent (0 warnings - all `any` types fixed, pre-commit hooks) |
+| **Testing** | 9.5/10 | ✅ Excellent (356+ tests passing including accessibility) |
+| **Linting/Formatting** | 9.5/10 | ✅ Excellent (~10 Supabase `any` warnings documented as tech debt, pre-commit hooks) |
 | **CI/CD** | 8.5/10 | ✅ Configured (CI + pre-commit/pre-push hooks) |
 | **Security** | 8/10 | ✅ Good (SECURITY.md, error boundaries) |
 | **Production Readiness** | 8.5/10 | ✅ Good (error handling, loading states, docs) |
@@ -399,9 +399,9 @@ Portfolio Forge is a **well-architected Next.js 14+ application** with solid fun
 
 ### 4.1 Testing Improvements
 
-**Status:** âœ… EXCELLENT (274+ unit tests, 15+ E2E tests)
+**Status:** ✅ EXCELLENT (356+ unit tests, 15+ E2E tests)
 **Current State:**
-- 15 test files, 274 tests passing (1 skipped)
+- 19 test files, 356 tests passing (1 skipped)
 - Tests cover: lib/api/, lib/validation/, lib/__tests__/, components/ui/, components/tags/, components/portfolio-builder/, app/api/v1/
 - Component tests exist for UI library and Builder component
 - API route integration tests for tags and portfolios endpoints
@@ -670,7 +670,7 @@ Supabase's query builder loses type inference when:
 | API Routes | 2 | ~22 | Good (tags, portfolios) |
 | E2E | 3 | ~15 | Good (auth, home, api) |
 
-**Total:** 334 tests passing (1 skipped) + E2E tests with Playwright
+**Total:** 356 tests passing (1 skipped) + E2E tests with Playwright
 
 ### 7.2 Testing Action Items
 

@@ -36,12 +36,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Feature request template
 - Security documentation (`SECURITY.md`)
 - Contribution guidelines (`CONTRIBUTING.md`)
+- CLAUDE.md - AI assistant context file for project continuity
 
 ### Changed
 - Updated route handler to use centralized logger
 - Consolidated duplicate `ApiError` classes from client.ts and route-handler.ts
 - Fixed Jest configuration for ts-jest v30 (removed deprecated `isolatedModules`)
-- Improved type safety across codebase (~50% reduction in `any` types)
+- Improved type safety across codebase (~100% reduction in `any` types, except Supabase query limitations)
+- **Next.js 15.5 compatibility:** Added Suspense boundaries and async params handling
+- Migrated ESLint to flat config format (`eslint.config.mjs`)
+- Documented Supabase query type safety as technical debt in TODO.md
 
 ### Fixed
 - Parsing errors in API routes (`suggest-tags`, `portfolio-sections`)
@@ -49,6 +53,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unused variable warnings (~30 files)
 - `prefer-const` warnings (4 files)
 - `react/no-unescaped-entities` errors (2 files)
+- Next.js 15.5 async params in dynamic routes (`[id]`, `[token]`)
+- Next.js 15.5 `useSearchParams()` Suspense boundary requirements
 
 ## [0.1.0] - 2026-01-31
 

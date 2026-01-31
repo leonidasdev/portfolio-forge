@@ -2,11 +2,11 @@
 
 <div align="center">
 
-![Next.js](https://img.shields.io/badge/Next.js-15+-black?style=for-the-badge&logo=next.js)
+![Next.js](https://img.shields.io/badge/Next.js-15.1-black?style=for-the-badge&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.7+-blue?style=for-the-badge&logo=typescript)
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-green?style=for-the-badge&logo=supabase)
 ![Groq](https://img.shields.io/badge/AI-Groq-orange?style=for-the-badge)
-![Tests](https://img.shields.io/badge/Tests-380%20passing-brightgreen?style=for-the-badge)
+![Tests](https://img.shields.io/badge/Tests-356%20passing-brightgreen?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-Apache%202.0-blue?style=for-the-badge)
 
 **AI-powered portfolio builder for creating stunning professional portfolios**
@@ -197,7 +197,7 @@ Run tests to ensure everything is configured correctly:
 npm test
 ```
 
-You should see **82 tests passing**.
+You should see **356+ tests passing**.
 
 ---
 
@@ -356,7 +356,7 @@ npm test -- --testPathPattern="rate-limit"
 npm test -- --watch
 ```
 
-**Current Status:** 82 tests passing
+**Current Status:** 356+ tests passing (1 skipped)
 
 ---
 

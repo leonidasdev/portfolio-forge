@@ -32,6 +32,7 @@ docs/
 
 ### For New Developers
 - [Project README](../README.md) - Getting started guide
+- [CLAUDE.md](../CLAUDE.md) - AI assistant context (great for quick project overview)
 - [Development Guide](DEVELOPMENT.md) - Local development setup
 - [Architecture Review](architecture/ARCHITECTURE_REVIEW.md) - Understand the codebase
 - [Architecture Diagrams](architecture/DIAGRAMS.md) - Visual system diagrams
