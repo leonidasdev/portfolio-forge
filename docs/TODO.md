@@ -529,6 +529,38 @@ Portfolio Forge is a **well-architected Next.js 14+ application** with solid fun
 
 ---
 
+### 4.6 Supabase Query Type Safety
+
+**Status:** 🟡 LOW IMPACT / HIGH EFFORT
+**Issue:** ESLint warnings for `@typescript-eslint/no-explicit-any` in API routes
+
+**Root Cause:**
+Supabase's query builder loses type inference when:
+- Using complex joins with nested selects (e.g., `certification_tags -> tags`)
+- Building dynamic queries with conditional `.eq()`, `.limit()`, etc.
+- The `as any` cast is required to work around TypeScript limitations
+
+**Affected Files:**
+- `app/api/v1/certifications/route.ts`
+- `app/api/v1/certifications/[id]/route.ts`
+- `app/api/v1/certification-tags/route.ts`
+- `app/api/v1/portfolio-sections/[id]/route.ts`
+- Other API routes with complex Supabase queries
+
+**Potential Solutions (High Effort):**
+- [ ] Create typed repository/data access layer with explicit return types
+- [ ] Use Supabase's `supabase-js` v2 with generated types more strictly
+- [ ] Consider Prisma as an alternative ORM with better TypeScript support
+- [ ] Create wrapper functions for common query patterns with proper generics
+
+**Decision:** Keep warnings visible as technical debt reminder. The `any` casts are functionally correct but lose type safety. This is acceptable for now as:
+1. Warnings don't block CI/build
+2. RLS policies ensure data security
+3. Runtime behavior is correct
+4. Fixing requires significant refactoring
+
+---
+
 ## 5. Documentation TODOs
 
 ### 5.1 Missing Documentation
