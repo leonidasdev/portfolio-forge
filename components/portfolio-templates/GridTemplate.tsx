@@ -1,6 +1,6 @@
 /**
  * Grid Template
- * 
+ *
  * A grid-based layout optimized for displaying projects and visual work.
  * Summary appears at top, then sections flow in a responsive grid.
  * Perfect for portfolio galleries.
@@ -11,7 +11,7 @@
 import { SectionRenderer } from '@/components/portfolio-sections/SectionRenderer'
 import type { TemplateComponentProps } from './registry'
 
-export function GridTemplate({ portfolio, sections, theme }: TemplateComponentProps) {
+export function GridTemplate({ portfolio, sections, theme: _theme }: TemplateComponentProps) {
   // Summary section gets full width at top
   const summarySection = sections.find((s) => s.section_type === 'summary')
   const gridSections = sections.filter((s) => s.section_type !== 'summary')

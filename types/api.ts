@@ -1,9 +1,9 @@
 /**
  * API Types
- * 
+ *
  * Centralized type definitions for API requests and responses.
  * Provides type safety for client-server communication.
- * 
+ *
  * Import these types in API routes and client code:
  * ```typescript
  * import type { CreatePortfolioRequest, PortfolioResponse } from '@/types/api'
@@ -17,7 +17,7 @@ import type {
   Tag,
   Template,
   Theme,
-  CertificationWithTags
+  CertificationWithTags,
 } from './portfolio'
 
 // ============================================================================
@@ -30,13 +30,13 @@ import type {
 export interface ApiErrorResponse {
   error: string
   code?: string
-  details?: any
+  details?: Record<string, unknown>
 }
 
 /**
  * Standard success response wrapper
  */
-export interface ApiSuccessResponse<T = any> {
+export interface ApiSuccessResponse<T = unknown> {
   data: T
   message?: string
 }
@@ -44,7 +44,7 @@ export interface ApiSuccessResponse<T = any> {
 /**
  * Paginated response wrapper
  */
-export interface PaginatedResponse<T = any> {
+export interface PaginatedResponse<T = unknown> {
   data: T[]
   count: number
   page: number
@@ -114,7 +114,7 @@ export interface DeletePortfolioResponse {
 
 /**
  * GET /api/v1/portfolios/[id]/sections - List sections for a portfolio
- * 
+ *
  * Note: This endpoint has been moved from /api/v1/portfolio-sections/[portfolioId]
  * to follow RESTful conventions.
  */
@@ -129,9 +129,9 @@ export interface CreateSectionRequest {
   portfolio_id: string
   section_type: string
   title?: string
-  content?: Record<string, any>
+  content?: Record<string, unknown>
   display_order?: number
-  settings?: Record<string, any>
+  settings?: Record<string, unknown>
 }
 
 export interface CreateSectionResponse {
@@ -143,9 +143,9 @@ export interface CreateSectionResponse {
  */
 export interface UpdateSectionRequest {
   title?: string
-  content?: Record<string, any>
+  content?: Record<string, unknown>
   display_order?: number
-  settings?: Record<string, any>
+  settings?: Record<string, unknown>
 }
 
 export interface UpdateSectionResponse {
@@ -487,13 +487,18 @@ export interface GetPublicPortfolioResponse {
 /**
  * Type guard to check if response is an error
  */
-export function isApiError(response: any): response is ApiErrorResponse {
-  return 'error' in response && typeof response.error === 'string'
+export function isApiError(response: unknown): response is ApiErrorResponse {
+  return (
+    typeof response === 'object' &&
+    response !== null &&
+    'error' in response &&
+    typeof (response as ApiErrorResponse).error === 'string'
+  )
 }
 
 /**
  * Type guard to check if response is successful
  */
-export function isApiSuccess<T>(response: any): response is ApiSuccessResponse<T> {
-  return 'data' in response
+export function isApiSuccess<T>(response: unknown): response is ApiSuccessResponse<T> {
+  return typeof response === 'object' && response !== null && 'data' in response
 }

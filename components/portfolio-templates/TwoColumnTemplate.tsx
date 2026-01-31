@@ -1,6 +1,6 @@
 /**
  * Two Column Template
- * 
+ *
  * A two-column layout with sidebar for quick access information.
  * Main content flows in the larger right column.
  * Ideal for traditional portfolios and resumes.
@@ -11,7 +11,7 @@
 import { SectionRenderer } from '@/components/portfolio-sections/SectionRenderer'
 import type { TemplateComponentProps } from './registry'
 
-export function TwoColumnTemplate({ portfolio, sections, theme }: TemplateComponentProps) {
+export function TwoColumnTemplate({ portfolio, sections, theme: _theme }: TemplateComponentProps) {
   // Split sections: summary/skills in sidebar, rest in main content
   const sidebarSections = sections.filter(
     (s) => s.section_type === 'summary' || s.section_type === 'skills'

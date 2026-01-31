@@ -1,45 +1,48 @@
 /**
  * Validation Helpers
- * 
+ *
  * Helper functions for validating request data with Zod schemas.
  * Integrates with the API route handler for consistent error handling.
  */
 
-import { NextRequest } from 'next/server'
-import { ZodSchema, ZodError } from 'zod'
 import { ApiError } from '@/lib/api/route-handler'
+import { NextRequest } from 'next/server'
+import { ZodError, ZodSchema } from 'zod'
+
+/**
+ * Zod issue structure for error handling
+ */
+interface ZodIssue {
+  path?: (string | number)[]
+  message: string
+  code?: string
+}
 
 /**
  * Validates request body against a Zod schema
- * 
+ *
  * @param request - The Next.js request object
  * @param schema - The Zod schema to validate against
  * @returns Parsed and validated data
  * @throws ApiError with 400 status if validation fails
- * 
+ *
  * @example
  * const data = await validateBody(request, createPortfolioSchema)
  */
-export async function validateBody<T>(
-  request: NextRequest,
-  schema: ZodSchema<T>
-): Promise<T> {
+export async function validateBody<T>(request: NextRequest, schema: ZodSchema<T>): Promise<T> {
   try {
     const body = await request.json()
     return schema.parse(body)
   } catch (error) {
     if (error instanceof ZodError) {
       // Zod v4 uses .issues instead of .errors
-      const issues = (error as any).issues || (error as any).errors || []
-      const errorMessages = issues.map((err: any) => {
+      const zodError = error as ZodError & { issues?: ZodIssue[]; errors?: ZodIssue[] }
+      const issues: ZodIssue[] = zodError.issues || zodError.errors || []
+      const errorMessages = issues.map((err: ZodIssue) => {
         const path = err.path?.join('.') || ''
         return path ? `${path}: ${err.message}` : err.message
       })
-      throw new ApiError(
-        `Validation failed: ${errorMessages.join(', ')}`,
-        400,
-        { errors: issues }
-      )
+      throw new ApiError(`Validation failed: ${errorMessages.join(', ')}`, 400, { errors: issues })
     }
     throw new ApiError('Invalid request body', 400)
   }
@@ -47,23 +50,20 @@ export async function validateBody<T>(
 
 /**
  * Validates query parameters against a Zod schema
- * 
+ *
  * @param request - The Next.js request object
  * @param schema - The Zod schema to validate against
  * @returns Parsed and validated data
  * @throws ApiError with 400 status if validation fails
- * 
+ *
  * @example
  * const params = validateQuery(request, paginationSchema)
  */
-export function validateQuery<T>(
-  request: NextRequest,
-  schema: ZodSchema<T>
-): T {
+export function validateQuery<T>(request: NextRequest, schema: ZodSchema<T>): T {
   try {
     const { searchParams } = new URL(request.url)
-    const params: Record<string, any> = {}
-    
+    const params: Record<string, string | number | boolean> = {}
+
     // Convert search params to object
     searchParams.forEach((value, key) => {
       // Try to parse numbers
@@ -77,21 +77,18 @@ export function validateQuery<T>(
         params[key] = value
       }
     })
-    
+
     return schema.parse(params)
   } catch (error) {
     if (error instanceof ZodError) {
       // Zod v4 uses .issues instead of .errors
-      const issues = (error as any).issues || (error as any).errors || []
-      const errorMessages = issues.map((err: any) => {
+      const zodError = error as ZodError & { issues?: ZodIssue[]; errors?: ZodIssue[] }
+      const issues: ZodIssue[] = zodError.issues || zodError.errors || []
+      const errorMessages = issues.map((err: ZodIssue) => {
         const path = err.path?.join('.') || ''
         return path ? `${path}: ${err.message}` : err.message
       })
-      throw new ApiError(
-        `Validation failed: ${errorMessages.join(', ')}`,
-        400,
-        { errors: issues }
-      )
+      throw new ApiError(`Validation failed: ${errorMessages.join(', ')}`, 400, { errors: issues })
     }
     throw new ApiError('Invalid query parameters', 400)
   }
@@ -99,12 +96,12 @@ export function validateQuery<T>(
 
 /**
  * Validates path parameters against a Zod schema
- * 
+ *
  * @param params - The path parameters object
  * @param schema - The Zod schema to validate against
  * @returns Parsed and validated data
  * @throws ApiError with 400 status if validation fails
- * 
+ *
  * @example
  * const { id } = validateParams(params, z.object({ id: idSchema }))
  */
@@ -117,16 +114,13 @@ export function validateParams<T>(
   } catch (error) {
     if (error instanceof ZodError) {
       // Zod v4 uses .issues instead of .errors
-      const issues = (error as any).issues || (error as any).errors || []
-      const errorMessages = issues.map((err: any) => {
+      const zodError = error as ZodError & { issues?: ZodIssue[]; errors?: ZodIssue[] }
+      const issues: ZodIssue[] = zodError.issues || zodError.errors || []
+      const errorMessages = issues.map((err: ZodIssue) => {
         const path = err.path?.join('.') || ''
         return path ? `${path}: ${err.message}` : err.message
       })
-      throw new ApiError(
-        `Validation failed: ${errorMessages.join(', ')}`,
-        400,
-        { errors: issues }
-      )
+      throw new ApiError(`Validation failed: ${errorMessages.join(', ')}`, 400, { errors: issues })
     }
     throw new ApiError('Invalid path parameters', 400)
   }

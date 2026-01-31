@@ -1,6 +1,6 @@
 /**
  * Portfolio Builder with Template & Theme Selectors
- * 
+ *
  * Client component that manages the builder interface with:
  * - Template selector in sidebar
  * - Theme selector in sidebar
@@ -33,7 +33,7 @@ export function BuilderWithSelector({
 }: BuilderWithSelectorProps) {
   const [portfolio, setPortfolio] = useState(initialPortfolio)
   const [showPreview, setShowPreview] = useState(false)
-  const [sections, setSections] = useState(initialSections)
+  const [sections, _setSections] = useState(initialSections)
   const [activeTab, setActiveTab] = useState<SidebarTab>('template')
 
   // Handle template change
@@ -67,9 +67,7 @@ export function BuilderWithSelector({
           <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#111827' }}>
             Portfolio Builder
           </h1>
-          <p style={{ marginTop: '0.5rem', color: '#6b7280' }}>
-            {portfolio.title}
-          </p>
+          <p style={{ marginTop: '0.5rem', color: '#6b7280' }}>{portfolio.title}</p>
         </div>
 
         <button
@@ -117,7 +115,8 @@ export function BuilderWithSelector({
                 padding: '1rem',
                 background: activeTab === 'template' ? 'white' : '#f9fafb',
                 border: 'none',
-                borderBottom: activeTab === 'template' ? '2px solid #3b82f6' : '2px solid transparent',
+                borderBottom:
+                  activeTab === 'template' ? '2px solid #3b82f6' : '2px solid transparent',
                 cursor: 'pointer',
                 fontWeight: activeTab === 'template' ? '600' : '400',
                 color: activeTab === 'template' ? '#3b82f6' : '#6b7280',
@@ -193,10 +192,7 @@ export function BuilderWithSelector({
             </div>
           ) : (
             /* Edit Mode */
-            <Builder
-              portfolio={portfolio}
-              initialSections={initialSections}
-            />
+            <Builder portfolio={portfolio} initialSections={initialSections} />
           )}
         </main>
       </div>

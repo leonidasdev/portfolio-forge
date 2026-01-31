@@ -1,112 +1,113 @@
 /**
  * Recommend Template and Theme Agent
- * 
+ *
  * Analyzes portfolio content and recommends optimal template,
  * theme, and section ordering based on content characteristics.
  */
 
-import { createServerClient } from "@/lib/supabase/server";
-import { aiComplete } from "../router";
+import { createServerClient } from '@/lib/supabase/server'
+import { aiComplete } from '../router'
 
 /**
  * Recommend template and theme based on user's portfolio content
- * 
+ *
  * Analyzes all portfolio sections to suggest optimal template, theme,
  * and section ordering based on content characteristics.
- * 
+ *
  * @param userId - The user's UUID
  * @returns Recommendations with template, theme, section order, and rationale
  */
 export async function recommendTemplateAndTheme(userId: string): Promise<{
-  recommendedTemplate: string;
-  recommendedTheme: string;
-  recommendedSectionOrder: string[];
-  rationale: string;
+  recommendedTemplate: string
+  recommendedTheme: string
+  recommendedSectionOrder: string[]
+  rationale: string
 }> {
-  const supabase = await createServerClient();
+  const supabase = await createServerClient()
 
   // Fetch all portfolio sections for the user
   const { data: portfolios } = await supabase
-    .from("portfolios")
-    .select("id")
-    .eq("user_id", userId)
+    .from('portfolios')
+    .select('id')
+    .eq('user_id', userId)
     .limit(1)
-    .single();
+    .single()
 
   if (!portfolios) {
-    throw new Error("No portfolio found for user");
+    throw new Error('No portfolio found for user')
   }
 
   const { data: sections } = await supabase
-    .from("portfolio_sections")
-    .select("*")
-    .eq("portfolio_id", portfolios.id)
-    .order("display_order", { ascending: true });
+    .from('portfolio_sections')
+    .select('*')
+    .eq('portfolio_id', portfolios.id)
+    .order('display_order', { ascending: true })
 
   if (!sections || sections.length === 0) {
-    throw new Error("No sections found in portfolio");
+    throw new Error('No sections found in portfolio')
   }
 
   // Extract content characteristics
-  let summaryText = "";
-  let experienceDescriptions: string[] = [];
-  let certifications: string[] = [];
-  let skills: string[] = [];
-  let customSections: string[] = [];
-  
+  let summaryText = ''
+  const experienceDescriptions: string[] = []
+  const certifications: string[] = []
+  const skills: string[] = []
+  const customSections: string[] = []
+
   for (const section of sections) {
     switch (section.section_type) {
-      case "summary":
-        summaryText = section.content?.text || "";
-        break;
-      case "work_experience":
+      case 'summary':
+        summaryText = section.content?.text || ''
+        break
+      case 'work_experience':
         if (section.content?.description) {
-          experienceDescriptions.push(section.content.description);
+          experienceDescriptions.push(section.content.description)
         }
         if (section.content?.jobs && Array.isArray(section.content.jobs)) {
           experienceDescriptions.push(
-            ...section.content.jobs.map((job: any) => job.description || "")
-          );
+            ...section.content.jobs.map((job: { description?: string }) => job.description || '')
+          )
         }
-        break;
-      case "certifications":
+        break
+      case 'certifications':
         if (section.content?.certifications && Array.isArray(section.content.certifications)) {
           certifications = section.content.certifications.map(
-            (cert: any) => cert.title || ""
-          );
+            (cert: { title?: string }) => cert.title || ''
+          )
         }
-        break;
-      case "skills":
+        break
+      case 'skills':
         if (section.content?.skills && Array.isArray(section.content.skills)) {
-          skills = section.content.skills;
+          skills = section.content.skills
         }
-        break;
-      case "custom":
+        break
+      case 'custom':
         if (section.title) {
-          customSections.push(section.title);
+          customSections.push(section.title)
         }
-        break;
+        break
     }
   }
 
   // Build content profile
-  const allText = [
-    summaryText,
-    ...experienceDescriptions,
-    ...certifications,
-    ...skills,
-  ].join(" ").toLowerCase();
+  const allText = [summaryText, ...experienceDescriptions, ...certifications, ...skills]
+    .join(' ')
+    .toLowerCase()
 
   const contentProfile = {
     senioritySignals: [
-      allText.includes("senior") || allText.includes("lead") || allText.includes("principal"),
-      allText.includes("architect") || allText.includes("director"),
-      allText.includes("manager") || allText.includes("head of"),
+      allText.includes('senior') || allText.includes('lead') || allText.includes('principal'),
+      allText.includes('architect') || allText.includes('director'),
+      allText.includes('manager') || allText.includes('head of'),
     ].filter(Boolean).length,
     industryKeywords: {
-      tech: allText.match(/\b(software|developer|engineer|programming|code|api|database)\b/gi)?.length || 0,
+      tech:
+        allText.match(/\b(software|developer|engineer|programming|code|api|database)\b/gi)
+          ?.length || 0,
       creative: allText.match(/\b(design|creative|ux|ui|graphic|visual|art)\b/gi)?.length || 0,
-      business: allText.match(/\b(business|management|strategy|consulting|sales|marketing)\b/gi)?.length || 0,
+      business:
+        allText.match(/\b(business|management|strategy|consulting|sales|marketing)\b/gi)?.length ||
+        0,
       data: allText.match(/\b(data|analytics|machine learning|ai|statistics|sql)\b/gi)?.length || 0,
     },
     contentDensity: allText.length,
@@ -114,12 +115,12 @@ export async function recommendTemplateAndTheme(userId: string): Promise<{
     certificationCount: certifications.length,
     skillsCount: skills.length,
     customSectionCount: customSections.length,
-  };
+  }
 
   // Determine dominant industry
-  const industries = Object.entries(contentProfile.industryKeywords);
-  industries.sort((a, b) => b[1] - a[1]);
-  const dominantIndustry = industries[0][0];
+  const industries = Object.entries(contentProfile.industryKeywords)
+  industries.sort((a, b) => b[1] - a[1])
+  const dominantIndustry = industries[0][0]
 
   // Use AI to generate recommendations
   const systemPrompt = `You are an expert portfolio designer and career advisor.
@@ -147,7 +148,7 @@ Return ONLY valid JSON in this format:
   "recommendedTheme": "theme-name",
   "recommendedSectionOrder": ["section_type_1", "section_type_2", ...],
   "rationale": "Brief explanation (2-3 sentences) of why these recommendations fit the user's profile"
-}`;
+}`
 
   const userPrompt = `Analyze this portfolio content profile and recommend template, theme, and section order:
 
@@ -165,9 +166,9 @@ Certifications: ${contentProfile.certificationCount}
 Skills: ${contentProfile.skillsCount}
 Custom sections: ${contentProfile.customSectionCount}
 
-Current section order: ${sections.map(s => s.section_type).join(", ")}
+Current section order: ${sections.map((s) => s.section_type).join(', ')}
 
-Recommend the optimal template, theme, and section order for maximum impact.`;
+Recommend the optimal template, theme, and section order for maximum impact.`
 
   try {
     const result = await aiComplete({
@@ -175,44 +176,46 @@ Recommend the optimal template, theme, and section order for maximum impact.`;
       userPrompt,
       temperature: 0.3,
       maxTokens: 512,
-    });
+    })
 
-    const parsed = JSON.parse(result.text);
+    const parsed = JSON.parse(result.text)
 
     return {
-      recommendedTemplate: parsed.recommendedTemplate || "single-column",
-      recommendedTheme: parsed.recommendedTheme || "professional",
-      recommendedSectionOrder: parsed.recommendedSectionOrder || sections.map(s => s.section_type),
-      rationale: parsed.rationale || "Recommendations based on your content profile.",
-    };
+      recommendedTemplate: parsed.recommendedTemplate || 'single-column',
+      recommendedTheme: parsed.recommendedTheme || 'professional',
+      recommendedSectionOrder:
+        parsed.recommendedSectionOrder || sections.map((s) => s.section_type),
+      rationale: parsed.rationale || 'Recommendations based on your content profile.',
+    }
   } catch (error) {
-    console.error("Failed to generate recommendations:", error);
-    
+    console.error('Failed to generate recommendations:', error)
+
     // Fallback recommendations based on simple heuristics
-    let template = "single-column";
-    let theme = "professional";
-    
+    let template = 'single-column'
+    let theme = 'professional'
+
     if (contentProfile.experienceCount >= 3) {
-      template = "timeline";
+      template = 'timeline'
     } else if (contentProfile.skillsCount >= 10) {
-      template = "grid";
+      template = 'grid'
     } else if (contentProfile.experienceCount >= 2 || contentProfile.skillsCount >= 5) {
-      template = "two-column";
+      template = 'two-column'
     }
-    
-    if (dominantIndustry === "creative") {
-      theme = "creative";
-    } else if (dominantIndustry === "tech" || dominantIndustry === "data") {
-      theme = "modern";
+
+    if (dominantIndustry === 'creative') {
+      theme = 'creative'
+    } else if (dominantIndustry === 'tech' || dominantIndustry === 'data') {
+      theme = 'modern'
     } else if (contentProfile.senioritySignals >= 2) {
-      theme = "elegant";
+      theme = 'elegant'
     }
-    
+
     return {
       recommendedTemplate: template,
       recommendedTheme: theme,
-      recommendedSectionOrder: sections.map(s => s.section_type),
-      rationale: "Based on your content profile, we recommend a layout that highlights your strengths.",
-    };
+      recommendedSectionOrder: sections.map((s) => s.section_type),
+      rationale:
+        'Based on your content profile, we recommend a layout that highlights your strengths.',
+    }
   }
 }

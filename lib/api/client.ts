@@ -1,21 +1,15 @@
 /**
  * API Client Service
- * 
+ *
  * Centralized HTTP client for making API requests.
  * Provides consistent error handling, request/response interceptors,
  * and type-safe request methods.
  */
 
-export class ApiError extends Error {
-  constructor(
-    message: string,
-    public statusCode: number,
-    public data?: any
-  ) {
-    super(message)
-    this.name = 'ApiError'
-  }
-}
+import { ApiError } from './errors'
+
+// Re-export ApiError for backward compatibility
+export { ApiError } from './errors'
 
 export class ApiClient {
   private baseUrl: string
@@ -27,12 +21,9 @@ export class ApiClient {
   /**
    * Make a generic HTTP request
    */
-  private async request<T>(
-    endpoint: string,
-    options?: RequestInit
-  ): Promise<T> {
+  private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`
-    
+
     try {
       const response = await fetch(url, {
         ...options,
@@ -70,10 +61,7 @@ export class ApiClient {
       }
 
       // Handle other errors
-      throw new ApiError(
-        error instanceof Error ? error.message : 'Unknown error occurred',
-        500
-      )
+      throw new ApiError(error instanceof Error ? error.message : 'Unknown error occurred', 500)
     }
   }
 
@@ -90,11 +78,7 @@ export class ApiClient {
   /**
    * POST request
    */
-  async post<T>(
-    endpoint: string,
-    data?: any,
-    options?: RequestInit
-  ): Promise<T> {
+  async post<T>(endpoint: string, data?: unknown, options?: RequestInit): Promise<T> {
     return this.request<T>(endpoint, {
       ...options,
       method: 'POST',
@@ -105,11 +89,7 @@ export class ApiClient {
   /**
    * PATCH request
    */
-  async patch<T>(
-    endpoint: string,
-    data?: any,
-    options?: RequestInit
-  ): Promise<T> {
+  async patch<T>(endpoint: string, data?: unknown, options?: RequestInit): Promise<T> {
     return this.request<T>(endpoint, {
       ...options,
       method: 'PATCH',
@@ -133,8 +113,7 @@ export const apiClient = new ApiClient()
 
 // Specific AI endpoint methods
 export const aiApi = {
-  improveText: (data: { text: string; tone: string }) =>
-    apiClient.post('/ai/improve-text', data),
+  improveText: (data: { text: string; tone: string }) => apiClient.post('/ai/improve-text', data),
 
   generateSummary: (data: {
     certificationsText?: string
@@ -148,11 +127,9 @@ export const aiApi = {
 
   analyzePortfolio: () => apiClient.post('/ai/analyze-portfolio'),
 
-  recommendTemplateTheme: () =>
-    apiClient.post('/ai/recommend-template-theme'),
+  recommendTemplateTheme: () => apiClient.post('/ai/recommend-template-theme'),
 
-  rewritePortfolio: (data: { tone: string }) =>
-    apiClient.post('/ai/rewrite-portfolio', data),
+  rewritePortfolio: (data: { tone: string }) => apiClient.post('/ai/rewrite-portfolio', data),
 
   optimizeForJob: (data: { jobDescription: string }) =>
     apiClient.post('/ai/optimize-portfolio-for-job', data),

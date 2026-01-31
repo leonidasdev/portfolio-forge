@@ -1,0 +1,30 @@
+# Prettier Ignore File
+# Files and directories to exclude from formatting
+
+# Dependencies
+node_modules/
+
+# Build output
+.next/
+out/
+build/
+dist/
+
+# Coverage
+coverage/
+
+# Generated files
+*.min.js
+*.min.css
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Environment files
+.env*
+
+# Markdown (preserve formatting)
+*.md
+
+# SQL files (keep original formatting)
+*.sql

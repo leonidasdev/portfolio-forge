@@ -1,40 +1,40 @@
 /**
  * Supabase Server Client for Portfolio Forge
- * 
+ *
  * This module provides server-side Supabase client utilities for:
  * - Server Components
  * - Server Actions
  * - Route Handlers (API routes)
- * 
+ *
  * The client automatically includes the user's session for Row-Level Security (RLS).
- * 
+ *
  * Usage in Server Components:
  * ```tsx
  * import { createServerClient } from '@/lib/supabase/server'
- * 
+ *
  * export default async function Page() {
  *   const supabase = await createServerClient()
  *   const { data: portfolios } = await supabase.from('portfolios').select('*')
  *   return <div>{portfolios?.length} portfolios</div>
  * }
  * ```
- * 
+ *
  * Usage in Server Actions:
  * ```tsx
  * 'use server'
  * import { createServerClient } from '@/lib/supabase/server'
- * 
+ *
  * export async function createPortfolio(formData: FormData) {
  *   const supabase = await createServerClient()
  *   const { data, error } = await supabase.from('portfolios').insert({...})
  *   return { data, error }
  * }
  * ```
- * 
+ *
  * Usage in Route Handlers:
  * ```tsx
  * import { createServerClient } from '@/lib/supabase/server'
- * 
+ *
  * export async function GET() {
  *   const supabase = await createServerClient()
  *   const { data } = await supabase.from('portfolios').select('*')
@@ -67,7 +67,7 @@ export async function createServerClient() {
             cookiesToSet.forEach(({ name, value, options }) => {
               cookieStore.set(name, value, options)
             })
-          } catch (error) {
+          } catch (_error) {
             // The `setAll` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing user sessions.
           }
@@ -83,12 +83,15 @@ export async function createServerClient() {
  */
 export async function getUser() {
   const supabase = await createServerClient()
-  const { data: { user }, error } = await supabase.auth.getUser()
-  
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
+
   if (error || !user) {
     return null
   }
-  
+
   return user
 }
 
@@ -98,12 +101,15 @@ export async function getUser() {
  */
 export async function getSession() {
   const supabase = await createServerClient()
-  const { data: { session }, error } = await supabase.auth.getSession()
-  
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession()
+
   if (error || !session) {
     return null
   }
-  
+
   return session
 }
 
@@ -113,22 +119,22 @@ export async function getSession() {
  */
 export async function getUserProfile() {
   const user = await getUser()
-  
+
   if (!user) {
     return null
   }
-  
+
   const supabase = await createServerClient()
   const { data: profile, error } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', user.id)
     .single()
-  
+
   if (error || !profile) {
     return null
   }
-  
+
   return profile
 }
 

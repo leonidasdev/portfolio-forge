@@ -1,16 +1,16 @@
 /**
  * Next.js Middleware for Portfolio Forge
- * 
+ *
  * This middleware handles:
  * - Supabase session refresh
  * - Authentication checks for protected routes
  * - Redirects for unauthenticated users
  * - Public route access
- * 
+ *
  * Protected routes:
  * - /dashboard/*
  * - /api/v1/* (except /api/v1/public/*)
- * 
+ *
  * Public routes:
  * - /p/* (public portfolios)
  * - /api/v1/public/*
@@ -39,9 +39,7 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            request.cookies.set(name, value)
-          )
+          cookiesToSet.forEach(({ name, value, _options }) => request.cookies.set(name, value))
           response = NextResponse.next({
             request,
           })
@@ -91,10 +89,7 @@ export async function middleware(request: NextRequest) {
 
   // Protect API routes (except public ones)
   if (isProtectedApi && !user) {
-    return NextResponse.json(
-      { error: 'Authentication required' },
-      { status: 401 }
-    )
+    return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
   }
 
   return response

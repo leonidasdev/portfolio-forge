@@ -1,10 +1,10 @@
 /**
  * API Route Handler - Certifications Collection (v1)
- * 
+ *
  * This file handles:
  * - GET /api/v1/certifications - List all certifications for authenticated user
  * - POST /api/v1/certifications - Create a new certification
- * 
+ *
  * RLS policies ensure users only access their own certifications.
  */
 
@@ -16,7 +16,7 @@ import { createCertificationSchema } from '@/lib/validation/schemas'
 
 /**
  * GET /api/v1/certifications
- * 
+ *
  * Returns all certifications for the authenticated user.
  * Supports optional query parameters:
  * - is_public: Filter by public/private status
@@ -26,16 +26,17 @@ import { createCertificationSchema } from '@/lib/validation/schemas'
 export const GET = withApiHandler(async (request: NextRequest) => {
   const { supabase } = await requireAuth(request)
   const { searchParams } = new URL(request.url)
-    
-    // Optional filters
-    const isPublic = searchParams.get('is_public')
-    const limit = searchParams.get('limit')
-    const offset = searchParams.get('offset')
-    
-    // Build query
-    let query = supabase
-      .from('certifications')
-      .select(`
+
+  // Optional filters
+  const isPublic = searchParams.get('is_public')
+  const limit = searchParams.get('limit')
+  const offset = searchParams.get('offset')
+
+  // Build query
+  let query = supabase
+    .from('certifications')
+    .select(
+      `
         *,
         certification_tags (
           tag_id,
@@ -45,51 +46,49 @@ export const GET = withApiHandler(async (request: NextRequest) => {
             color
           )
         )
-      `)
-      .eq('is_deleted', false)
-      .order('date_issued', { ascending: false, nullsFirst: false })
-      .order('created_at', { ascending: false })
-    
-    // Apply filters
-    if (isPublic !== null) {
-      query = query.eq('is_public', isPublic === 'true')
-    }
-    
-    if (limit) {
-      query = query.limit(parseInt(limit))
-    }
-    
-    if (offset) {
-      query = query.range(
-        parseInt(offset),
-        parseInt(offset) + (limit ? parseInt(limit) : 50) - 1
-      )
-    }
-    
-    const { data: certifications, error } = await query
-    
-    if (error) {
-      throw new ApiError(error.message, 500)
-    }
-    
-    // Transform tags structure for easier consumption
-    const transformedCertifications = certifications?.map(cert => ({
-      ...cert,
-      tags: cert.certification_tags?.map((ct: any) => ct.tags).filter(Boolean) || [],
-      certification_tags: undefined, // Remove junction table data
-    }))
-    
-    return NextResponse.json({ 
-      data: transformedCertifications,
-      count: transformedCertifications?.length || 0
-    })
+      `
+    )
+    .eq('is_deleted', false)
+    .order('date_issued', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false })
+
+  // Apply filters
+  if (isPublic !== null) {
+    query = query.eq('is_public', isPublic === 'true')
+  }
+
+  if (limit) {
+    query = query.limit(parseInt(limit))
+  }
+
+  if (offset) {
+    query = query.range(parseInt(offset), parseInt(offset) + (limit ? parseInt(limit) : 50) - 1)
+  }
+
+  const { data: certifications, error } = await query
+
+  if (error) {
+    throw new ApiError(error.message, 500)
+  }
+
+  // Transform tags structure for easier consumption
+  const transformedCertifications = certifications?.map((cert) => ({
+    ...cert,
+    tags: cert.certification_tags?.map((ct: { tags: unknown }) => ct.tags).filter(Boolean) || [],
+    certification_tags: undefined, // Remove junction table data
+  }))
+
+  return NextResponse.json({
+    data: transformedCertifications,
+    count: transformedCertifications?.length || 0,
+  })
 })
 
 /**
  * POST /api/v1/certifications
- * 
+ *
  * Creates a new certification for the authenticated user.
- * 
+ *
  * Request body:
  * {
  *   title: string (required)
@@ -108,10 +107,10 @@ export const GET = withApiHandler(async (request: NextRequest) => {
  */
 export const POST = withApiHandler(async (request: NextRequest) => {
   const { user, supabase } = await requireAuth(request)
-  
+
   // Validate request body with Zod schema
   const body = await validateBody(request, createCertificationSchema)
-  
+
   // Create the certification
   const { data: certification, error } = await supabase
     .from('certifications')
@@ -132,13 +131,10 @@ export const POST = withApiHandler(async (request: NextRequest) => {
     })
     .select()
     .single()
-    
+
   if (error) {
     throw new ApiError(error.message, 500)
   }
-  
-  return NextResponse.json(
-    { data: certification },
-    { status: 201 }
-  )
+
+  return NextResponse.json({ data: certification }, { status: 201 })
 })

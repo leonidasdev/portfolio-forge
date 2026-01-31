@@ -1,6 +1,6 @@
 /**
  * Timeline Template
- * 
+ *
  * A chronological timeline layout that emphasizes career progression.
  * Sections are displayed with a vertical timeline connector.
  * Best for showcasing experience and project history.
@@ -11,7 +11,7 @@
 import { SectionRenderer } from '@/components/portfolio-sections/SectionRenderer'
 import type { TemplateComponentProps } from './registry'
 
-export function TimelineTemplate({ portfolio, sections, theme }: TemplateComponentProps) {
+export function TimelineTemplate({ portfolio, sections, theme: _theme }: TemplateComponentProps) {
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto', padding: '2rem 1rem' }}>
       {/* Portfolio Header */}
@@ -56,7 +56,7 @@ export function TimelineTemplate({ portfolio, sections, theme }: TemplateCompone
 
         {/* Timeline Items */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
-          {sections.map((section, index) => (
+          {sections.map((section, _index) => (
             <div key={section.id} style={{ position: 'relative' }}>
               {/* Timeline Dot */}
               <div

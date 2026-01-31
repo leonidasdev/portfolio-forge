@@ -1,21 +1,19 @@
 /**
  * Redis Rate Limit Store
- * 
+ *
  * Production-ready rate limiting using Redis for distributed systems.
  * Falls back to in-memory store if Redis is unavailable.
- * 
+ *
  * Supports:
  * - Upstash Redis (serverless-friendly)
  * - Standard Redis (ioredis)
  * - Automatic fallback to in-memory
- * 
+ *
  * Environment Variables:
  * - UPSTASH_REDIS_REST_URL: Upstash REST API URL
  * - UPSTASH_REDIS_REST_TOKEN: Upstash REST API token
  * - REDIS_URL: Standard Redis connection URL (fallback)
  */
-
-import { config as appConfig } from '@/lib/config'
 
 // ============================================================================
 // Types
@@ -61,7 +59,7 @@ class UpstashRedisStore implements RateLimitStoreInterface {
     this.token = token
   }
 
-  private async redisCommand(command: string[]): Promise<any> {
+  private async redisCommand(command: string[]): Promise<unknown> {
     const response = await fetch(`${this.baseUrl}`, {
       method: 'POST',
       headers: {
@@ -85,12 +83,7 @@ class UpstashRedisStore implements RateLimitStoreInterface {
     const resetAt = now + windowMs
 
     try {
-      // Use Redis MULTI for atomic operations
-      const pipeline = [
-        ['INCR', key],
-        ['PTTL', key],
-      ]
-
+      // Use Redis commands for atomic operations
       const results = await Promise.all([
         this.redisCommand(['INCR', key]),
         this.redisCommand(['PTTL', key]),
@@ -187,7 +180,9 @@ class UpstashRedisStore implements RateLimitStoreInterface {
   }
 
   get size(): Promise<number> {
-    return this.redisCommand(['DBSIZE']).then(s => s as number).catch(() => 0)
+    return this.redisCommand(['DBSIZE'])
+      .then((s) => s as number)
+      .catch(() => 0)
   }
 
   destroy(): void {
@@ -332,7 +327,7 @@ function createRateLimitStore(): RateLimitStoreInterface {
   if (process.env.NODE_ENV === 'production') {
     console.warn(
       '[Rate Limit] Using in-memory store in production. ' +
-      'For distributed systems, configure UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN.'
+        'For distributed systems, configure UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN.'
     )
   } else {
     console.log('[Rate Limit] Using in-memory store (development mode)')

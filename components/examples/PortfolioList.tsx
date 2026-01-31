@@ -1,6 +1,6 @@
 /**
  * Portfolio List Component
- * 
+ *
  * Example of using the Supabase client for client-side queries
  * Demonstrates:
  * - Fetching data with RLS
@@ -13,7 +13,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createBrowserClient, realtime } from '@/lib/supabase/client'
+import { createBrowserClient } from '@/lib/supabase/client'
 import { Database } from '@/lib/supabase/types'
 
 type Portfolio = Database['public']['Tables']['portfolios']['Row']
@@ -27,10 +27,10 @@ export default function PortfolioList() {
   // Fetch portfolios on mount
   useEffect(() => {
     fetchPortfolios()
-    
+
     // Subscribe to real-time changes
     const unsubscribe = subscribeToChanges()
-    
+
     return () => {
       unsubscribe()
     }
@@ -40,13 +40,14 @@ export default function PortfolioList() {
     try {
       setLoading(true)
       setError(null)
-      
+
       const supabase = createBrowserClient()
-      
+
       // RLS ensures we only get the user's portfolios
       const { data, error: fetchError } = await supabase
         .from('portfolios')
-        .select(`
+        .select(
+          `
           id,
           title,
           slug,
@@ -56,14 +57,15 @@ export default function PortfolioList() {
           is_deleted,
           created_at,
           updated_at
-        `)
+        `
+        )
         .eq('is_deleted', false)
         .order('created_at', { ascending: false })
-      
+
       if (fetchError) {
         throw new Error(fetchError.message)
       }
-      
+
       setPortfolios(data || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch portfolios')
@@ -74,7 +76,7 @@ export default function PortfolioList() {
 
   const subscribeToChanges = () => {
     const supabase = createBrowserClient()
-    
+
     // Subscribe to portfolio changes
     const subscription = supabase
       .channel('portfolios-changes')
@@ -87,14 +89,12 @@ export default function PortfolioList() {
         },
         (payload) => {
           console.log('Portfolio change detected:', payload)
-          
+
           if (payload.eventType === 'INSERT') {
             setPortfolios((prev) => [payload.new as Portfolio, ...prev])
           } else if (payload.eventType === 'UPDATE') {
             setPortfolios((prev) =>
-              prev.map((p) =>
-                p.id === payload.new.id ? (payload.new as Portfolio) : p
-              )
+              prev.map((p) => (p.id === payload.new.id ? (payload.new as Portfolio) : p))
             )
           } else if (payload.eventType === 'DELETE') {
             setPortfolios((prev) => prev.filter((p) => p.id !== payload.old.id))
@@ -102,7 +102,7 @@ export default function PortfolioList() {
         }
       )
       .subscribe()
-    
+
     return () => {
       supabase.removeChannel(subscription)
     }
@@ -112,20 +112,23 @@ export default function PortfolioList() {
     try {
       setCreating(true)
       setError(null)
-      
+
       const supabase = createBrowserClient()
-      
+
       // Get current user
-      const { data: { user }, error: userError } = await supabase.auth.getUser()
-      
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser()
+
       if (userError || !user) {
         throw new Error('You must be logged in')
       }
-      
+
       // Generate unique slug
       const timestamp = Date.now()
       const slug = `portfolio-${timestamp}`
-      
+
       const { data, error: insertError } = await supabase
         .from('portfolios')
         .insert({
@@ -138,11 +141,11 @@ export default function PortfolioList() {
         })
         .select()
         .single()
-      
+
       if (insertError) {
         throw new Error(insertError.message)
       }
-      
+
       // Portfolio will be added via real-time subscription
       console.log('Created portfolio:', data)
     } catch (err) {
@@ -155,16 +158,16 @@ export default function PortfolioList() {
   const togglePublic = async (portfolioId: string, currentState: boolean) => {
     try {
       const supabase = createBrowserClient()
-      
+
       const { error: updateError } = await supabase
         .from('portfolios')
         .update({ is_public: !currentState })
         .eq('id', portfolioId)
-      
+
       if (updateError) {
         throw new Error(updateError.message)
       }
-      
+
       // Update will be reflected via real-time subscription
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update portfolio')
@@ -175,20 +178,20 @@ export default function PortfolioList() {
     if (!confirm('Are you sure you want to delete this portfolio?')) {
       return
     }
-    
+
     try {
       const supabase = createBrowserClient()
-      
+
       // Soft delete
       const { error: deleteError } = await supabase
         .from('portfolios')
         .update({ is_deleted: true })
         .eq('id', portfolioId)
-      
+
       if (deleteError) {
         throw new Error(deleteError.message)
       }
-      
+
       // Remove from local state immediately
       setPortfolios((prev) => prev.filter((p) => p.id !== portfolioId))
     } catch (err) {
@@ -247,12 +250,8 @@ export default function PortfolioList() {
             >
               <div className="flex justify-between items-start">
                 <div className="flex-1">
-                  <h3 className="text-xl font-semibold text-gray-900">
-                    {portfolio.title}
-                  </h3>
-                  <p className="text-sm text-gray-500 mt-1">
-                    /{portfolio.slug}
-                  </p>
+                  <h3 className="text-xl font-semibold text-gray-900">{portfolio.title}</h3>
+                  <p className="text-sm text-gray-500 mt-1">/{portfolio.slug}</p>
                   {portfolio.description && (
                     <p className="text-gray-700 mt-2">{portfolio.description}</p>
                   )}

@@ -1,10 +1,10 @@
 /**
  * Section Editor Component
- * 
+ *
  * Modal editor for portfolio sections.
  * Renders different edit interfaces based on section type.
  * Includes AI-powered text improvement functionality.
- * 
+ *
  * Architecture:
  * - Main orchestration component (this file)
  * - Section-specific editors in ./editors/
@@ -13,30 +13,86 @@
 
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { generateSummary } from '@/hooks/useGenerateSummary'
+import { improveText, type Tone } from '@/hooks/useImproveText'
+import { suggestTags, type SuggestedTag } from '@/hooks/useSuggestTags'
 import { apiClient } from '@/lib/api/client'
 import type { Database } from '@/lib/supabase/types'
-import { improveText, type Tone } from '@/hooks/useImproveText'
-import { generateSummary } from '@/hooks/useGenerateSummary'
-import { suggestTags, type SuggestedTag } from '@/hooks/useSuggestTags'
+import { useCallback, useEffect, useState } from 'react'
 
 // Section editors
-import { 
-  SummaryEditor, 
-  SkillsEditor, 
-  WorkExperienceEditor, 
+import {
   CertificationsEditor,
-  CustomEditor 
+  CustomEditor,
+  SkillsEditor,
+  SummaryEditor,
+  WorkExperienceEditor,
 } from './editors'
 
 // AI toolbars
-import { 
-  AIImproveToolbar, 
-  SummaryAIToolbar, 
-  TagSuggestionToolbar 
-} from './toolbars'
+import { AIImproveToolbar, SummaryAIToolbar, TagSuggestionToolbar } from './toolbars'
 
 type Section = Database['public']['Tables']['portfolio_sections']['Row']
+
+// ============================================================================
+// Content Type Definitions
+// ============================================================================
+
+/** Content structure for summary sections */
+interface SummaryContent {
+  text?: string
+}
+
+/** Content structure for skills sections */
+interface SkillsContent {
+  skills?: string[]
+}
+
+/** Content structure for work experience sections */
+interface WorkExperienceContent {
+  description?: string
+  tags?: string[]
+  role?: string
+  company?: string
+  jobs?: Array<{
+    role?: string
+    company?: string
+    description?: string
+  }>
+}
+
+/** Content structure for certifications sections */
+interface CertificationsContent {
+  certifications?: Array<{
+    title?: string
+    issuer?: string
+    description?: string
+  }>
+}
+
+/** Content structure for custom sections */
+interface CustomContent {
+  text?: string
+}
+
+/** Union type for all section content types */
+type SectionContent =
+  | SummaryContent
+  | SkillsContent
+  | WorkExperienceContent
+  | CertificationsContent
+  | CustomContent
+  | Record<string, unknown>
+
+/** Section update payload */
+interface SectionUpdatePayload {
+  content: SectionContent
+  title?: string
+}
+
+// ============================================================================
+// Component Props
+// ============================================================================
 
 interface SectionEditorProps {
   section: Section
@@ -54,25 +110,25 @@ const TAG_SUGGESTION_SUPPORTED = ['certifications', 'work_experience']
 export function SectionEditor({ section, allSections, onSave, onCancel }: SectionEditorProps) {
   // Core state
   const [title, setTitle] = useState(section.title || '')
-  const [content, setContent] = useState<any>(section.content || {})
+  const [content, setContent] = useState<SectionContent>((section.content as SectionContent) || {})
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  
+
   // AI improvement state
   const [selectedTone, setSelectedTone] = useState<Tone>('concise')
   const [isImproving, setIsImproving] = useState(false)
   const [aiError, setAiError] = useState<string | null>(null)
-  
+
   // AI summary generation state
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false)
   const [isGeneratingFromData, setIsGeneratingFromData] = useState(false)
   const [summaryError, setSummaryError] = useState<string | null>(null)
-  
+
   // AI tag suggestion state
   const [isSuggestingTags, setIsSuggestingTags] = useState(false)
   const [suggestedTagsList, setSuggestedTagsList] = useState<SuggestedTag[]>([])
   const [tagSuggestionError, setTagSuggestionError] = useState<string | null>(null)
-  
+
   // Initialize content based on section type
   useEffect(() => {
     if (!section.content) {
@@ -80,24 +136,24 @@ export function SectionEditor({ section, allSections, onSave, onCancel }: Sectio
       setContent(defaultContent)
     }
   }, [section])
-  
+
   // Save handler
   const handleSave = useCallback(async () => {
     setIsSaving(true)
     setError(null)
-    
+
     try {
-      const updates: any = { content }
-      
+      const updates: SectionUpdatePayload = { content }
+
       if (section.section_type === 'custom') {
         updates.title = title || 'Untitled Section'
       }
-      
+
       const data = await apiClient.patch<{ section: Section }>(
         `/portfolio-sections/${section.id}`,
         updates
       )
-      
+
       onSave(data.section)
     } catch (err) {
       console.error('Failed to save section:', err)
@@ -106,19 +162,19 @@ export function SectionEditor({ section, allSections, onSave, onCancel }: Sectio
       setIsSaving(false)
     }
   }, [content, title, section, onSave])
-  
+
   // AI improvement handler
   const handleImproveWithAI = useCallback(async () => {
     setIsImproving(true)
     setAiError(null)
-    
+
     try {
       const textToImprove = extractTextForImprovement(section.section_type, content)
-      
+
       if (!textToImprove.trim()) {
         throw new Error('No content to improve')
       }
-      
+
       const improved = await improveText({ text: textToImprove, tone: selectedTone })
       const updatedContent = applyImprovedText(section.section_type, content, improved)
       setContent(updatedContent)
@@ -129,19 +185,21 @@ export function SectionEditor({ section, allSections, onSave, onCancel }: Sectio
       setIsImproving(false)
     }
   }, [section.section_type, content, selectedTone])
-  
+
   // Summary generation handlers
   const handleGenerateSummary = useCallback(async () => {
     setIsGeneratingSummary(true)
     setSummaryError(null)
-    
+
     try {
       const context = extractContextFromSections(allSections)
-      
+
       if (!context.certificationsText && !context.experienceText && !context.skillsText) {
-        throw new Error('No content found. Please add some certifications, experience, or skills first.')
+        throw new Error(
+          'No content found. Please add some certifications, experience, or skills first.'
+        )
       }
-      
+
       const summary = await generateSummary({ ...context, maxWords: 120 })
       setContent({ text: summary })
     } catch (err) {
@@ -151,11 +209,11 @@ export function SectionEditor({ section, allSections, onSave, onCancel }: Sectio
       setIsGeneratingSummary(false)
     }
   }, [allSections])
-  
+
   const handleGenerateSummaryFromData = useCallback(async () => {
     setIsGeneratingFromData(true)
     setSummaryError(null)
-    
+
     try {
       const data = await apiClient.post<{ summary: string }>('/ai/generate-portfolio-summary', {})
       setContent({ text: data.summary })
@@ -166,20 +224,20 @@ export function SectionEditor({ section, allSections, onSave, onCancel }: Sectio
       setIsGeneratingFromData(false)
     }
   }, [])
-  
+
   // Tag suggestion handler
   const handleSuggestTags = useCallback(async () => {
     setIsSuggestingTags(true)
     setTagSuggestionError(null)
     setSuggestedTagsList([])
-    
+
     try {
       const textToAnalyze = extractTextForTagSuggestion(section.section_type, content)
-      
+
       if (!textToAnalyze.trim()) {
         throw new Error('No content available to analyze')
       }
-      
+
       const tags = await suggestTags({ text: textToAnalyze, maxTags: 8 })
       setSuggestedTagsList(tags)
     } catch (err) {
@@ -189,28 +247,29 @@ export function SectionEditor({ section, allSections, onSave, onCancel }: Sectio
       setIsSuggestingTags(false)
     }
   }, [section.section_type, content])
-  
+
   // Add tag handler
-  const handleAddTag = useCallback((tagLabel: string) => {
-    const currentTags = content.tags || []
-    const tagExists = currentTags.some(
-      (t: string) => t.toLowerCase() === tagLabel.toLowerCase()
-    )
-    
-    if (!tagExists) {
-      setContent({ ...content, tags: [...currentTags, tagLabel] })
-      setSuggestedTagsList(prev => 
-        prev.filter(t => t.label.toLowerCase() !== tagLabel.toLowerCase())
-      )
-    }
-  }, [content])
-  
+  const handleAddTag = useCallback(
+    (tagLabel: string) => {
+      const currentTags = content.tags || []
+      const tagExists = currentTags.some((t: string) => t.toLowerCase() === tagLabel.toLowerCase())
+
+      if (!tagExists) {
+        setContent({ ...content, tags: [...currentTags, tagLabel] })
+        setSuggestedTagsList((prev) =>
+          prev.filter((t) => t.label.toLowerCase() !== tagLabel.toLowerCase())
+        )
+      }
+    },
+    [content]
+  )
+
   // Feature flags
   const canUseAI = AI_IMPROVE_SUPPORTED.includes(section.section_type)
   const canSuggestTags = TAG_SUGGESTION_SUPPORTED.includes(section.section_type)
   const isSummarySection = section.section_type === 'summary'
   const hasSummary = content.text && content.text.trim().length > 0
-  
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
@@ -220,11 +279,9 @@ export function SectionEditor({ section, allSections, onSave, onCancel }: Sectio
             Edit Section
             {section.section_type === 'custom' && title && `: ${title}`}
           </h2>
-          <p className="mt-1 text-sm text-gray-500">
-            Section type: {section.section_type}
-          </p>
+          <p className="mt-1 text-sm text-gray-500">Section type: {section.section_type}</p>
         </div>
-        
+
         {/* Content */}
         <div className="px-6 py-4 overflow-y-auto flex-1">
           {error && (
@@ -232,7 +289,7 @@ export function SectionEditor({ section, allSections, onSave, onCancel }: Sectio
               {error}
             </div>
           )}
-          
+
           {/* Summary AI Toolbar */}
           {isSummarySection && (
             <SummaryAIToolbar
@@ -244,7 +301,7 @@ export function SectionEditor({ section, allSections, onSave, onCancel }: Sectio
               onGenerateFromSections={handleGenerateSummary}
             />
           )}
-          
+
           {/* Tag Suggestion Toolbar */}
           {canSuggestTags && (
             <TagSuggestionToolbar
@@ -256,7 +313,7 @@ export function SectionEditor({ section, allSections, onSave, onCancel }: Sectio
               onAddTag={section.section_type !== 'certifications' ? handleAddTag : undefined}
             />
           )}
-          
+
           {/* AI Improve Toolbar */}
           {canUseAI && (
             <AIImproveToolbar
@@ -267,7 +324,7 @@ export function SectionEditor({ section, allSections, onSave, onCancel }: Sectio
               error={aiError}
             />
           )}
-          
+
           {/* Section Editor */}
           {renderEditor(section.section_type, {
             content,
@@ -276,7 +333,7 @@ export function SectionEditor({ section, allSections, onSave, onCancel }: Sectio
             onTitleChange: setTitle,
           })}
         </div>
-        
+
         {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
           <button
@@ -302,48 +359,55 @@ export function SectionEditor({ section, allSections, onSave, onCancel }: Sectio
 }
 
 // Helper: Get default content for section type
-function getDefaultContent(sectionType: string): any {
+function getDefaultContent(sectionType: string): SectionContent {
   switch (sectionType) {
     case 'summary':
-      return { text: '' }
+      return { text: '' } satisfies SummaryContent
     case 'skills':
-      return { skills: [] }
+      return { skills: [] } satisfies SkillsContent
     case 'work_experience':
-      return { jobs: [] }
+      return { jobs: [] } satisfies WorkExperienceContent
     case 'custom':
-      return { text: '' }
+      return { text: '' } satisfies CustomContent
     default:
       return {}
   }
 }
 
 // Helper: Extract text for AI improvement
-function extractTextForImprovement(sectionType: string, content: any): string {
+function extractTextForImprovement(sectionType: string, content: SectionContent): string {
   switch (sectionType) {
     case 'summary':
-      return content.text || ''
+      return (content as SummaryContent).text || ''
     case 'skills':
-      return (content.skills || []).join('\n')
+      return ((content as SkillsContent).skills || []).join('\n')
     case 'work_experience':
-      return content.description || ''
+      return (content as WorkExperienceContent).description || ''
     case 'custom':
-      return content.text || ''
+      return (content as CustomContent).text || ''
     default:
       throw new Error('AI improvement not supported for this section type')
   }
 }
 
 // Helper: Apply improved text back to content
-function applyImprovedText(sectionType: string, content: any, improved: string): any {
+function applyImprovedText(
+  sectionType: string,
+  content: SectionContent,
+  improved: string
+): SectionContent {
   switch (sectionType) {
     case 'summary':
-      return { text: improved }
+      return { text: improved } satisfies SummaryContent
     case 'skills':
-      return { skills: improved.split('\n').filter(s => s.trim()) }
+      return { skills: improved.split('\n').filter((s) => s.trim()) } satisfies SkillsContent
     case 'work_experience':
-      return { ...content, description: improved }
+      return {
+        ...(content as WorkExperienceContent),
+        description: improved,
+      } satisfies WorkExperienceContent
     case 'custom':
-      return { text: improved }
+      return { text: improved } satisfies CustomContent
     default:
       return content
   }
@@ -354,78 +418,87 @@ function extractContextFromSections(allSections?: Section[]) {
   if (!allSections) {
     return { certificationsText: undefined, experienceText: undefined, skillsText: undefined }
   }
-  
+
   let certificationsText: string | undefined
   let experienceText: string | undefined
   let skillsText: string | undefined
-  
-  const certSection = allSections.find(s => s.section_type === 'certifications')
-  if (certSection?.content?.certifications && Array.isArray(certSection.content.certifications)) {
-    certificationsText = certSection.content.certifications
-      .map((cert: any) => `${cert.title} - ${cert.issuer}`)
+
+  const certSection = allSections.find((s) => s.section_type === 'certifications')
+  const certContent = certSection?.content as CertificationsContent | undefined
+  if (certContent?.certifications && Array.isArray(certContent.certifications)) {
+    certificationsText = certContent.certifications
+      .map((cert) => `${cert.title} - ${cert.issuer}`)
       .join('\n')
   }
-  
-  const expSection = allSections.find(s => s.section_type === 'work_experience')
-  if (expSection?.content?.jobs && Array.isArray(expSection.content.jobs)) {
-    experienceText = expSection.content.jobs
-      .map((job: any) => `${job.role} at ${job.company}\n${job.description || ''}`)
+
+  const expSection = allSections.find((s) => s.section_type === 'work_experience')
+  const expContent = expSection?.content as WorkExperienceContent | undefined
+  if (expContent?.jobs && Array.isArray(expContent.jobs)) {
+    experienceText = expContent.jobs
+      .map((job) => `${job.role} at ${job.company}\n${job.description || ''}`)
       .join('\n\n')
-  } else if (expSection?.content?.description) {
-    experienceText = expSection.content.description
+  } else if (expContent?.description) {
+    experienceText = expContent.description
   }
-  
-  const skillsSection = allSections.find(s => s.section_type === 'skills')
-  if (skillsSection?.content?.skills && Array.isArray(skillsSection.content.skills)) {
-    skillsText = skillsSection.content.skills.join(', ')
+
+  const skillsSection = allSections.find((s) => s.section_type === 'skills')
+  const skillsContent = skillsSection?.content as SkillsContent | undefined
+  if (skillsContent?.skills && Array.isArray(skillsContent.skills)) {
+    skillsText = skillsContent.skills.join(', ')
   }
-  
+
   return { certificationsText, experienceText, skillsText }
 }
 
 // Helper: Extract text for tag suggestion
-function extractTextForTagSuggestion(sectionType: string, content: any): string {
+function extractTextForTagSuggestion(sectionType: string, content: SectionContent): string {
   if (sectionType === 'certifications') {
-    const certs = content.certifications || []
+    const certContent = content as CertificationsContent
+    const certs = certContent.certifications || []
     if (!Array.isArray(certs) || certs.length === 0) return ''
-    
-    return certs.map((cert: any) => {
-      const parts = [cert.title, cert.issuer]
-      if (cert.description) parts.push(cert.description)
-      return parts.filter(Boolean).join(' - ')
-    }).join('\n\n')
+
+    return certs
+      .map((cert) => {
+        const parts = [cert.title, cert.issuer]
+        if (cert.description) parts.push(cert.description)
+        return parts.filter(Boolean).join(' - ')
+      })
+      .join('\n\n')
   }
-  
+
   if (sectionType === 'work_experience') {
+    const expContent = content as WorkExperienceContent
     const parts: string[] = []
-    
-    if (content.role) parts.push(`Role: ${content.role}`)
-    if (content.company) parts.push(`Company: ${content.company}`)
-    if (content.description) parts.push(`Description: ${content.description}`)
-    
-    if (content.jobs && Array.isArray(content.jobs)) {
-      const jobsText = content.jobs.map((job: any) => {
-        const jobParts = []
-        if (job.role) jobParts.push(`Role: ${job.role}`)
-        if (job.company) jobParts.push(`Company: ${job.company}`)
-        if (job.description) jobParts.push(`Description: ${job.description}`)
-        return jobParts.join(' - ')
-      }).join('\n\n')
-      
+
+    if (expContent.role) parts.push(`Role: ${expContent.role}`)
+    if (expContent.company) parts.push(`Company: ${expContent.company}`)
+    if (expContent.description) parts.push(`Description: ${expContent.description}`)
+
+    if (expContent.jobs && Array.isArray(expContent.jobs)) {
+      const jobsText = expContent.jobs
+        .map((job) => {
+          const jobParts = []
+          if (job.role) jobParts.push(`Role: ${job.role}`)
+          if (job.company) jobParts.push(`Company: ${job.company}`)
+          if (job.description) jobParts.push(`Description: ${job.description}`)
+          return jobParts.join(' - ')
+        })
+        .join('\n\n')
+
       if (jobsText) parts.push(jobsText)
     }
-    
+
     return parts.join('\n')
   }
-  
+
   throw new Error('Tag suggestion not supported for this section type')
 }
 
 // Helper: Render the appropriate editor component
 interface EditorProps {
-  content: any
+  content: SectionContent
   title: string
-  onContentChange: (content: any) => void
+  onContentChange: (content: SectionContent) => void
   onTitleChange: (title: string) => void
 }
 
@@ -450,9 +523,7 @@ function renderEditor(sectionType: string, props: EditorProps) {
       )
     default:
       return (
-        <div className="text-sm text-gray-600">
-          Editor not available for this section type.
-        </div>
+        <div className="text-sm text-gray-600">Editor not available for this section type.</div>
       )
   }
 }

@@ -1,12 +1,12 @@
 /**
  * Certification Form Component
- * 
+ *
  * Reusable form for creating and editing certifications.
  * Supports three certification types:
  * - file: Upload PDF or image
  * - external: Link to external provider (Credly, IBM, etc.)
  * - manual: Manual entry without file or link
- * 
+ *
  * Uses:
  * - uploadCertificationFile() for file uploads
  * - POST /api/v1/certifications for creation
@@ -35,7 +35,7 @@ interface CertificationFormProps {
 export function CertificationForm({ mode, initialData }: CertificationFormProps) {
   const router = useRouter()
   const userId = useUserId()
-  
+
   // Form state
   const [title, setTitle] = useState(initialData?.title || '')
   const [issuer, setIssuer] = useState(initialData?.issuing_organization || '')
@@ -51,19 +51,19 @@ export function CertificationForm({ mode, initialData }: CertificationFormProps)
   const [externalUrl, setExternalUrl] = useState(initialData?.external_url || '')
   const [file, setFile] = useState<File | null>(null)
   const [selectedTags, setSelectedTags] = useState<Tag[]>([])
-  
+
   // UI state
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [uploadProgress, setUploadProgress] = useState<number | null>(null)
-  
+
   // Load existing tags in edit mode
   useEffect(() => {
     if (mode === 'edit' && initialData?.id) {
       loadCertificationTags(initialData.id)
     }
   }, [mode, initialData?.id])
-  
+
   async function loadCertificationTags(certificationId: string) {
     try {
       const data = await apiClient.get<{ certification: Certification & { tags: Tag[] } }>(
@@ -92,21 +92,21 @@ export function CertificationForm({ mode, initialData }: CertificationFormProps)
         `/certifications/${certificationId}`
       )
       const currentTags: Tag[] = data.certification?.tags || []
-      
-      const currentTagIds = new Set(currentTags.map(t => t.id))
-      const selectedTagIds = new Set(selectedTags.map(t => t.id))
-      
+
+      const currentTagIds = new Set(currentTags.map((t) => t.id))
+      const selectedTagIds = new Set(selectedTags.map((t) => t.id))
+
       // Add new tags
-      const tagsToAdd = selectedTags.filter(t => !currentTagIds.has(t.id))
+      const tagsToAdd = selectedTags.filter((t) => !currentTagIds.has(t.id))
       for (const tag of tagsToAdd) {
         await apiClient.post('/certification-tags', {
           certification_id: certificationId,
           tag_id: tag.id,
         })
       }
-      
+
       // Remove unselected tags
-      const tagsToRemove = currentTags.filter(t => !selectedTagIds.has(t.id))
+      const tagsToRemove = currentTags.filter((t) => !selectedTagIds.has(t.id))
       for (const tag of tagsToRemove) {
         await apiClient.delete(`/certification-tags`, {
           body: JSON.stringify({
@@ -120,46 +120,46 @@ export function CertificationForm({ mode, initialData }: CertificationFormProps)
       // Don't fail the operation
     }
   }
-  
+
   // Validate form
   function validateForm(): string | null {
     if (!title.trim()) return 'Title is required'
     if (!issuer.trim()) return 'Issuer is required'
-    
-    if ((certificationType === 'pdf' || certificationType === 'image')) {
+
+    if (certificationType === 'pdf' || certificationType === 'image') {
       if (mode === 'create' && !file) {
         return 'File is required for file-based certifications'
       }
     }
-    
+
     if (certificationType === 'external_link' && !externalUrl.trim()) {
       return 'External URL is required for external link certifications'
     }
-    
+
     return null
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
-    
+
     // Validate
     const validationError = validateForm()
     if (validationError) {
       setError(validationError)
       return
     }
-    
+
     setIsSubmitting(true)
-    
+
     try {
       let filePath: string | null = null
       let fileType: string | null = null
-      
+
       // Step 1: Upload file if needed
       if (file && (certificationType === 'pdf' || certificationType === 'image')) {
         setUploadProgress(0)
-        
+
         try {
           filePath = await uploadCertificationFile(
             userId,
@@ -170,15 +170,13 @@ export function CertificationForm({ mode, initialData }: CertificationFormProps)
           setUploadProgress(100)
         } catch (uploadError) {
           throw new Error(
-            uploadError instanceof Error 
-              ? uploadError.message 
-              : 'Failed to upload file'
+            uploadError instanceof Error ? uploadError.message : 'Failed to upload file'
           )
         }
       }
-      
+
       // Step 2: Prepare request body
-      const body: any = {
+      const body: Record<string, unknown> = {
         title,
         issuing_organization: issuer,
         certification_type: certificationType,
@@ -189,33 +187,38 @@ export function CertificationForm({ mode, initialData }: CertificationFormProps)
         description: description || null,
         is_public: isPublic,
       }
-      
+
       // Add type-specific fields
       if (certificationType === 'external_link') {
         body.external_url = externalUrl
       }
-      
+
       if (filePath && fileType) {
         body.file_path = filePath
         body.file_type = fileType
       }
-      
+
       // Step 3: Call API
-      const result = mode === 'create'
-        ? await apiClient.post<{ certification: Certification }>('/certifications', body)
-        : await apiClient.patch<{ certification: Certification }>(
-            `/certifications/${initialData!.id}`,
-            body
-          )
-      
+      const result =
+        mode === 'create'
+          ? await apiClient.post<{ certification: Certification }>('/certifications', body)
+          : await apiClient.patch<{ certification: Certification }>(
+              `/certifications/${initialData!.id}`,
+              body
+            )
+
       const certificationId = result.certification.id
-      
+
       // Step 4: Sync tags
       await syncTags(certificationId)
-      
+
       // Step 5: Clean up old file if replaced (edit mode only)
-      if (mode === 'edit' && filePath && initialData?.file_path && 
-          filePath !== initialData.file_path) {
+      if (
+        mode === 'edit' &&
+        filePath &&
+        initialData?.file_path &&
+        filePath !== initialData.file_path
+      ) {
         try {
           await deleteCertificationFile(initialData.file_path)
         } catch (deleteError) {
@@ -223,11 +226,10 @@ export function CertificationForm({ mode, initialData }: CertificationFormProps)
           // Don't fail the operation
         }
       }
-      
+
       // Step 6: Redirect to certifications list
       router.push('/dashboard/certifications')
       router.refresh()
-      
     } catch (err) {
       console.error('Submit error:', err)
       setError(err instanceof Error ? err.message : 'An error occurred')
@@ -333,9 +335,7 @@ export function CertificationForm({ mode, initialData }: CertificationFormProps)
           </label>
         </div>
         {mode === 'edit' && (
-          <p className="mt-1 text-xs text-gray-500">
-            Type cannot be changed after creation
-          </p>
+          <p className="mt-1 text-xs text-gray-500">Type cannot be changed after creation</p>
         )}
       </div>
 
@@ -478,9 +478,7 @@ export function CertificationForm({ mode, initialData }: CertificationFormProps)
             onChange={(e) => setIsPublic(e.target.checked)}
             className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
-          <span className="ml-2 text-sm text-gray-700">
-            Make this certification public
-          </span>
+          <span className="ml-2 text-sm text-gray-700">Make this certification public</span>
         </label>
         <p className="mt-1 ml-6 text-xs text-gray-500">
           Public certifications can be included in public portfolios
@@ -489,13 +487,8 @@ export function CertificationForm({ mode, initialData }: CertificationFormProps)
 
       {/* Tags */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Tags
-        </label>
-        <TagSelector 
-          selectedTags={selectedTags}
-          onChange={setSelectedTags}
-        />
+        <label className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+        <TagSelector selectedTags={selectedTags} onChange={setSelectedTags} />
       </div>
 
       {/* Upload Progress */}
@@ -507,9 +500,7 @@ export function CertificationForm({ mode, initialData }: CertificationFormProps)
               style={{ width: `${uploadProgress}%` }}
             />
           </div>
-          <p className="mt-1 text-xs text-gray-600 text-center">
-            Uploading... {uploadProgress}%
-          </p>
+          <p className="mt-1 text-xs text-gray-600 text-center">Uploading... {uploadProgress}%</p>
         </div>
       )}
 
@@ -522,14 +513,32 @@ export function CertificationForm({ mode, initialData }: CertificationFormProps)
         >
           {isSubmitting ? (
             <span className="flex items-center justify-center">
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <svg
+                className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
               </svg>
               {mode === 'create' ? 'Creating...' : 'Saving...'}
             </span>
+          ) : mode === 'create' ? (
+            'Create Certification'
           ) : (
-            mode === 'create' ? 'Create Certification' : 'Save Changes'
+            'Save Changes'
           )}
         </button>
         <button

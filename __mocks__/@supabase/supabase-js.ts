@@ -9,11 +9,24 @@ export interface User {
   role?: string
 }
 
+export interface AuthError {
+  message: string
+  status?: number
+}
+
+export interface QueryBuilder {
+  select: () => QueryBuilder
+  eq: () => QueryBuilder
+  insert: () => QueryBuilder
+  update: () => QueryBuilder
+  delete: () => QueryBuilder
+}
+
 export interface SupabaseClient {
   auth: {
-    getUser: () => Promise<{ data: { user: User | null }, error: any }>
+    getUser: () => Promise<{ data: { user: User | null }; error: AuthError | null }>
   }
-  from: (table: string) => any
+  from: (table: string) => QueryBuilder
 }
 
 export const createClient = jest.fn(() => ({

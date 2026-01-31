@@ -1,9 +1,9 @@
 /**
  * Shared Portfolio Types
- * 
+ *
  * Centralized type definitions for portfolio-related entities.
  * Eliminates 20+ type duplications across components.
- * 
+ *
  * Import these types instead of defining them locally:
  * ```typescript
  * import type { Portfolio, Section, Certification, Tag } from '@/types/portfolio'
@@ -96,7 +96,7 @@ export const SECTION_TYPES = [
   'experience',
   'certifications',
   'contact',
-  'custom'
+  'custom',
 ] as const
 
 /**
@@ -107,32 +107,17 @@ export type CertificationType = Certification['certification_type']
 /**
  * Valid certification types as constants
  */
-export const CERTIFICATION_TYPES = [
-  'pdf',
-  'image',
-  'external_link',
-  'manual'
-] as const
+export const CERTIFICATION_TYPES = ['pdf', 'image', 'external_link', 'manual'] as const
 
 /**
  * Portfolio template names
  */
-export type TemplateName = 
-  | 'single-column'
-  | 'two-column'
-  | 'grid'
-  | 'timeline'
-  | 'modern'
+export type TemplateName = 'single-column' | 'two-column' | 'grid' | 'timeline' | 'modern'
 
 /**
  * Portfolio theme names
  */
-export type ThemeName = 
-  | 'professional'
-  | 'modern'
-  | 'creative'
-  | 'minimal'
-  | 'elegant'
+export type ThemeName = 'professional' | 'modern' | 'creative' | 'minimal' | 'elegant'
 
 // ============================================================================
 // Extended Types (with relations)
@@ -216,7 +201,7 @@ export interface CreateSectionForm {
   portfolio_id: string
   section_type: SectionType
   title?: string
-  content?: Record<string, any>
+  content?: Record<string, unknown>
   display_order?: number
 }
 

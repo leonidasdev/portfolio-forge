@@ -1,9 +1,9 @@
 /**
  * Certifications Dashboard Page
- * 
+ *
  * Server component that fetches all certifications for the authenticated user
  * and passes them to the client component for rendering and interactions.
- * 
+ *
  * Data fetching happens on the server for optimal performance and SEO.
  */
 
@@ -26,15 +26,17 @@ export default async function CertificationsPage() {
 
   // Fetch certifications with tags
   const supabase = await createServerClient()
-  
+
   const { data: certifications, error } = await supabase
     .from('certifications')
-    .select(`
+    .select(
+      `
       *,
       certification_tags!inner(
         tags(*)
       )
-    `)
+    `
+    )
     .eq('user_id', userId)
     .eq('is_deleted', false)
     .order('created_at', { ascending: false })
@@ -52,17 +54,15 @@ export default async function CertificationsPage() {
   }
 
   // Transform data to include tags array
-  const certificationsWithTags: CertificationWithTags[] = (certifications || []).map((cert: any) => ({
+  const certificationsWithTags: CertificationWithTags[] = (certifications || []).map((cert) => ({
     ...cert,
-    tags: cert.certification_tags?.map((ct: any) => ct.tags).filter(Boolean) || []
+    tags: cert.certification_tags?.map((ct: { tags: Tag }) => ct.tags).filter(Boolean) || [],
   }))
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Certifications
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-900">Certifications</h1>
         <p className="mt-2 text-gray-600">
           Manage your professional certifications and credentials.
         </p>

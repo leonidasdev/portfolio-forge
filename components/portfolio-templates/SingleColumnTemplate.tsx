@@ -1,6 +1,6 @@
 /**
  * Single Column Template
- * 
+ *
  * A clean, single-column layout that stacks all sections vertically.
  * Perfect for showcasing work with minimal distractions.
  */
@@ -10,7 +10,11 @@
 import { SectionRenderer } from '@/components/portfolio-sections/SectionRenderer'
 import type { TemplateComponentProps } from './registry'
 
-export function SingleColumnTemplate({ portfolio, sections, theme }: TemplateComponentProps) {
+export function SingleColumnTemplate({
+  portfolio,
+  sections,
+  theme: _theme,
+}: TemplateComponentProps) {
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem 1rem' }}>
       {/* Portfolio Header */}

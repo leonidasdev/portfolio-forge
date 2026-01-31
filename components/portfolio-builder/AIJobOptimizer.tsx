@@ -1,6 +1,6 @@
 /**
  * AI Job Optimizer Component
- * 
+ *
  * Optimizes portfolio sections based on a job description.
  * Analyzes job requirements and tailors content to match.
  */
@@ -39,31 +39,28 @@ export function AIJobOptimizer({ sections, onSectionsUpdate }: AIJobOptimizerPro
       setError('Please enter a job description')
       return
     }
-    
+
     if (jobDescription.trim().length < 50) {
       setError('Job description must be at least 50 characters')
       return
     }
-    
+
     setIsOptimizing(true)
     setError(null)
     setResults(null)
-    
+
     try {
-      const data = await apiClient.post<{ 
-        updatedSections: any[]
+      const data = await apiClient.post<{
+        updatedSections: Array<{ id: string; updatedContent: Record<string, unknown> }>
         suggestedSkills: string[]
-        jobInsights: { matches: string[], gaps: string[], suggestions: string[] }
-      }>(
-        '/ai/optimize-portfolio-for-job',
-        { jobDescription }
-      )
-      
+        jobInsights: { matches: string[]; gaps: string[]; suggestions: string[] }
+      }>('/ai/optimize-portfolio-for-job', { jobDescription })
+
       const { updatedSections, suggestedSkills, jobInsights } = data
-      
+
       // Update sections with optimized content
       const optimizedSections = sections.map((section) => {
-        const updated = updatedSections.find((u: any) => u.id === section.id)
+        const updated = updatedSections.find((u) => u.id === section.id)
         if (updated) {
           return {
             ...section,
@@ -72,15 +69,15 @@ export function AIJobOptimizer({ sections, onSectionsUpdate }: AIJobOptimizerPro
         }
         return section
       })
-      
+
       onSectionsUpdate(optimizedSections)
-      
+
       // Store results for display
       setResults({
         suggestedSkills,
         jobInsights,
       })
-      
+
       alert(`Successfully optimized ${updatedSections.length} section(s) for the job!`)
     } catch (error) {
       console.error('Failed to optimize portfolio:', error)
@@ -95,14 +92,12 @@ export function AIJobOptimizer({ sections, onSectionsUpdate }: AIJobOptimizerPro
       <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
-            <h3 className="text-sm font-semibold text-gray-900">
-              Optimize for Job
-            </h3>
+            <h3 className="text-sm font-semibold text-gray-900">Optimize for Job</h3>
             <p className="text-xs text-gray-600 mt-1">
               Tailor your portfolio content to match a specific job description
             </p>
           </div>
-          
+
           <button
             onClick={() => setShowOptimizer(true)}
             disabled={sections.length === 0}
@@ -119,14 +114,12 @@ export function AIJobOptimizer({ sections, onSectionsUpdate }: AIJobOptimizerPro
     <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
       <div className="flex items-start justify-between gap-4 mb-3">
         <div className="flex-1">
-          <h3 className="text-sm font-semibold text-gray-900">
-            Optimize for Job
-          </h3>
+          <h3 className="text-sm font-semibold text-gray-900">Optimize for Job</h3>
           <p className="text-xs text-gray-600 mt-1">
             Paste a job description below to tailor your portfolio
           </p>
         </div>
-        
+
         <button
           onClick={() => setShowOptimizer(false)}
           className="text-sm text-gray-500 hover:text-gray-700"
@@ -134,7 +127,7 @@ export function AIJobOptimizer({ sections, onSectionsUpdate }: AIJobOptimizerPro
           Close
         </button>
       </div>
-      
+
       <textarea
         value={jobDescription}
         onChange={(e) => setJobDescription(e.target.value)}
@@ -142,12 +135,10 @@ export function AIJobOptimizer({ sections, onSectionsUpdate }: AIJobOptimizerPro
         className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 min-h-[120px]"
         disabled={isOptimizing}
       />
-      
+
       <div className="flex items-center justify-between mt-3">
-        <span className="text-xs text-gray-500">
-          {jobDescription.length} characters (min 50)
-        </span>
-        
+        <span className="text-xs text-gray-500">{jobDescription.length} characters (min 50)</span>
+
         <button
           onClick={handleOptimize}
           disabled={isOptimizing || jobDescription.trim().length < 50}
@@ -156,8 +147,20 @@ export function AIJobOptimizer({ sections, onSectionsUpdate }: AIJobOptimizerPro
           {isOptimizing ? (
             <span className="flex items-center gap-2">
               <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  fill="none"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
               </svg>
               Optimizing...
             </span>
@@ -166,13 +169,9 @@ export function AIJobOptimizer({ sections, onSectionsUpdate }: AIJobOptimizerPro
           )}
         </button>
       </div>
-      
-      {error && (
-        <div className="mt-3 text-sm text-red-600">
-          {error}
-        </div>
-      )}
-      
+
+      {error && <div className="mt-3 text-sm text-red-600">{error}</div>}
+
       {results && (
         <div className="mt-4 space-y-3">
           <div className="bg-white rounded-md p-3 border border-green-200">
@@ -185,7 +184,7 @@ export function AIJobOptimizer({ sections, onSectionsUpdate }: AIJobOptimizerPro
               ))}
             </div>
           </div>
-          
+
           <div className="bg-white rounded-md p-3 border border-green-200">
             <h4 className="text-sm font-semibold text-gray-900 mb-2">Job Insights</h4>
             <div className="space-y-2 text-xs">

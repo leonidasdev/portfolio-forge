@@ -5,14 +5,14 @@
 export class NextRequest {
   url: string
   method: string
-  private _body: any
-  
+  private _body: BodyInit | null | undefined
+
   constructor(url: string, init?: RequestInit) {
     this.url = url
     this.method = init?.method || 'GET'
     this._body = init?.body
   }
-  
+
   json() {
     if (this._body) {
       return Promise.resolve(JSON.parse(this._body as string))
@@ -24,19 +24,19 @@ export class NextRequest {
 class MockNextResponse {
   status: number
   ok: boolean
-  data: any
-  
-  constructor(data: any, init?: { status?: number }) {
+  data: unknown
+
+  constructor(data: unknown, init?: { status?: number }) {
     this.data = data
     this.status = init?.status || 200
     this.ok = this.status < 400
   }
-  
+
   json() {
     return Promise.resolve(this.data)
   }
-  
-  static json(data: any, init?: { status?: number }) {
+
+  static json(data: unknown, init?: { status?: number }) {
     return new MockNextResponse(data, init)
   }
 }
