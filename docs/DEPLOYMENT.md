@@ -46,7 +46,11 @@ GROQ_API_KEY=your-groq-api-key
 
 ```env
 # Redis (for production rate limiting)
-REDIS_URL=redis://user:password@host:port
+UPSTASH_REDIS_REST_URL=https://your-redis.upstash.io
+UPSTASH_REDIS_REST_TOKEN=your-token
+
+# Rate Limiting
+RATE_LIMIT_ENABLED=true
 
 # Logging
 LOG_LEVEL=info  # debug, info, warn, error
@@ -66,35 +70,74 @@ NEXT_PUBLIC_APP_URL=https://your-domain.com
 
 ## Vercel Deployment
 
-### Automatic Deployment
+### Quick Deploy
 
-1. **Connect Repository**
-   - Go to [vercel.com](https://vercel.com)
-   - Import your GitHub repository
-   - Vercel auto-detects Next.js
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/leonidasdev/portfolio-forge&env=NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY,GROQ_API_KEY&envDescription=Required%20environment%20variables%20for%20Portfolio%20Forge&envLink=https://github.com/leonidasdev/portfolio-forge/blob/main/.env.example)
 
-2. **Configure Environment Variables**
-   - Go to Project Settings → Environment Variables
-   - Add all required environment variables
-   - Set different values for Production/Preview/Development
+### Manual Deployment
 
-3. **Configure Build Settings**
+#### Step 1: Import Project
+
+1. Go to [Vercel Dashboard](https://vercel.com/dashboard)
+2. Click "Add New Project"
+3. Import the GitHub repository
+4. Select the `main` branch
+
+#### Step 2: Configure Environment Variables
+
+Add the following environment variables in the Vercel project settings:
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL | ✅ |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous/public key | ✅ |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (keep secret!) | ✅ |
+| `GROQ_API_KEY` | Groq API key for AI features | ✅ |
+| `UPSTASH_REDIS_REST_URL` | Upstash Redis URL for rate limiting | Optional |
+| `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis token | Optional |
+
+#### Step 3: Configure Build Settings
+
+Vercel should auto-detect these settings, but verify:
+
+- **Framework Preset:** Next.js
+- **Build Command:** `npm run build`
+- **Output Directory:** `.next`
+- **Install Command:** `npm install`
+
+#### Step 4: Deploy
+
+Click "Deploy" and wait for the build to complete.
+
+### Post-Deployment: Supabase Auth URLs
+
+In your Supabase project dashboard:
+
+1. Go to **Authentication** > **URL Configuration**
+2. Add your Vercel deployment URL to **Site URL**:
    ```
-   Build Command: npm run build
-   Output Directory: .next
-   Install Command: npm ci
+   https://your-app.vercel.app
+   ```
+3. Add redirect URLs:
+   ```
+   https://your-app.vercel.app/auth/callback
+   https://your-app.vercel.app/**
    ```
 
-4. **Deploy**
-   - Push to main branch for production deployment
-   - Pull requests create preview deployments
+### Custom Domain (Optional)
 
-### Custom Domain
+1. Go to your Vercel project settings
+2. Navigate to **Domains**
+3. Add your custom domain
+4. Update Supabase redirect URLs to include your custom domain
 
-1. Go to Project Settings → Domains
-2. Add your domain
-3. Configure DNS as instructed
-4. SSL is automatic
+### Preview Deployments
+
+Vercel automatically creates preview deployments for pull requests:
+
+1. Go to **Settings** > **Environment Variables**
+2. Set variables for **Preview** environment
+3. Use separate Supabase project for previews (recommended)
 
 ---
 
@@ -223,8 +266,9 @@ ALTER TABLE tags ENABLE ROW LEVEL SECURITY;
 - [ ] All environment variables configured
 - [ ] RLS enabled on all tables
 - [ ] HTTPS enforced
-- [ ] Rate limiting working (test with Redis)
+- [ ] Rate limiting working (configure Redis for production)
 - [ ] CORS configured correctly
+- [ ] Service role key NOT exposed to client
 
 ### Functionality
 - [ ] Authentication working (login/signup/OAuth)
@@ -239,37 +283,24 @@ ALTER TABLE tags ENABLE ROW LEVEL SECURITY;
 - [ ] Page load times acceptable
 - [ ] API response times acceptable
 
-### Monitoring
-- [ ] Error tracking configured
-- [ ] Log aggregation set up
-- [ ] Uptime monitoring configured
-- [ ] Performance monitoring configured
-
 ---
 
 ## Monitoring
 
 ### Recommended Tools
 
-1. **Error Tracking**
-   - Sentry
-   - LogRocket
-   - Bugsnag
+| Category | Options |
+|----------|---------|
+| **Error Tracking** | Sentry, LogRocket, Bugsnag |
+| **Log Aggregation** | Datadog, Logtail, Papertrail |
+| **Uptime Monitoring** | Better Uptime, Pingdom, UptimeRobot |
+| **Performance** | Vercel Analytics, Web Vitals |
 
-2. **Log Aggregation**
-   - Datadog
-   - Logtail
-   - Papertrail
+### Vercel Analytics
 
-3. **Uptime Monitoring**
-   - Better Uptime
-   - Pingdom
-   - UptimeRobot
-
-4. **Performance**
-   - Vercel Analytics
-   - Google Analytics
-   - Web Vitals
+1. Go to **Analytics** tab in your Vercel project
+2. Click "Enable Analytics"
+3. View Web Vitals and performance data
 
 ### Setting Up Sentry (Example)
 
@@ -284,44 +315,45 @@ npx @sentry/wizard -i nextjs
 
 ### Build Failures
 
-**Error: TypeScript errors**
-```bash
-npm run typecheck
-# Fix reported errors
-```
-
-**Error: Missing environment variables**
-- Ensure all required env vars are set in deployment platform
-- Check for typos in variable names
+| Error | Solution |
+|-------|----------|
+| TypeScript errors | Run `npm run typecheck` and fix errors |
+| Missing environment variables | Ensure all required env vars are set |
+| Node.js version | Ensure Node.js 18.x+ is used |
 
 ### Runtime Errors
 
-**Error: Supabase connection failed**
-- Verify `NEXT_PUBLIC_SUPABASE_URL` is correct
-- Check if Supabase project is active
-- Verify network access (IP allowlist if configured)
-
-**Error: Rate limiting not working**
-- In production, Redis is required
-- Check `REDIS_URL` is configured
-- Verify Redis connection
-
-**Error: File uploads failing**
-- Check storage bucket policies
-- Verify `SUPABASE_SERVICE_ROLE_KEY` is set
-- Check file size limits
+| Error | Solution |
+|-------|----------|
+| Supabase connection failed | Verify `NEXT_PUBLIC_SUPABASE_URL` is correct |
+| Rate limit exceeded | Configure Upstash Redis for production |
+| Auth redirect failed | Add deployment URL to Supabase redirect URLs |
+| File uploads failing | Check storage bucket policies |
 
 ### Performance Issues
 
-**Slow API responses**
-- Check database indexes
-- Enable query logging in Supabase
-- Review N+1 queries
+| Issue | Solution |
+|-------|----------|
+| Slow API responses | Check database indexes, review N+1 queries |
+| Slow page loads | Enable caching, check bundle size |
+| High memory usage | Review component rendering, implement lazy loading |
 
-**Slow page loads**
-- Enable caching headers
-- Check bundle size
-- Review component rendering
+---
+
+## Cost Optimization (Vercel)
+
+### Free Tier Limits
+
+- 100GB bandwidth/month
+- 100 hours of serverless function execution
+- 6,000 build minutes/month
+
+### Tips to Stay Within Limits
+
+1. Enable caching for static assets
+2. Optimize images with `next/image`
+3. Use Incremental Static Regeneration where appropriate
+4. Monitor usage in Vercel dashboard
 
 ---
 

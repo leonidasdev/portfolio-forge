@@ -1,13 +1,33 @@
-# OAuth Authentication Flow for Portfolio Forge
+# Authentication
+
+This document covers authentication in Portfolio Forge, including OAuth flows, session utilities, and best practices.
+
+## Table of Contents
+
+1. [Overview](#overview)
+2. [OAuth Flow](#oauth-flow)
+3. [Session Utilities](#session-utilities)
+4. [Usage Patterns](#usage-patterns)
+5. [Configuration](#configuration)
+6. [Security Best Practices](#security-best-practices)
+7. [Troubleshooting](#troubleshooting)
+
+---
 
 ## Overview
 
-Portfolio Forge uses Supabase OAuth for authentication with support for Google, GitHub, and LinkedIn.
+Portfolio Forge uses **Supabase Auth** for authentication with support for:
+- Email/Password authentication
+- OAuth providers (Google, GitHub, LinkedIn)
+- Session management with automatic refresh
+- Row-Level Security (RLS) integration
 
-## Flow Diagram
+---
+
+## OAuth Flow
 
 ```
-1. User clicks "Sign in with [Provider]" on /login
+1. User clicks "Sign in with [Provider]" on /auth/login
    ↓
 2. Redirected to provider's authorization page
    ↓
@@ -22,137 +42,151 @@ Portfolio Forge uses Supabase OAuth for authentication with support for Google, 
 7. User redirected to /dashboard (or original URL)
 ```
 
-## Files
+---
 
-### `/app/(auth)/login/page.tsx`
+## Key Files
 
-Client component that displays OAuth buttons for Google, GitHub, and LinkedIn.
+| File | Purpose |
+|------|---------|
+| `/app/auth/login/page.tsx` | Login page with OAuth buttons |
+| `/app/auth/signup/page.tsx` | User registration |
+| `/app/auth/callback/route.ts` | OAuth callback handler |
+| `/lib/auth/index.ts` | Session utilities |
+| `/lib/supabase/server.ts` | Supabase server client |
+| `/middleware.ts` | Route protection |
 
-**Features:**
-- OAuth provider buttons with loading states
-- Error handling and display
-- Preserves `redirectTo` parameter for post-login redirect
-- Minimal UI with basic styling
+---
 
-**Usage:**
-```tsx
-// Users visit /login to see OAuth options
-// After successful auth, redirected to /dashboard or redirectTo URL
-```
+## Session Utilities
 
-### `/app/(auth)/callback/route.ts`
+The `lib/auth/` module provides type-safe session access with optional automatic redirects.
 
-Server-side route handler that processes OAuth callbacks.
+### API Reference
 
-**Responsibilities:**
-- Exchange authorization code for session
-- Create user profile if first-time login
-- Handle OAuth errors
-- Redirect to destination
+#### `getAuthSession()`
 
-**Flow:**
-1. Receives `code` parameter from OAuth provider
-2. Exchanges code for Supabase session
-3. Checks if user profile exists
-4. Creates profile if new user
-5. Redirects to dashboard or original URL
+Returns the current authenticated session or null. Does NOT redirect.
 
-### `/app/(auth)/logout/actions.ts`
+```typescript
+import { getAuthSession } from '@/lib/auth'
 
-Server actions for logging out users.
-
-**Functions:**
-- `signOut()` - Signs out and redirects to /login
-- `signOutWithoutRedirect()` - Signs out without redirect (for custom flows)
-
-**Usage in components:**
-```tsx
-'use client'
-import { signOut } from '@/app/(auth)/logout/actions'
-
-<button onClick={() => signOut()}>Sign Out</button>
-```
-
-### `/app/(auth)/logout/LogoutButton.tsx`
-
-Reusable client component for logout functionality.
-
-**Features:**
-- Loading state during logout
-- Disabled state to prevent double-clicks
-- Minimal styling
-
-**Usage:**
-```tsx
-import { LogoutButton } from '@/app/(auth)/logout/LogoutButton'
-
-<LogoutButton />
-```
-
-### `/app/dashboard/page.tsx` (Updated)
-
-Server component demonstrating session access.
-
-**Features:**
-- Reads session using `getSession()`
-- Reads user using `getUser()`
-- Redirects unauthenticated users to /login
-- Displays session expiry time
-- Includes logout button
-
-## Configuration
-
-### Supabase Dashboard Setup
-
-1. **Enable OAuth Providers:**
-   - Go to Authentication → Providers
-   - Enable Google, GitHub, and Azure (for LinkedIn)
-   - Configure OAuth credentials
-
-2. **Google OAuth:**
-   - Create OAuth 2.0 Client ID in Google Cloud Console
-   - Add authorized redirect URI: `https://YOUR_PROJECT.supabase.co/auth/v1/callback`
-   - Copy Client ID and Secret to Supabase
-
-3. **GitHub OAuth:**
-   - Create OAuth App in GitHub Settings
-   - Authorization callback URL: `https://YOUR_PROJECT.supabase.co/auth/v1/callback`
-   - Copy Client ID and Secret to Supabase
-
-4. **LinkedIn (via Azure):**
-   - Register app in Azure Active Directory
-   - Configure redirect URI: `https://YOUR_PROJECT.supabase.co/auth/v1/callback`
-   - Copy Application ID and Secret to Supabase
-
-### Environment Variables
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-```
-
-## Authentication Patterns
-
-### Reading Session in Server Components
-
-```tsx
-import { getSession, getUser } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
-
-export default async function ProtectedPage() {
-  const session = await getSession()
+export default async function OptionalAuthPage() {
+  const session = await getAuthSession()
   
   if (!session) {
-    redirect('/login')
+    return <div>Public content</div>
   }
   
-  const user = session.user
-  
-  return <div>Welcome {user.email}</div>
+  return <div>Private content for {session.user.email}</div>
 }
 ```
 
-### Reading Session in Client Components
+#### `getAuthUser()`
+
+Returns just the user object from the session.
+
+```typescript
+import { getAuthUser } from '@/lib/auth'
+
+const user = await getAuthUser() // User | null
+```
+
+#### `isAuthenticated()`
+
+Returns boolean indicating if user is authenticated.
+
+```typescript
+import { isAuthenticated } from '@/lib/auth'
+
+const authenticated = await isAuthenticated() // boolean
+```
+
+#### `requireSession(redirectTo?)`
+
+Requires authentication. Redirects to `/auth/login` if not authenticated.
+
+```typescript
+import { requireSession } from '@/lib/auth'
+
+export default async function ProtectedPage() {
+  // Automatically redirects if not authenticated
+  const session = await requireSession()
+  
+  return <div>Welcome {session.user.email}</div>
+}
+```
+
+#### `requireUser()`
+
+Requires authentication. Returns just the user object.
+
+```typescript
+import { requireUser } from '@/lib/auth'
+
+const user = await requireUser() // User (guaranteed)
+```
+
+#### `requireUserId()`
+
+Most concise - returns just the user ID.
+
+```typescript
+import { requireUserId } from '@/lib/auth'
+
+const userId = await requireUserId() // string (UUID)
+```
+
+---
+
+## Usage Patterns
+
+### Pattern 1: Optional Authentication
+
+```typescript
+import { getAuthSession } from '@/lib/auth'
+
+export default async function OptionalAuthPage() {
+  const session = await getAuthSession()
+  
+  if (!session) {
+    return <div>Public content - not logged in</div>
+  }
+  
+  return <div>Private content for {session.user.email}</div>
+}
+```
+
+### Pattern 2: Required Authentication
+
+```typescript
+import { requireSession } from '@/lib/auth'
+
+export default async function ProtectedPage() {
+  const session = await requireSession()
+  return <div>Welcome {session.user.email}</div>
+}
+```
+
+### Pattern 3: Using User ID for Database Queries
+
+```typescript
+import { requireUserId } from '@/lib/auth'
+import { createServerClient } from '@/lib/supabase/server'
+
+export default async function UserDataPage() {
+  const userId = await requireUserId()
+  const supabase = await createServerClient()
+  
+  const { data } = await supabase
+    .from('portfolios')
+    .select('*')
+    .eq('user_id', userId)
+  
+  return <div>{/* Render data */}</div>
+}
+```
+
+### Pattern 4: Client Components
 
 ```tsx
 'use client'
@@ -163,13 +197,15 @@ export default function ClientComponent() {
   const [user, setUser] = useState(null)
   
   useEffect(() => {
-    const supabase = createBrowserClient(...)
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
     
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user)
     })
     
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setUser(session?.user ?? null)
@@ -184,138 +220,164 @@ export default function ClientComponent() {
 }
 ```
 
-### Logout from Client Component
+### Pattern 5: Route Handlers
 
-```tsx
-'use client'
-import { signOut } from '@/app/(auth)/logout/actions'
+```typescript
+import { NextRequest, NextResponse } from 'next/server'
+import { requireUserId } from '@/lib/auth'
+import { createServerClient } from '@/lib/supabase/server'
 
-export function MyComponent() {
-  return (
-    <button onClick={() => signOut()}>
-      Logout
-    </button>
-  )
+export async function GET(request: NextRequest) {
+  try {
+    const userId = await requireUserId()
+    const supabase = await createServerClient()
+    
+    const { data } = await supabase
+      .from('portfolios')
+      .select('*')
+      .eq('user_id', userId)
+    
+    return NextResponse.json({ data })
+  } catch {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 }
 ```
 
-### Custom Logout (without redirect)
+### Pattern 6: Server Actions
 
-```tsx
-'use client'
-import { signOutWithoutRedirect } from '@/app/(auth)/logout/actions'
-import { useRouter } from 'next/navigation'
+```typescript
+'use server'
 
-export function MyComponent() {
-  const router = useRouter()
+import { requireUserId } from '@/lib/auth'
+import { createServerClient } from '@/lib/supabase/server'
+import { revalidatePath } from 'next/cache'
+
+export async function updateProfile(formData: FormData) {
+  const userId = await requireUserId()
+  const supabase = await createServerClient()
   
-  const handleLogout = async () => {
-    const result = await signOutWithoutRedirect()
-    if (result.success) {
-      router.push('/goodbye')
-    }
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      full_name: formData.get('full_name'),
+      headline: formData.get('headline'),
+    })
+    .eq('id', userId)
+  
+  if (error) {
+    return { error: error.message }
   }
   
-  return <button onClick={handleLogout}>Logout</button>
+  revalidatePath('/dashboard/settings')
+  return { success: true }
 }
 ```
 
-## Session Management
+---
 
-### Session Duration
+## Configuration
+
+### Supabase Dashboard Setup
+
+1. **Enable OAuth Providers:**
+   - Go to Authentication → Providers
+   - Enable Google, GitHub, and Azure (for LinkedIn)
+   - Configure OAuth credentials
+
+2. **Google OAuth:**
+   - Create OAuth 2.0 Client ID in Google Cloud Console
+   - Add redirect URI: `https://YOUR_PROJECT.supabase.co/auth/v1/callback`
+   - Copy Client ID and Secret to Supabase
+
+3. **GitHub OAuth:**
+   - Create OAuth App in GitHub Settings
+   - Callback URL: `https://YOUR_PROJECT.supabase.co/auth/v1/callback`
+   - Copy Client ID and Secret to Supabase
+
+4. **Configure Redirect URLs:**
+   - Add your app URL to Site URL: `https://your-app.com`
+   - Add redirect URLs: `https://your-app.com/auth/callback`
+
+### Environment Variables
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+```
+
+---
+
+## Middleware Integration
+
+The auth utilities work with the middleware for double protection:
+
+1. **Middleware** - First line of defense
+   - Protects `/dashboard/*` routes
+   - Protects `/api/v1/*` routes (except public endpoints)
+   - Redirects unauthenticated users
+   - Refreshes sessions automatically
+
+2. **Session Utilities** - Second line of defense
+   - Use in Server Components for additional checks
+   - Use in Route Handlers for API authentication
+   - Provides type-safe session access
+   - Enables custom redirect logic
+
+---
+
+## Security Best Practices
+
+1. **Never expose session tokens** - Use server-side auth checks
+2. **Validate sessions on every request** - Middleware handles this automatically
+3. **Use RLS policies** - Database enforces access control
+4. **Secure redirects** - Validate `redirectTo` parameter, only allow internal redirects
+5. **Handle expired sessions** - Middleware refreshes automatically
+6. **Don't catch redirect errors** - Let Next.js handle them
+
+### Session Management
 
 - Default session duration: 1 hour
 - Refresh token duration: 30 days
-- Sessions are automatically refreshed by middleware
-
-### Session Storage
-
 - Sessions stored in HTTP-only cookies
 - Secure flag enabled in production
 - SameSite=Lax for CSRF protection
 
-### Session Refresh
-
-Middleware automatically refreshes sessions on each request:
-```typescript
-// middleware.ts handles refresh automatically
-const { data: { user } } = await supabase.auth.getUser()
-```
-
-## Security Best Practices
-
-1. **Never expose session tokens:**
-   - Use server-side auth checks
-   - Don't send tokens to client unnecessarily
-
-2. **Validate sessions on every request:**
-   - Middleware handles this automatically
-   - Check session in API routes
-
-3. **Use RLS policies:**
-   - Database enforces access control
-   - Don't rely solely on application-level checks
-
-4. **Secure redirects:**
-   - Validate `redirectTo` parameter
-   - Only allow internal redirects
-
-5. **Handle expired sessions:**
-   - Middleware refreshes automatically
-   - Redirect to login on refresh failure
+---
 
 ## Troubleshooting
 
-### "No authorization code provided"
+### Common Issues
 
-- User cancelled OAuth flow
-- Provider didn't return code
-- Check provider configuration
+| Issue | Solution |
+|-------|----------|
+| "No authorization code provided" | User cancelled OAuth flow or provider configuration issue |
+| "Failed to create session" | Code already used or expired (10 min timeout) |
+| "Profile creation error" | Check database RLS policies |
+| Infinite redirect loops | Ensure `/auth/login` is not protected in middleware |
+| "redirect() called outside of render" | Don't catch redirect errors, call `requireSession()` early |
 
-### "Failed to create session"
+### Type Errors
 
-- Code already used (replay attack prevention)
-- Code expired (usually 10 minutes)
-- Retry authentication
+Import types from `@supabase/supabase-js`:
 
-### "Profile creation error"
+```typescript
+import type { Session, User } from '@supabase/supabase-js'
+```
 
-- Database RLS policies may be too strict
-- Profile will be created on next login attempt
-- Check Supabase logs
+### Testing Locally
 
-### Infinite redirect loops
-
-- Check middleware configuration
-- Ensure `/login` is not protected
-- Verify callback route is public
-
-## Testing
-
-### Test OAuth Flow Locally
-
-1. Run app locally: `npm run dev`
-2. Visit `http://localhost:3000/login`
+1. Run app: `npm run dev`
+2. Visit `http://localhost:3000/auth/login`
 3. Click OAuth provider button
 4. Authorize on provider site
 5. Verify redirect to dashboard
 
-### Test Logout
+---
 
-1. From dashboard, click logout button
-2. Verify redirect to `/login`
-3. Try accessing `/dashboard` directly
-4. Should redirect to `/login`
+## Related Documentation
 
-### Test Session Persistence
-
-1. Login successfully
-2. Refresh the page
-3. Should remain logged in
-4. Check session expiry in dashboard
-
-## Additional Resources
-
-- [Supabase Auth Documentation](https://supabase.com/docs/guides/auth)
-- [OAuth 2.0 Flow](https://oauth.net/2/)
-- [Next.js Authentication Patterns](https://nextjs.org/docs/app/building-your-application/authentication)
+- [Middleware Documentation](middleware.md)
+- [Supabase Client](supabase-client.md)
+- [Supabase Auth Docs](https://supabase.com/docs/guides/auth)
