@@ -26,8 +26,8 @@
 
 'use client'
 
-import { cn } from '@/lib/utils'
 import { logger } from '@/lib/logger'
+import { cn } from '@/lib/utils'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Button } from './Button'

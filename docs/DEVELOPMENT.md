@@ -336,9 +336,9 @@ describe('MyComponent', () => {
   it('should handle click', async () => {
     const onClick = jest.fn()
     render(<MyComponent onClick={onClick} />)
-    
+
     fireEvent.click(screen.getByRole('button'))
-    
+
     await waitFor(() => {
       expect(onClick).toHaveBeenCalled()
     })

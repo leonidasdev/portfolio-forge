@@ -13,8 +13,8 @@
  * This pattern avoids proxying large files through API routes.
  */
 
-import { createBrowserClient } from '@supabase/ssr'
 import { logger } from '@/lib/logger'
+import { createBrowserClient } from '@supabase/ssr'
 
 const BUCKET_NAME = 'certifications'
 

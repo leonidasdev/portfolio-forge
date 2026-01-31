@@ -15,14 +15,14 @@
 
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useUserId } from '@/lib/auth/SessionContext'
-import { uploadCertificationFile, deleteCertificationFile } from '@/lib/storage/certifications'
 import { TagSelector } from '@/components/tags/TagSelector'
 import { apiClient } from '@/lib/api/client'
+import { useUserId } from '@/lib/auth/SessionContext'
 import { logger } from '@/lib/logger'
+import { deleteCertificationFile, uploadCertificationFile } from '@/lib/storage/certifications'
 import type { Database } from '@/lib/supabase/types'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 type Certification = Database['public']['Tables']['certifications']['Row']
 type Tag = Database['public']['Tables']['tags']['Row']
