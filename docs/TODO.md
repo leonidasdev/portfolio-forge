@@ -399,20 +399,20 @@ Portfolio Forge is a **well-architected Next.js 14+ application** with solid fun
 
 ### 4.1 Testing Improvements
 
-**Status:** âœ… EXCELLENT (274 tests passing)
+**Status:** âœ… EXCELLENT (274+ unit tests, 15+ E2E tests)
 **Current State:**
 - 15 test files, 274 tests passing (1 skipped)
 - Tests cover: lib/api/, lib/validation/, lib/__tests__/, components/ui/, components/tags/, components/portfolio-builder/, app/api/v1/
 - Component tests exist for UI library and Builder component
 - API route integration tests for tags and portfolios endpoints
-- No E2E tests yet
+- E2E tests with Playwright: auth flows, home page, API endpoints
 - Coverage threshold: 50%
 
 **Action Items:**
 - [x] Add component tests with React Testing Library (UI components tested)
 - [x] Add integration tests for API routes (tags, portfolios)
 - [x] Add Builder component tests (13 tests)
-- [ ] Add E2E tests with Playwright
+- [x] Add E2E tests with Playwright (auth, home, API)
 - [ ] Increase coverage threshold to 70%
 - [ ] Add snapshot tests for templates/themes
 
@@ -618,7 +618,7 @@ Portfolio Forge is a **well-architected Next.js 14+ application** with solid fun
 | API Routes | 2 | ~22 | Good (tags, portfolios) |
 | E2E | 0 | 0 | None |
 
-**Total:** 274 tests passing (1 skipped)
+**Total:** 274 tests passing (1 skipped) + E2E tests with Playwright
 
 ### 7.2 Testing Action Items
 
@@ -629,10 +629,12 @@ Portfolio Forge is a **well-architected Next.js 14+ application** with solid fun
   - [ ] `CertificationForm.test.tsx`
   - [ ] Template components
 - [x] Add API route integration tests (tags, portfolios)
-- [ ] Add E2E tests with Playwright:
-  - [ ] Auth flow
-  - [ ] Portfolio creation
-  - [ ] AI features
+- [x] Add E2E tests with Playwright:
+  - [x] Auth flow (login, signup, protected routes)
+  - [x] Home page and navigation
+  - [x] API endpoint validation
+  - [ ] Portfolio creation (requires auth fixtures)
+  - [ ] AI features (requires auth fixtures)
 - [ ] Add visual regression tests
 - [ ] Configure test coverage reporting in CI
 
