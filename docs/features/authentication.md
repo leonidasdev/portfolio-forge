@@ -72,11 +72,11 @@ import { getAuthSession } from '@/lib/auth'
 
 export default async function OptionalAuthPage() {
   const session = await getAuthSession()
-  
+
   if (!session) {
     return <div>Public content</div>
   }
-  
+
   return <div>Private content for {session.user.email}</div>
 }
 ```
@@ -111,7 +111,7 @@ import { requireSession } from '@/lib/auth'
 export default async function ProtectedPage() {
   // Automatically redirects if not authenticated
   const session = await requireSession()
-  
+
   return <div>Welcome {session.user.email}</div>
 }
 ```
@@ -147,11 +147,11 @@ import { getAuthSession } from '@/lib/auth'
 
 export default async function OptionalAuthPage() {
   const session = await getAuthSession()
-  
+
   if (!session) {
     return <div>Public content - not logged in</div>
   }
-  
+
   return <div>Private content for {session.user.email}</div>
 }
 ```
@@ -176,12 +176,12 @@ import { createServerClient } from '@/lib/supabase/server'
 export default async function UserDataPage() {
   const userId = await requireUserId()
   const supabase = await createServerClient()
-  
+
   const { data } = await supabase
     .from('portfolios')
     .select('*')
     .eq('user_id', userId)
-  
+
   return <div>{/* Render data */}</div>
 }
 ```
@@ -195,26 +195,26 @@ import { createBrowserClient } from '@supabase/ssr'
 
 export default function ClientComponent() {
   const [user, setUser] = useState(null)
-  
+
   useEffect(() => {
     const supabase = createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
-    
+
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user)
     })
-    
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setUser(session?.user ?? null)
       }
     )
-    
+
     return () => subscription.unsubscribe()
   }, [])
-  
+
   if (!user) return <div>Not logged in</div>
   return <div>Welcome {user.email}</div>
 }
@@ -231,12 +231,12 @@ export async function GET(request: NextRequest) {
   try {
     const userId = await requireUserId()
     const supabase = await createServerClient()
-    
+
     const { data } = await supabase
       .from('portfolios')
       .select('*')
       .eq('user_id', userId)
-    
+
     return NextResponse.json({ data })
   } catch {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -256,7 +256,7 @@ import { revalidatePath } from 'next/cache'
 export async function updateProfile(formData: FormData) {
   const userId = await requireUserId()
   const supabase = await createServerClient()
-  
+
   const { error } = await supabase
     .from('profiles')
     .update({
@@ -264,11 +264,11 @@ export async function updateProfile(formData: FormData) {
       headline: formData.get('headline'),
     })
     .eq('id', userId)
-  
+
   if (error) {
     return { error: error.message }
   }
-  
+
   revalidatePath('/dashboard/settings')
   return { success: true }
 }

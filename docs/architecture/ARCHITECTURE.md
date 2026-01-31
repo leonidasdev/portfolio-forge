@@ -127,7 +127,7 @@ Portfolio Forge prioritizes server components:
 export default async function DashboardPage() {
   const userId = await requireUserId()
   const portfolios = await fetchPortfolios(userId)
-  
+
   return <PortfolioList portfolios={portfolios} />
 }
 
@@ -186,7 +186,7 @@ export async function createGroqCompletion(params: GroqCompletionParams) {
     temperature: params.temperature,
     max_tokens: params.maxTokens
   })
-  
+
   return response.choices[0]?.message?.content
 }
 ```
@@ -207,7 +207,7 @@ export async function suggestTags(
     temperature: 0.7,
     maxTokens: 200
   })
-  
+
   return parseTagsResponse(response)
 }
 ```
@@ -221,19 +221,19 @@ Multi-step AI workflows:
 export async function analyzePortfolio(userId: string) {
   // 1. Fetch portfolio data
   const portfolio = await fetchPortfolioData(userId)
-  
+
   // 2. Use abilities to analyze
   const completeness = await assessCompleteness(portfolio)
   const quality = await assessContentQuality(portfolio)
   const keywords = await extractKeywords(portfolio)
-  
+
   // 3. Generate recommendations
   const recommendations = await generateRecommendations({
     completeness,
     quality,
     keywords
   })
-  
+
   return { completeness, quality, keywords, recommendations }
 }
 ```
@@ -269,15 +269,15 @@ import { createPortfolioSchema } from '@/lib/validation'
 export const POST = withApiHandler(async (request) => {
   const { user, supabase } = await requireAuth()
   const body = createPortfolioSchema.parse(await request.json())
-  
+
   const { data, error } = await supabase
     .from('portfolios')
     .insert({ ...body, user_id: user.id })
     .select()
     .single()
-  
+
   if (error) throw error
-  
+
   return NextResponse.json(data, { status: 201 })
 })
 ```
@@ -321,17 +321,17 @@ const BuilderContext = createContext<BuilderContextType>(null)
 export function BuilderProvider({ children, initialSections }) {
   const [sections, setSections] = useState(initialSections)
   const [editingSection, setEditingSection] = useState(null)
-  
+
   const updateSection = async (id, content) => {
     // Optimistic update
-    setSections(prev => prev.map(s => 
+    setSections(prev => prev.map(s =>
       s.id === id ? { ...s, content } : s
     ))
-    
+
     // Server sync
     await apiClient.patch(`/portfolio-sections/${id}`, { content })
   }
-  
+
   return (
     <BuilderContext.Provider value={{ sections, updateSection, ... }}>
       {children}
@@ -369,18 +369,18 @@ Application-specific types:
 
 ```typescript
 // types/portfolio.ts
-export type SectionType = 
-  | 'summary' 
-  | 'experience' 
-  | 'skills' 
-  | 'certifications' 
+export type SectionType =
+  | 'summary'
+  | 'experience'
+  | 'skills'
+  | 'certifications'
   | 'custom'
 
-export type Tone = 
-  | 'concise' 
-  | 'formal' 
-  | 'casual' 
-  | 'senior' 
+export type Tone =
+  | 'concise'
+  | 'formal'
+  | 'casual'
+  | 'senior'
   | 'technical'
 
 export interface AIAnalysisResult {
@@ -435,10 +435,10 @@ revalidateTag('portfolios')
 ```typescript
 async function handleDelete(id: string) {
   const previousSections = sections
-  
+
   // Optimistic update
   setSections(sections.filter(s => s.id !== id))
-  
+
   try {
     await apiClient.delete(`/portfolio-sections/${id}`)
   } catch (error) {
@@ -516,7 +516,7 @@ describe('POST /api/v1/portfolios', () => {
     const response = await request(app)
       .post('/api/v1/portfolios')
       .send({ title: 'My Portfolio' })
-    
+
     expect(response.status).toBe(201)
   })
 })
@@ -531,7 +531,7 @@ test('user can create portfolio', async ({ page }) => {
   await page.click('text=New Portfolio')
   await page.fill('[name=title]', 'My Portfolio')
   await page.click('text=Create')
-  
+
   await expect(page).toHaveURL(/\/dashboard\/portfolios\//)
 })
 ```
