@@ -21,6 +21,7 @@ import { useUserId } from '@/lib/auth/SessionContext'
 import { uploadCertificationFile, deleteCertificationFile } from '@/lib/storage/certifications'
 import { TagSelector } from '@/components/tags/TagSelector'
 import { apiClient } from '@/lib/api/client'
+import { logger } from '@/lib/logger'
 import type { Database } from '@/lib/supabase/types'
 
 type Certification = Database['public']['Tables']['certifications']['Row']
@@ -73,7 +74,7 @@ export function CertificationForm({ mode, initialData }: CertificationFormProps)
         setSelectedTags(data.certification.tags)
       }
     } catch (error) {
-      console.error('Failed to load certification tags:', error)
+      logger.error('Failed to load certification tags', { error, certificationId })
     }
   }
 
@@ -116,7 +117,7 @@ export function CertificationForm({ mode, initialData }: CertificationFormProps)
         })
       }
     } catch (error) {
-      console.error('Failed to sync tags:', error)
+      logger.error('Failed to sync tags', { error, certificationId })
       // Don't fail the operation
     }
   }
@@ -222,7 +223,10 @@ export function CertificationForm({ mode, initialData }: CertificationFormProps)
         try {
           await deleteCertificationFile(initialData.file_path)
         } catch (deleteError) {
-          console.error('Failed to delete old file:', deleteError)
+          logger.error('Failed to delete old file', {
+            error: deleteError,
+            oldPath: initialData.file_path,
+          })
           // Don't fail the operation
         }
       }
@@ -231,7 +235,7 @@ export function CertificationForm({ mode, initialData }: CertificationFormProps)
       router.push('/dashboard/certifications')
       router.refresh()
     } catch (err) {
-      console.error('Submit error:', err)
+      logger.error('Certification form submit error', { error: err })
       setError(err instanceof Error ? err.message : 'An error occurred')
       setIsSubmitting(false)
       setUploadProgress(null)

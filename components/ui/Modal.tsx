@@ -26,9 +26,10 @@
 
 'use client'
 
+import { cn } from '@/lib/utils'
+import { logger } from '@/lib/logger'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { cn } from '@/lib/utils'
 import { Button } from './Button'
 
 export interface ModalProps {
@@ -215,7 +216,7 @@ export function ConfirmModal({
       await onConfirm()
       onClose()
     } catch (error) {
-      console.error('Confirm action failed:', error)
+      logger.error('Confirm action failed', { error })
     } finally {
       setLoading(false)
     }

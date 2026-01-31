@@ -1,5 +1,5 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { Modal, ConfirmModal, AlertModal, useModal } from '../Modal'
+import { fireEvent, render, screen } from '@testing-library/react'
+import { AlertModal, ConfirmModal, Modal, useModal } from '../Modal'
 
 // Test component that uses useModal hook
 function ModalTrigger({ title, children }: { title: string; children: React.ReactNode }) {

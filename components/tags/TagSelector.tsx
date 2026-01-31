@@ -13,10 +13,11 @@
 
 'use client'
 
-import { useState, useEffect } from 'react'
-import { apiClient } from '@/lib/api/client'
 import { ConfirmModal } from '@/components/ui/Modal'
+import { apiClient } from '@/lib/api/client'
+import { logger } from '@/lib/logger'
 import type { Database } from '@/lib/supabase/types'
+import { useEffect, useState } from 'react'
 
 type Tag = Database['public']['Tables']['tags']['Row']
 
@@ -46,7 +47,7 @@ export function TagSelector({ selectedTags, onChange }: TagSelectorProps) {
       const data = await apiClient.get<{ tags: Tag[] }>('/tags')
       setAllTags(data.tags || [])
     } catch (err) {
-      console.error('Failed to load tags:', err)
+      logger.error('Failed to load tags', { error: err })
       setError(err instanceof Error ? err.message : 'Failed to load tags')
     } finally {
       setIsLoading(false)
@@ -88,7 +89,7 @@ export function TagSelector({ selectedTags, onChange }: TagSelectorProps) {
       // Reset form
       setNewTagName('')
     } catch (err) {
-      console.error('Failed to create tag:', err)
+      logger.error('Failed to create tag', { error: err })
       setError(err instanceof Error ? err.message : 'Failed to create tag')
     } finally {
       setIsCreating(false)
@@ -117,7 +118,7 @@ export function TagSelector({ selectedTags, onChange }: TagSelectorProps) {
       // Remove from selected tags
       onChange(selectedTags.filter((t) => t.id !== tag.id))
     } catch (err) {
-      console.error('Failed to delete tag:', err)
+      logger.error('Failed to delete tag', { error: err, tagId: tag.id })
       setError(err instanceof Error ? err.message : 'Failed to delete tag')
     }
   }

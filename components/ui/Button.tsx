@@ -12,8 +12,8 @@
  * <Button isLoading>Saving...</Button>
  */
 
-import { forwardRef } from 'react'
 import { cn } from '@/lib/utils'
+import { forwardRef } from 'react'
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /** Visual variant of the button */
