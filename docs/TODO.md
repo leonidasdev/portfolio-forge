@@ -17,7 +17,7 @@ Portfolio Forge is a **well-architected Next.js 14+ application** with solid fun
 | **Architecture** | 8.5/10 | âœ… Strong |
 | **Code Quality** | 9/10 | âœ… Excellent (errors, constants, logger, hooks, UI lib, refactored components) |
 | **Documentation** | 9.5/10 | âœ… Excellent (SECURITY, CHANGELOG, DEPLOYMENT, RATE_LIMITING) |
-| **Testing** | 7.5/10 | âœ… Improved (122 tests passing) |
+| **Testing** | 8/10 | âœ… Good (163 tests passing) |
 | **Linting/Formatting** | 10/10 | ✅ Excellent (0 warnings - all `any` types fixed, pre-commit hooks) |
 | **CI/CD** | 8.5/10 | âœ… Configured (CI + pre-commit/pre-push hooks) |
 | **Security** | 8/10 | âœ… Good (SECURITY.md, error boundaries) |
@@ -565,11 +565,12 @@ Portfolio Forge is a **well-architected Next.js 14+ application** with solid fun
 | `lib/api/` | 4 | ~60 | Good |
 | `lib/validation/` | 1 | ~20 | Good |
 | `lib/__tests__/` | 2 | ~39 | Good (logger, utils) |
-| Components | 0 | 0 | âŒ None |
+| `components/ui/` | 1 | ~24 | Good (Skeleton) |
+| `components/tags/` | 1 | ~18 | Good (TagSelector) |
 | API Routes | 0 | 0 | âŒ None |
 | E2E | 0 | 0 | âŒ None |
 
-**Total:** 122 tests passing (1 skipped)
+**Total:** 163 tests passing (1 skipped)
 
 ### 7.2 Testing Action Items
 
