@@ -1,10 +1,10 @@
 /**
  * OAuth Callback Handler for Portfolio Forge
- * 
+ *
  * This route handles the OAuth callback from authentication providers.
  * After the user authorizes on the provider's site, they are redirected here
  * with a code that we exchange for a session.
- * 
+ *
  * Flow:
  * 1. User clicks "Sign in with Google/GitHub/LinkedIn" on /login
  * 2. User authorizes on provider's site
@@ -14,9 +14,17 @@
  * 6. We redirect to /dashboard (or original redirectTo URL)
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { Database } from '@/lib/supabase/types'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { NextRequest, NextResponse } from 'next/server'
+
+// Type for cookie options
+type CookieOptions = {
+  name: string
+  value: string
+  options?: Record<string, unknown>
+}
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
@@ -43,7 +51,7 @@ export async function GET(request: NextRequest) {
   const cookieStore = await cookies()
 
   // Create Supabase client with cookie handling
-  const supabase = createServerClient(
+  const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -51,7 +59,7 @@ export async function GET(request: NextRequest) {
         getAll() {
           return cookieStore.getAll()
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: CookieOptions[]) {
           try {
             cookiesToSet.forEach(({ name, value, options }) => {
               cookieStore.set(name, value, options)
@@ -67,7 +75,10 @@ export async function GET(request: NextRequest) {
 
   try {
     // Exchange the code for a session
-    const { data: { session }, error: sessionError } = await supabase.auth.exchangeCodeForSession(code)
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.exchangeCodeForSession(code)
 
     if (sessionError) {
       console.error('Session exchange error:', sessionError)
@@ -77,28 +88,26 @@ export async function GET(request: NextRequest) {
     }
 
     if (!session) {
-      return NextResponse.redirect(
-        `${requestUrl.origin}/auth/login?error=Failed to create session`
-      )
+      return NextResponse.redirect(`${requestUrl.origin}/auth/login?error=Failed to create session`)
     }
 
     // Check if profile exists, create if not
-    const { data: existingProfile, error: profileCheckError } = await supabase
-      .from('profiles')
+    const { data: existingProfile, error: profileCheckError } = await (
+      supabase.from('profiles') as any
+    )
       .select('id')
       .eq('id', session.user.id)
       .single()
 
     // Create profile if it doesn't exist
     if (!existingProfile && profileCheckError?.code === 'PGRST116') {
-      const { error: profileCreateError } = await supabase
-        .from('profiles')
-        .insert({
-          id: session.user.id,
-          email: session.user.email!,
-          full_name: session.user.user_metadata.full_name || session.user.user_metadata.name || null,
-          avatar_url: session.user.user_metadata.avatar_url || session.user.user_metadata.picture || null,
-        })
+      const { error: profileCreateError } = await (supabase.from('profiles') as any).insert({
+        id: session.user.id,
+        email: session.user.email!,
+        full_name: session.user.user_metadata.full_name || session.user.user_metadata.name || null,
+        avatar_url:
+          session.user.user_metadata.avatar_url || session.user.user_metadata.picture || null,
+      })
 
       if (profileCreateError) {
         console.error('Profile creation error:', profileCreateError)
@@ -109,11 +118,8 @@ export async function GET(request: NextRequest) {
     // Successful authentication - redirect to destination
     const redirectUrl = new URL(redirectTo, requestUrl.origin)
     return NextResponse.redirect(redirectUrl)
-
   } catch (error) {
     console.error('Callback handler error:', error)
-    return NextResponse.redirect(
-      `${requestUrl.origin}/auth/login?error=Authentication failed`
-    )
+    return NextResponse.redirect(`${requestUrl.origin}/auth/login?error=Authentication failed`)
   }
 }

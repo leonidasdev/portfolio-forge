@@ -65,7 +65,7 @@ describe('Logger', () => {
 
   describe('child logger', () => {
     it('should create child logger with context', () => {
-      const childLogger = logger.child({ service: 'auth' })
+      const childLogger = logger.child('auth')
       expect(childLogger).toBeDefined()
       childLogger.info('Child logger message')
       const called = consoleSpy.info.mock.calls.length > 0 || consoleSpy.log.mock.calls.length > 0
@@ -73,7 +73,7 @@ describe('Logger', () => {
     })
 
     it('should include parent context in child logs', () => {
-      const childLogger = logger.child({ service: 'api' })
+      const childLogger = logger.child('api')
       childLogger.warn('Warning from child')
       expect(consoleSpy.warn).toHaveBeenCalled()
     })

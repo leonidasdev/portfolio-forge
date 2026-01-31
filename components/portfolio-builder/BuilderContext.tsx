@@ -166,9 +166,11 @@ export function BuilderProvider({ children, portfolio, initialSections }: Builde
         const createdSections: Section[] = []
         for (const sectionData of newSections) {
           try {
+            // Spread sectionData first, then override portfolio_id to ensure correct value
+            const { portfolio_id: _existingPortfolioId, ...restSectionData } = sectionData
             const created = await apiClient.post<{ section: Section }>('/portfolio-sections', {
+              ...restSectionData,
               portfolio_id: portfolio.id,
-              ...sectionData,
             })
             createdSections.push(created.section)
           } catch (err) {

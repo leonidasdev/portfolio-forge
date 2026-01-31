@@ -48,10 +48,12 @@ function createMockSection(overrides: Partial<Section> = {}): Section {
   return {
     id: 'section-1',
     portfolio_id: 'portfolio-1',
-    section_type: 'summary',
-    content: { text: '' },
-    order_index: 0,
-    title: null,
+    section_type: 'about',
+    custom_content: { text: '' },
+    display_order: 0,
+    title: 'About',
+    description: null,
+    is_visible: true,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     ...overrides,
@@ -60,7 +62,7 @@ function createMockSection(overrides: Partial<Section> = {}): Section {
 
 describe('SectionEditor', () => {
   const mockOnSave = jest.fn()
-  const mockOnCancel = jest.fn()
+  const mockonClose = jest.fn()
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -70,7 +72,7 @@ describe('SectionEditor', () => {
   describe('rendering', () => {
     it('should render editor modal with title', () => {
       render(
-        <SectionEditor section={createMockSection()} onSave={mockOnSave} onCancel={mockOnCancel} />
+        <SectionEditor section={createMockSection()} onSave={mockOnSave} onClose={mockonClose} />
       )
 
       expect(screen.getByText('Edit Section')).toBeInTheDocument()
@@ -82,7 +84,7 @@ describe('SectionEditor', () => {
         <SectionEditor
           section={createMockSection({ section_type: 'skills' })}
           onSave={mockOnSave}
-          onCancel={mockOnCancel}
+          onClose={mockonClose}
         />
       )
 
@@ -92,7 +94,7 @@ describe('SectionEditor', () => {
 
     it('should render cancel and save buttons', () => {
       render(
-        <SectionEditor section={createMockSection()} onSave={mockOnSave} onCancel={mockOnCancel} />
+        <SectionEditor section={createMockSection()} onSave={mockOnSave} onClose={mockonClose} />
       )
 
       expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument()
@@ -105,11 +107,11 @@ describe('SectionEditor', () => {
       render(
         <SectionEditor
           section={createMockSection({
-            section_type: 'summary',
-            content: { text: 'Existing summary' },
+            section_type: 'about',
+            custom_content: { text: 'Existing summary' },
           })}
           onSave={mockOnSave}
-          onCancel={mockOnCancel}
+          onClose={mockonClose}
         />
       )
 
@@ -121,9 +123,9 @@ describe('SectionEditor', () => {
     it('should show AI summary generation buttons', () => {
       render(
         <SectionEditor
-          section={createMockSection({ section_type: 'summary' })}
+          section={createMockSection({ section_type: 'about' })}
           onSave={mockOnSave}
-          onCancel={mockOnCancel}
+          onClose={mockonClose}
         />
       )
 
@@ -137,15 +139,15 @@ describe('SectionEditor', () => {
 
       render(
         <SectionEditor
-          section={createMockSection({ section_type: 'summary' })}
+          section={createMockSection({ section_type: 'about' })}
           allSections={[
             createMockSection({
               section_type: 'skills',
-              content: { skills: ['JavaScript', 'React'] },
+              custom_content: { skills: ['JavaScript', 'React'] },
             }),
           ]}
           onSave={mockOnSave}
-          onCancel={mockOnCancel}
+          onClose={mockonClose}
         />
       )
 
@@ -165,10 +167,10 @@ describe('SectionEditor', () => {
         <SectionEditor
           section={createMockSection({
             section_type: 'skills',
-            content: { skills: ['JavaScript', 'TypeScript'] },
+            custom_content: { skills: ['JavaScript', 'TypeScript'] },
           })}
           onSave={mockOnSave}
-          onCancel={mockOnCancel}
+          onClose={mockonClose}
         />
       )
 
@@ -184,11 +186,11 @@ describe('SectionEditor', () => {
       render(
         <SectionEditor
           section={createMockSection({
-            section_type: 'summary',
-            content: { text: 'Some text to improve' },
+            section_type: 'about',
+            custom_content: { text: 'Some text to improve' },
           })}
           onSave={mockOnSave}
-          onCancel={mockOnCancel}
+          onClose={mockonClose}
         />
       )
 
@@ -199,11 +201,11 @@ describe('SectionEditor', () => {
       render(
         <SectionEditor
           section={createMockSection({
-            section_type: 'summary',
-            content: { text: 'Some text' },
+            section_type: 'about',
+            custom_content: { text: 'Some text' },
           })}
           onSave={mockOnSave}
-          onCancel={mockOnCancel}
+          onClose={mockonClose}
         />
       )
 
@@ -219,11 +221,11 @@ describe('SectionEditor', () => {
       render(
         <SectionEditor
           section={createMockSection({
-            section_type: 'summary',
-            content: { text: 'Text to improve' },
+            section_type: 'about',
+            custom_content: { text: 'Text to improve' },
           })}
           onSave={mockOnSave}
-          onCancel={mockOnCancel}
+          onClose={mockonClose}
         />
       )
 
@@ -245,11 +247,11 @@ describe('SectionEditor', () => {
       render(
         <SectionEditor
           section={createMockSection({
-            section_type: 'work_experience',
-            content: { description: 'Developed React applications' },
+            section_type: 'experience',
+            custom_content: { description: 'Developed React applications' },
           })}
           onSave={mockOnSave}
-          onCancel={mockOnCancel}
+          onClose={mockonClose}
         />
       )
 
@@ -263,11 +265,11 @@ describe('SectionEditor', () => {
       render(
         <SectionEditor
           section={createMockSection({
-            section_type: 'work_experience',
-            content: { description: 'Built web applications with React and Node.js' },
+            section_type: 'experience',
+            custom_content: { description: 'Built web applications with React and Node.js' },
           })}
           onSave={mockOnSave}
-          onCancel={mockOnCancel}
+          onClose={mockonClose}
         />
       )
 
@@ -281,30 +283,30 @@ describe('SectionEditor', () => {
   })
 
   describe('save and cancel', () => {
-    it('should call onCancel when cancel button is clicked', async () => {
+    it('should call onClose when cancel button is clicked', async () => {
       const user = userEvent.setup()
 
       render(
-        <SectionEditor section={createMockSection()} onSave={mockOnSave} onCancel={mockOnCancel} />
+        <SectionEditor section={createMockSection()} onSave={mockOnSave} onClose={mockonClose} />
       )
 
       await user.click(screen.getByRole('button', { name: /cancel/i }))
 
-      expect(mockOnCancel).toHaveBeenCalled()
+      expect(mockonClose).toHaveBeenCalled()
     })
 
     it('should save section when save button is clicked', async () => {
       const user = userEvent.setup()
       const section = createMockSection({
-        section_type: 'summary',
-        content: { text: 'Original text' },
+        section_type: 'about',
+        custom_content: { text: 'Original text' },
       })
 
       mockPatch.mockResolvedValue({
-        section: { ...section, content: { text: 'Updated text' } },
+        section: { ...section, custom_content: { text: 'Updated text' } },
       })
 
-      render(<SectionEditor section={section} onSave={mockOnSave} onCancel={mockOnCancel} />)
+      render(<SectionEditor section={section} onSave={mockOnSave} onClose={mockonClose} />)
 
       // Edit the text
       const textarea = screen.getByRole('textbox')
@@ -331,7 +333,7 @@ describe('SectionEditor', () => {
       mockPatch.mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 1000)))
 
       render(
-        <SectionEditor section={createMockSection()} onSave={mockOnSave} onCancel={mockOnCancel} />
+        <SectionEditor section={createMockSection()} onSave={mockOnSave} onClose={mockonClose} />
       )
 
       await user.click(screen.getByRole('button', { name: /save/i }))
@@ -341,11 +343,11 @@ describe('SectionEditor', () => {
 
     it('should call onSave with updated section after successful save', async () => {
       const user = userEvent.setup()
-      const updatedSection = createMockSection({ content: { text: 'New text' } })
+      const updatedSection = createMockSection({ custom_content: { text: 'New text' } })
       mockPatch.mockResolvedValue({ section: updatedSection })
 
       render(
-        <SectionEditor section={createMockSection()} onSave={mockOnSave} onCancel={mockOnCancel} />
+        <SectionEditor section={createMockSection()} onSave={mockOnSave} onClose={mockonClose} />
       )
 
       await user.click(screen.getByRole('button', { name: /save/i }))
@@ -362,7 +364,7 @@ describe('SectionEditor', () => {
       mockPatch.mockRejectedValue(new Error('Network error'))
 
       render(
-        <SectionEditor section={createMockSection()} onSave={mockOnSave} onCancel={mockOnCancel} />
+        <SectionEditor section={createMockSection()} onSave={mockOnSave} onClose={mockonClose} />
       )
 
       await user.click(screen.getByRole('button', { name: /save/i }))
@@ -379,11 +381,11 @@ describe('SectionEditor', () => {
       render(
         <SectionEditor
           section={createMockSection({
-            section_type: 'summary',
-            content: { text: 'Some text' },
+            section_type: 'about',
+            custom_content: { text: 'Some text' },
           })}
           onSave={mockOnSave}
-          onCancel={mockOnCancel}
+          onClose={mockonClose}
         />
       )
 
@@ -402,10 +404,10 @@ describe('SectionEditor', () => {
           section={createMockSection({
             section_type: 'custom',
             title: 'My Custom Section',
-            content: { text: '' },
+            custom_content: { text: '' },
           })}
           onSave={mockOnSave}
-          onCancel={mockOnCancel}
+          onClose={mockonClose}
         />
       )
 
@@ -424,10 +426,10 @@ describe('SectionEditor', () => {
           section={createMockSection({
             section_type: 'custom',
             title: 'Original Title',
-            content: { text: 'Content' },
+            custom_content: { text: 'Content' },
           })}
           onSave={mockOnSave}
-          onCancel={mockOnCancel}
+          onClose={mockonClose}
         />
       )
 
@@ -450,10 +452,10 @@ describe('SectionEditor', () => {
         <SectionEditor
           section={createMockSection({
             section_type: 'certifications',
-            content: { certifications: [] },
+            custom_content: { certifications: [] },
           })}
           onSave={mockOnSave}
-          onCancel={mockOnCancel}
+          onClose={mockonClose}
         />
       )
 
@@ -466,10 +468,10 @@ describe('SectionEditor', () => {
         <SectionEditor
           section={createMockSection({
             section_type: 'certifications',
-            content: { certifications: [] },
+            custom_content: { certifications: [] },
           })}
           onSave={mockOnSave}
-          onCancel={mockOnCancel}
+          onClose={mockonClose}
         />
       )
 

@@ -51,12 +51,12 @@ export const updatePortfolioThemeSchema = z.object({
 // ============================================================================
 
 export const sectionTypeSchema = z.enum([
-  'summary',
+  'about',
   'skills',
-  'work_experience',
-  'education',
+  'experience',
   'projects',
   'certifications',
+  'contact',
   'custom',
 ])
 
@@ -72,6 +72,7 @@ export const updateSectionSchema = z.object({
   title: z.string().max(200).optional().nullable(),
   content: z.record(z.string(), z.any()).optional().nullable(),
   settings: z.record(z.string(), z.any()).optional().nullable(),
+  display_order: z.number().int().min(0).optional(),
 })
 
 export const reorderSectionsSchema = z.object({

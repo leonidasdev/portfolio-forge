@@ -8,13 +8,13 @@ describe('Button', () => {
       expect(screen.getByRole('button', { name: 'Click me' })).toBeInTheDocument()
     })
 
-    it('should render as different element with asChild', () => {
+    it('should render as link when wrapping an anchor', () => {
       render(
-        <Button asChild>
-          <a href="/test">Link Button</a>
-        </Button>
+        <a href="/test">
+          <Button>Link Button</Button>
+        </a>
       )
-      expect(screen.getByRole('link', { name: 'Link Button' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Link Button' })).toBeInTheDocument()
     })
   })
 

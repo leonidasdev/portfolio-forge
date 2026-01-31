@@ -92,9 +92,12 @@ jest.mock('../SectionAddMenu', () => ({
         onSectionAdded({
           id: 'new-section',
           portfolio_id: 'test-portfolio',
-          section_type: 'summary',
-          order_index: 0,
-          content: { text: 'New summary' },
+          section_type: 'about',
+          title: '',
+          description: null,
+          display_order: 0,
+          is_visible: true,
+          custom_content: { text: 'New summary' },
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
@@ -122,7 +125,7 @@ jest.mock('../SectionEditor', () => ({
         onClick={() =>
           onSave({
             ...section,
-            content: { text: 'Updated content' },
+            custom_content: { text: 'Updated content' },
           })
         }
       >
@@ -141,9 +144,10 @@ const createMockPortfolio = (overrides: Partial<Portfolio> = {}): Portfolio => (
   id: 'test-portfolio',
   user_id: 'test-user',
   title: 'Test Portfolio',
+  slug: 'test-portfolio',
   description: 'A test portfolio',
   is_public: false,
-  public_link_token: null,
+  is_deleted: false,
   template: 'single-column',
   theme: 'default',
   created_at: '2026-01-01T00:00:00Z',
@@ -152,11 +156,14 @@ const createMockPortfolio = (overrides: Partial<Portfolio> = {}): Portfolio => (
 })
 
 const createMockSection = (
-  overrides: Partial<Section> & { id: string; section_type: string }
+  overrides: Partial<Section> & { id: string; section_type: Section['section_type'] }
 ): Section => ({
   portfolio_id: 'test-portfolio',
-  order_index: 0,
-  content: {},
+  title: '',
+  description: null,
+  display_order: 0,
+  is_visible: true,
+  custom_content: {},
   created_at: '2026-01-01T00:00:00Z',
   updated_at: '2026-01-15T00:00:00Z',
   ...overrides,
@@ -204,7 +211,11 @@ describe('Builder', () => {
 
     it('should render all AI features when sections exist', () => {
       const sections = [
-        createMockSection({ id: 'section-1', section_type: 'summary', content: { text: 'Test' } }),
+        createMockSection({
+          id: 'section-1',
+          section_type: 'about',
+          custom_content: { text: 'Test' },
+        }),
       ]
 
       render(<Builder portfolio={createMockPortfolio()} initialSections={sections} />)
@@ -220,14 +231,14 @@ describe('Builder', () => {
       const sections = [
         createMockSection({
           id: 'section-1',
-          section_type: 'summary',
-          content: { text: 'Summary text' },
+          section_type: 'about',
+          custom_content: { text: 'Summary text' },
         }),
         createMockSection({
           id: 'section-2',
           section_type: 'experience',
-          order_index: 1,
-          content: { title: 'Developer', company: 'Test Corp' },
+          display_order: 1,
+          custom_content: { title: 'Developer', company: 'Test Corp' },
         }),
       ]
 
@@ -260,7 +271,11 @@ describe('Builder', () => {
       const user = userEvent.setup()
 
       const sections = [
-        createMockSection({ id: 'section-1', section_type: 'summary', content: { text: 'Test' } }),
+        createMockSection({
+          id: 'section-1',
+          section_type: 'about',
+          custom_content: { text: 'Test' },
+        }),
       ]
 
       render(<Builder portfolio={createMockPortfolio()} initialSections={sections} />)
@@ -289,7 +304,11 @@ describe('Builder', () => {
       const user = userEvent.setup()
 
       const sections = [
-        createMockSection({ id: 'section-1', section_type: 'summary', content: { text: 'Test' } }),
+        createMockSection({
+          id: 'section-1',
+          section_type: 'about',
+          custom_content: { text: 'Test' },
+        }),
       ]
 
       render(<Builder portfolio={createMockPortfolio()} initialSections={sections} />)
@@ -312,7 +331,11 @@ describe('Builder', () => {
       const user = userEvent.setup()
 
       const sections = [
-        createMockSection({ id: 'section-1', section_type: 'summary', content: { text: 'Test' } }),
+        createMockSection({
+          id: 'section-1',
+          section_type: 'about',
+          custom_content: { text: 'Test' },
+        }),
       ]
 
       render(<Builder portfolio={createMockPortfolio()} initialSections={sections} />)
@@ -326,14 +349,18 @@ describe('Builder', () => {
 
       // Editor should appear
       expect(screen.getByTestId('section-editor')).toBeInTheDocument()
-      expect(screen.getByText('Editing: summary')).toBeInTheDocument()
+      expect(screen.getByText('Editing: about')).toBeInTheDocument()
     })
 
     it('should close editor when close is clicked', async () => {
       const user = userEvent.setup()
 
       const sections = [
-        createMockSection({ id: 'section-1', section_type: 'summary', content: { text: 'Test' } }),
+        createMockSection({
+          id: 'section-1',
+          section_type: 'about',
+          custom_content: { text: 'Test' },
+        }),
       ]
 
       render(<Builder portfolio={createMockPortfolio()} initialSections={sections} />)
@@ -355,7 +382,11 @@ describe('Builder', () => {
       const user = userEvent.setup()
 
       const sections = [
-        createMockSection({ id: 'section-1', section_type: 'summary', content: { text: 'Test' } }),
+        createMockSection({
+          id: 'section-1',
+          section_type: 'about',
+          custom_content: { text: 'Test' },
+        }),
       ]
 
       render(<Builder portfolio={createMockPortfolio()} initialSections={sections} />)
@@ -379,7 +410,11 @@ describe('Builder', () => {
       mockDelete.mockRejectedValue(new Error('Network error'))
 
       const sections = [
-        createMockSection({ id: 'section-1', section_type: 'summary', content: { text: 'Test' } }),
+        createMockSection({
+          id: 'section-1',
+          section_type: 'about',
+          custom_content: { text: 'Test' },
+        }),
       ]
 
       render(<Builder portfolio={createMockPortfolio()} initialSections={sections} />)

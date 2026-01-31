@@ -13,8 +13,8 @@ import type { TemplateComponentProps } from './registry'
 
 export function GridTemplate({ portfolio, sections, theme: _theme }: TemplateComponentProps) {
   // Summary section gets full width at top
-  const summarySection = sections.find((s) => s.section_type === 'summary')
-  const gridSections = sections.filter((s) => s.section_type !== 'summary')
+  const summarySection = sections.find((s) => s.section_type === 'about')
+  const gridSections = sections.filter((s) => s.section_type !== 'about')
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>

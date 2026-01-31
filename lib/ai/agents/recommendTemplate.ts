@@ -26,8 +26,7 @@ export async function recommendTemplateAndTheme(userId: string): Promise<{
   const supabase = await createServerClient()
 
   // Fetch all portfolio sections for the user
-  const { data: portfolios } = await supabase
-    .from('portfolios')
+  const { data: portfolios } = await (supabase.from('portfolios') as any)
     .select('id')
     .eq('user_id', userId)
     .limit(1)
@@ -37,8 +36,7 @@ export async function recommendTemplateAndTheme(userId: string): Promise<{
     throw new Error('No portfolio found for user')
   }
 
-  const { data: sections } = await supabase
-    .from('portfolio_sections')
+  const { data: sections } = await (supabase.from('portfolio_sections') as any)
     .select('*')
     .eq('portfolio_id', portfolios.id)
     .order('display_order', { ascending: true })
@@ -172,7 +170,7 @@ Certifications: ${contentProfile.certificationCount}
 Skills: ${contentProfile.skillsCount}
 Custom sections: ${contentProfile.customSectionCount}
 
-Current section order: ${sections.map((s) => s.section_type).join(', ')}
+Current section order: ${sections.map((s: { section_type: string }) => s.section_type).join(', ')}
 
 Recommend the optimal template, theme, and section order for maximum impact.`
 
@@ -190,7 +188,8 @@ Recommend the optimal template, theme, and section order for maximum impact.`
       recommendedTemplate: parsed.recommendedTemplate || 'single-column',
       recommendedTheme: parsed.recommendedTheme || 'professional',
       recommendedSectionOrder:
-        parsed.recommendedSectionOrder || sections.map((s) => s.section_type),
+        parsed.recommendedSectionOrder ||
+        sections.map((s: { section_type: string }) => s.section_type),
       rationale: parsed.rationale || 'Recommendations based on your content profile.',
     }
   } catch (error) {
@@ -219,7 +218,7 @@ Recommend the optimal template, theme, and section order for maximum impact.`
     return {
       recommendedTemplate: template,
       recommendedTheme: theme,
-      recommendedSectionOrder: sections.map((s) => s.section_type),
+      recommendedSectionOrder: sections.map((s: { section_type: string }) => s.section_type),
       rationale:
         'Based on your content profile, we recommend a layout that highlights your strengths.',
     }

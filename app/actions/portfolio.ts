@@ -5,6 +5,10 @@
  * Server Actions are functions that run on the server and can be called from client components
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// Note: Supabase type inference issues require type assertions
+// TODO: Fix when @supabase/ssr updates type inference
+
 'use server'
 
 import { revalidatePath } from 'next/cache'
@@ -33,8 +37,7 @@ export async function createPortfolio(formData: FormData) {
 
     const supabase = await createServerClient()
 
-    const { data, error } = await supabase
-      .from('portfolios')
+    const { data, error } = await (supabase.from('portfolios') as any)
       .insert({
         user_id: user.id,
         title,
@@ -78,8 +81,7 @@ export async function updatePortfolio(portfolioId: string, formData: FormData) {
     const supabase = await createServerClient()
 
     // RLS will ensure the user can only update their own portfolio
-    const { data, error } = await supabase
-      .from('portfolios')
+    const { data, error } = await (supabase.from('portfolios') as any)
       .update({
         title,
         description,
@@ -117,8 +119,7 @@ export async function deletePortfolio(portfolioId: string) {
     const supabase = await createServerClient()
 
     // RLS will ensure the user can only delete their own portfolio
-    const { error } = await supabase
-      .from('portfolios')
+    const { error } = await (supabase.from('portfolios') as any)
       .update({ is_deleted: true })
       .eq('id', portfolioId)
 
@@ -166,8 +167,7 @@ export async function createPublicLink(portfolioId: string) {
     }
 
     // Create the public link
-    const { data, error } = await supabase
-      .from('public_links')
+    const { data, error } = await (supabase.from('public_links') as any)
       .insert({
         portfolio_id: portfolioId,
         token: tokenData,
@@ -202,8 +202,7 @@ export async function deactivatePublicLink(linkId: string) {
     const supabase = await createServerClient()
 
     // RLS will ensure the user can only deactivate their own links
-    const { error } = await supabase
-      .from('public_links')
+    const { error } = await (supabase.from('public_links') as any)
       .update({ is_active: false })
       .eq('id', linkId)
 

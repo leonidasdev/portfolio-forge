@@ -1,12 +1,12 @@
 /**
  * Dashboard Overview Page - Example of using session from layout
- * 
+ *
  * This page demonstrates:
  * - Reading session from layout via useSession() hook (client component)
  * - Reading session directly via requireUserId() (server component)
  * - Accessing authenticated user ID
  * - Fetching user-specific data
- * 
+ *
  * Two patterns shown:
  * 1. Client Component with useSession() - For interactive UI
  * 2. Server Component with requireUserId() - For data fetching
@@ -23,8 +23,7 @@ export default async function DashboardOverviewPage() {
   const supabase = await createServerClient()
 
   // Fetch user profile
-  const { data: profile } = await supabase
-    .from('profiles')
+  const { data: profile } = await (supabase.from('profiles') as any)
     .select('*')
     .eq('id', userId)
     .single()
@@ -36,34 +35,29 @@ export default async function DashboardOverviewPage() {
     { count: projectCount },
     { count: skillCount },
   ] = await Promise.all([
-    supabase
-      .from('portfolios')
+    (supabase.from('portfolios') as any)
       .select('*', { count: 'exact', head: true })
       .eq('user_id', userId)
       .eq('is_deleted', false),
-    
-    supabase
-      .from('certifications')
+
+    (supabase.from('certifications') as any)
       .select('*', { count: 'exact', head: true })
       .eq('user_id', userId)
       .eq('is_deleted', false),
-    
-    supabase
-      .from('projects')
+
+    (supabase.from('projects') as any)
       .select('*', { count: 'exact', head: true })
       .eq('user_id', userId)
       .eq('is_deleted', false),
-    
-    supabase
-      .from('skills')
+
+    (supabase.from('skills') as any)
       .select('*', { count: 'exact', head: true })
       .eq('user_id', userId)
       .eq('is_deleted', false),
   ])
 
   // Fetch recent activity (last 5 items)
-  const { data: recentPortfolios } = await supabase
-    .from('portfolios')
+  const { data: recentPortfolios } = await (supabase.from('portfolios') as any)
     .select('id, title, created_at, updated_at')
     .eq('user_id', userId)
     .eq('is_deleted', false)
@@ -108,7 +102,7 @@ export default async function DashboardOverviewPage() {
         <h2 className="text-2xl font-semibold mb-4">Recent Activity</h2>
         {recentPortfolios && recentPortfolios.length > 0 ? (
           <div className="bg-white rounded-lg shadow divide-y">
-            {recentPortfolios.map((portfolio) => (
+            {recentPortfolios.map((portfolio: any) => (
               <div key={portfolio.id} className="p-4 hover:bg-gray-50">
                 <h3 className="font-semibold">{portfolio.title}</h3>
                 <p className="text-sm text-gray-600 mt-1">
@@ -126,9 +120,7 @@ export default async function DashboardOverviewPage() {
 
       {/* User ID Display (for debugging) */}
       <section className="mt-8 bg-gray-100 rounded-lg p-4">
-        <h3 className="text-sm font-medium text-gray-700 mb-2">
-          Authenticated User ID:
-        </h3>
+        <h3 className="text-sm font-medium text-gray-700 mb-2">Authenticated User ID:</h3>
         <code className="text-xs text-gray-600 font-mono">{userId}</code>
       </section>
     </div>

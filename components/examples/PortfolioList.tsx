@@ -131,8 +131,7 @@ export default function PortfolioList() {
       const timestamp = Date.now()
       const slug = `portfolio-${timestamp}`
 
-      const { data, error: insertError } = await supabase
-        .from('portfolios')
+      const { data, error: insertError } = await (supabase.from('portfolios') as any)
         .insert({
           user_id: user.id,
           title: `New Portfolio ${timestamp}`,
@@ -161,8 +160,7 @@ export default function PortfolioList() {
     try {
       const supabase = createBrowserClient()
 
-      const { error: updateError } = await supabase
-        .from('portfolios')
+      const { error: updateError } = await (supabase.from('portfolios') as any)
         .update({ is_public: !currentState })
         .eq('id', portfolioId)
 
@@ -190,8 +188,7 @@ export default function PortfolioList() {
       const supabase = createBrowserClient()
 
       // Soft delete
-      const { error: deleteError } = await supabase
-        .from('portfolios')
+      const { error: deleteError } = await (supabase.from('portfolios') as any)
         .update({ is_deleted: true })
         .eq('id', portfolioId)
 

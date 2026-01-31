@@ -1,0 +1,756 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="357" failures="0" errors="0" time="8.757">
+  <testsuite name="Portfolios API Routes" errors="0" failures="0" skipped="0" timestamp="2026-01-31T19:24:44" time="1.638" tests="13">
+    <testcase classname="Portfolios API Routes GET /api/v1/portfolios should return portfolios for authenticated user" name="Portfolios API Routes GET /api/v1/portfolios should return portfolios for authenticated user" time="0.019">
+    </testcase>
+    <testcase classname="Portfolios API Routes GET /api/v1/portfolios should return empty array when no portfolios exist" name="Portfolios API Routes GET /api/v1/portfolios should return empty array when no portfolios exist" time="0.002">
+    </testcase>
+    <testcase classname="Portfolios API Routes GET /api/v1/portfolios should return 500 on database error" name="Portfolios API Routes GET /api/v1/portfolios should return 500 on database error" time="0.114">
+    </testcase>
+    <testcase classname="Portfolios API Routes GET /api/v1/portfolios should return 401 when not authenticated" name="Portfolios API Routes GET /api/v1/portfolios should return 401 when not authenticated" time="0.006">
+    </testcase>
+    <testcase classname="Portfolios API Routes GET /api/v1/portfolios should order portfolios by updated_at descending" name="Portfolios API Routes GET /api/v1/portfolios should order portfolios by updated_at descending" time="0.002">
+    </testcase>
+    <testcase classname="Portfolios API Routes POST /api/v1/portfolios should create a new portfolio" name="Portfolios API Routes POST /api/v1/portfolios should create a new portfolio" time="0.005">
+    </testcase>
+    <testcase classname="Portfolios API Routes POST /api/v1/portfolios should create a public portfolio when is_public is true" name="Portfolios API Routes POST /api/v1/portfolios should create a public portfolio when is_public is true" time="0.002">
+    </testcase>
+    <testcase classname="Portfolios API Routes POST /api/v1/portfolios should default is_public to false when not provided" name="Portfolios API Routes POST /api/v1/portfolios should default is_public to false when not provided" time="0.002">
+    </testcase>
+    <testcase classname="Portfolios API Routes POST /api/v1/portfolios should return 400 when title is missing" name="Portfolios API Routes POST /api/v1/portfolios should return 400 when title is missing" time="0.027">
+    </testcase>
+    <testcase classname="Portfolios API Routes POST /api/v1/portfolios should return 400 when title is empty" name="Portfolios API Routes POST /api/v1/portfolios should return 400 when title is empty" time="0.011">
+    </testcase>
+    <testcase classname="Portfolios API Routes POST /api/v1/portfolios should return 500 on database insert error" name="Portfolios API Routes POST /api/v1/portfolios should return 500 on database insert error" time="0.007">
+    </testcase>
+    <testcase classname="Portfolios API Routes POST /api/v1/portfolios should return 401 when not authenticated" name="Portfolios API Routes POST /api/v1/portfolios should return 401 when not authenticated" time="0.005">
+    </testcase>
+    <testcase classname="Portfolios API Routes POST /api/v1/portfolios should include user_id in the insert" name="Portfolios API Routes POST /api/v1/portfolios should include user_id in the insert" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="Button" errors="0" failures="0" skipped="0" timestamp="2026-01-31T19:24:44" time="1.937" tests="25">
+    <testcase classname="Button rendering should render with children" name="Button rendering should render with children" time="0.154">
+    </testcase>
+    <testcase classname="Button rendering should render as different element with asChild" name="Button rendering should render as different element with asChild" time="0.136">
+    </testcase>
+    <testcase classname="Button variants should render primary variant by default" name="Button variants should render primary variant by default" time="0.022">
+    </testcase>
+    <testcase classname="Button variants should render secondary variant" name="Button variants should render secondary variant" time="0.012">
+    </testcase>
+    <testcase classname="Button variants should render outline variant" name="Button variants should render outline variant" time="0.03">
+    </testcase>
+    <testcase classname="Button variants should render ghost variant" name="Button variants should render ghost variant" time="0.014">
+    </testcase>
+    <testcase classname="Button variants should render danger variant" name="Button variants should render danger variant" time="0.007">
+    </testcase>
+    <testcase classname="Button variants should render success variant" name="Button variants should render success variant" time="0.015">
+    </testcase>
+    <testcase classname="Button sizes should render medium size by default" name="Button sizes should render medium size by default" time="0.01">
+    </testcase>
+    <testcase classname="Button sizes should render small size" name="Button sizes should render small size" time="0.013">
+    </testcase>
+    <testcase classname="Button sizes should render large size" name="Button sizes should render large size" time="0.006">
+    </testcase>
+    <testcase classname="Button loading state should show loading spinner when isLoading" name="Button loading state should show loading spinner when isLoading" time="0.013">
+    </testcase>
+    <testcase classname="Button loading state should disable button when loading" name="Button loading state should disable button when loading" time="0.006">
+    </testcase>
+    <testcase classname="Button loading state should hide children visibility when loading" name="Button loading state should hide children visibility when loading" time="0.011">
+    </testcase>
+    <testcase classname="Button icons should render left icon" name="Button icons should render left icon" time="0.005">
+    </testcase>
+    <testcase classname="Button icons should render right icon" name="Button icons should render right icon" time="0.004">
+    </testcase>
+    <testcase classname="Button icons should render both icons" name="Button icons should render both icons" time="0.006">
+    </testcase>
+    <testcase classname="Button fullWidth should render full width when fullWidth is true" name="Button fullWidth should render full width when fullWidth is true" time="0.007">
+    </testcase>
+    <testcase classname="Button fullWidth should not render full width by default" name="Button fullWidth should not render full width by default" time="0.006">
+    </testcase>
+    <testcase classname="Button disabled state should be disabled when disabled prop is true" name="Button disabled state should be disabled when disabled prop is true" time="0.005">
+    </testcase>
+    <testcase classname="Button disabled state should have disabled styling" name="Button disabled state should have disabled styling" time="0.005">
+    </testcase>
+    <testcase classname="Button interactions should call onClick when clicked" name="Button interactions should call onClick when clicked" time="0.016">
+    </testcase>
+    <testcase classname="Button interactions should not call onClick when disabled" name="Button interactions should not call onClick when disabled" time="0.006">
+    </testcase>
+    <testcase classname="Button interactions should not call onClick when loading" name="Button interactions should not call onClick when loading" time="0.007">
+    </testcase>
+    <testcase classname="Button className merging should merge custom className" name="Button className merging should merge custom className" time="0.005">
+    </testcase>
+  </testsuite>
+  <testsuite name="Toast" errors="0" failures="0" skipped="0" timestamp="2026-01-31T19:24:44" time="1.948" tests="18">
+    <testcase classname="Toast ToastProvider should render children" name="Toast ToastProvider should render children" time="0.073">
+    </testcase>
+    <testcase classname="Toast ToastProvider should render toast container" name="Toast ToastProvider should render toast container" time="0.011">
+    </testcase>
+    <testcase classname="Toast useToast hook should show success toast" name="Toast useToast hook should show success toast" time="0.141">
+    </testcase>
+    <testcase classname="Toast useToast hook should show error toast" name="Toast useToast hook should show error toast" time="0.035">
+    </testcase>
+    <testcase classname="Toast useToast hook should show warning toast" name="Toast useToast hook should show warning toast" time="0.019">
+    </testcase>
+    <testcase classname="Toast useToast hook should show info toast" name="Toast useToast hook should show info toast" time="0.022">
+    </testcase>
+    <testcase classname="Toast useToast hook should show toast with title" name="Toast useToast hook should show toast with title" time="0.017">
+    </testcase>
+    <testcase classname="Toast toast auto-dismiss should auto-dismiss toast after duration" name="Toast toast auto-dismiss should auto-dismiss toast after duration" time="0.013">
+    </testcase>
+    <testcase classname="Toast toast dismiss button should dismiss toast when close button is clicked" name="Toast toast dismiss button should dismiss toast when close button is clicked" time="0.127">
+    </testcase>
+    <testcase classname="Toast multiple toasts should show multiple toasts" name="Toast multiple toasts should show multiple toasts" time="0.039">
+    </testcase>
+    <testcase classname="Toast multiple toasts should limit toasts to maxToasts" name="Toast multiple toasts should limit toasts to maxToasts" time="0.036">
+    </testcase>
+    <testcase classname="Toast toast positioning should position toasts at top-right by default" name="Toast toast positioning should position toasts at top-right by default" time="0.005">
+    </testcase>
+    <testcase classname="Toast toast positioning should position toasts at bottom-right when specified" name="Toast toast positioning should position toasts at bottom-right when specified" time="0.004">
+    </testcase>
+    <testcase classname="Toast toast positioning should position toasts at top-left when specified" name="Toast toast positioning should position toasts at top-left when specified" time="0.005">
+    </testcase>
+    <testcase classname="Toast toast types styling should apply success styling" name="Toast toast types styling should apply success styling" time="0.013">
+    </testcase>
+    <testcase classname="Toast toast types styling should apply error styling" name="Toast toast types styling should apply error styling" time="0.021">
+    </testcase>
+    <testcase classname="Toast toast types styling should apply warning styling" name="Toast toast types styling should apply warning styling" time="0.011">
+    </testcase>
+    <testcase classname="Toast toast types styling should apply info styling" name="Toast toast types styling should apply info styling" time="0.015">
+    </testcase>
+  </testsuite>
+  <testsuite name="Modal" errors="0" failures="0" skipped="0" timestamp="2026-01-31T19:24:44" time="2.078" tests="32">
+    <testcase classname="Modal rendering should not render when closed" name="Modal rendering should not render when closed" time="0.057">
+    </testcase>
+    <testcase classname="Modal rendering should render when open" name="Modal rendering should render when open" time="0.04">
+    </testcase>
+    <testcase classname="Modal rendering should render title" name="Modal rendering should render title" time="0.012">
+    </testcase>
+    <testcase classname="Modal rendering should render children" name="Modal rendering should render children" time="0.038">
+    </testcase>
+    <testcase classname="Modal sizes should render small size" name="Modal sizes should render small size" time="0.011">
+    </testcase>
+    <testcase classname="Modal sizes should render medium size by default" name="Modal sizes should render medium size by default" time="0.012">
+    </testcase>
+    <testcase classname="Modal sizes should render large size" name="Modal sizes should render large size" time="0.012">
+    </testcase>
+    <testcase classname="Modal sizes should render extra large size" name="Modal sizes should render extra large size" time="0.008">
+    </testcase>
+    <testcase classname="Modal interactions should call onClose when close button is clicked" name="Modal interactions should call onClose when close button is clicked" time="0.097">
+    </testcase>
+    <testcase classname="Modal interactions should call onClose when backdrop is clicked" name="Modal interactions should call onClose when backdrop is clicked" time="0.013">
+    </testcase>
+    <testcase classname="Modal interactions should not call onClose when modal content is clicked" name="Modal interactions should not call onClose when modal content is clicked" time="0.006">
+    </testcase>
+    <testcase classname="Modal interactions should call onClose when Escape key is pressed" name="Modal interactions should call onClose when Escape key is pressed" time="0.005">
+    </testcase>
+    <testcase classname="Modal accessibility should have role dialog" name="Modal accessibility should have role dialog" time="0.028">
+    </testcase>
+    <testcase classname="Modal accessibility should have aria-modal" name="Modal accessibility should have aria-modal" time="0.008">
+    </testcase>
+    <testcase classname="Modal accessibility should have aria-labelledby pointing to title" name="Modal accessibility should have aria-labelledby pointing to title" time="0.006">
+    </testcase>
+    <testcase classname="ConfirmModal should render title and message" name="ConfirmModal should render title and message" time="0.008">
+    </testcase>
+    <testcase classname="ConfirmModal should render default button labels" name="ConfirmModal should render default button labels" time="0.021">
+    </testcase>
+    <testcase classname="ConfirmModal should render custom button labels" name="ConfirmModal should render custom button labels" time="0.006">
+    </testcase>
+    <testcase classname="ConfirmModal should call onConfirm when confirm button is clicked" name="ConfirmModal should call onConfirm when confirm button is clicked" time="0.202">
+    </testcase>
+    <testcase classname="ConfirmModal should call onClose when cancel button is clicked" name="ConfirmModal should call onClose when cancel button is clicked" time="0.005">
+    </testcase>
+    <testcase classname="ConfirmModal should apply destructive styling for danger variant" name="ConfirmModal should apply destructive styling for danger variant" time="0.007">
+    </testcase>
+    <testcase classname="ConfirmModal should show loading state on confirm button" name="ConfirmModal should show loading state on confirm button" time="0.01">
+    </testcase>
+    <testcase classname="AlertModal should render title and message" name="AlertModal should render title and message" time="0.005">
+    </testcase>
+    <testcase classname="AlertModal should render default close label" name="AlertModal should render default close label" time="0.005">
+    </testcase>
+    <testcase classname="AlertModal should render custom close label" name="AlertModal should render custom close label" time="0.006">
+    </testcase>
+    <testcase classname="AlertModal should call onClose when button is clicked" name="AlertModal should call onClose when button is clicked" time="0.003">
+    </testcase>
+    <testcase classname="AlertModal should apply error styling" name="AlertModal should apply error styling" time="0.003">
+    </testcase>
+    <testcase classname="AlertModal should apply success styling" name="AlertModal should apply success styling" time="0.006">
+    </testcase>
+    <testcase classname="AlertModal should apply warning styling" name="AlertModal should apply warning styling" time="0.003">
+    </testcase>
+    <testcase classname="useModal hook should start with isOpen false" name="useModal hook should start with isOpen false" time="0.003">
+    </testcase>
+    <testcase classname="useModal hook should open modal when open is called" name="useModal hook should open modal when open is called" time="0.003">
+    </testcase>
+    <testcase classname="useModal hook should close modal when close is called" name="useModal hook should close modal when close is called" time="0.01">
+    </testcase>
+  </testsuite>
+  <testsuite name="Skeleton" errors="0" failures="0" skipped="0" timestamp="2026-01-31T19:24:46" time="0.626" tests="24">
+    <testcase classname="Skeleton should render with default classes" name="Skeleton should render with default classes" time="0.039">
+    </testcase>
+    <testcase classname="Skeleton should accept additional className" name="Skeleton should accept additional className" time="0.005">
+    </testcase>
+    <testcase classname="SkeletonText should render 3 lines by default" name="SkeletonText should render 3 lines by default" time="0.02">
+    </testcase>
+    <testcase classname="SkeletonText should render specified number of lines" name="SkeletonText should render specified number of lines" time="0.006">
+    </testcase>
+    <testcase classname="SkeletonText should set last line width" name="SkeletonText should set last line width" time="0.007">
+    </testcase>
+    <testcase classname="SkeletonText should set full width for non-last lines" name="SkeletonText should set full width for non-last lines" time="0.003">
+    </testcase>
+    <testcase classname="SkeletonAvatar should render with medium size by default" name="SkeletonAvatar should render with medium size by default" time="0.002">
+    </testcase>
+    <testcase classname="SkeletonAvatar should render with small size" name="SkeletonAvatar should render with small size" time="0.004">
+    </testcase>
+    <testcase classname="SkeletonAvatar should render with large size" name="SkeletonAvatar should render with large size" time="0.003">
+    </testcase>
+    <testcase classname="SkeletonButton should render with medium size by default" name="SkeletonButton should render with medium size by default" time="0.002">
+    </testcase>
+    <testcase classname="SkeletonButton should render with small size" name="SkeletonButton should render with small size" time="0.003">
+    </testcase>
+    <testcase classname="SkeletonButton should render with large size" name="SkeletonButton should render with large size" time="0.003">
+    </testcase>
+    <testcase classname="SkeletonCard should render with image by default" name="SkeletonCard should render with image by default" time="0.007">
+    </testcase>
+    <testcase classname="SkeletonCard should render without image when hasImage is false" name="SkeletonCard should render without image when hasImage is false" time="0.004">
+    </testcase>
+    <testcase classname="SkeletonCard should render with card styling" name="SkeletonCard should render with card styling" time="0.007">
+    </testcase>
+    <testcase classname="SkeletonCard should render specified number of text lines" name="SkeletonCard should render specified number of text lines" time="0.004">
+    </testcase>
+    <testcase classname="SkeletonTable should render 5 rows by default" name="SkeletonTable should render 5 rows by default" time="0.015">
+    </testcase>
+    <testcase classname="SkeletonTable should render specified number of rows" name="SkeletonTable should render specified number of rows" time="0.016">
+    </testcase>
+    <testcase classname="SkeletonTable should render 4 columns by default" name="SkeletonTable should render 4 columns by default" time="0.009">
+    </testcase>
+    <testcase classname="SkeletonTable should render specified number of columns" name="SkeletonTable should render specified number of columns" time="0.01">
+    </testcase>
+    <testcase classname="SkeletonListItem should render with avatar by default" name="SkeletonListItem should render with avatar by default" time="0.004">
+    </testcase>
+    <testcase classname="SkeletonListItem should render without avatar when hasAvatar is false" name="SkeletonListItem should render without avatar when hasAvatar is false" time="0.007">
+    </testcase>
+    <testcase classname="SkeletonListItem should have flex layout" name="SkeletonListItem should have flex layout" time="0.004">
+    </testcase>
+    <testcase classname="SkeletonListItem should accept additional className" name="SkeletonListItem should accept additional className" time="0.004">
+    </testcase>
+  </testsuite>
+  <testsuite name="Tags API Routes" errors="0" failures="0" skipped="0" timestamp="2026-01-31T19:24:46" time="0.4" tests="10">
+    <testcase classname="Tags API Routes GET /api/v1/tags should return tags for authenticated user" name="Tags API Routes GET /api/v1/tags should return tags for authenticated user" time="0.004">
+    </testcase>
+    <testcase classname="Tags API Routes GET /api/v1/tags should return empty array when no tags exist" name="Tags API Routes GET /api/v1/tags should return empty array when no tags exist" time="0.002">
+    </testcase>
+    <testcase classname="Tags API Routes GET /api/v1/tags should return 500 on database error" name="Tags API Routes GET /api/v1/tags should return 500 on database error" time="0.036">
+    </testcase>
+    <testcase classname="Tags API Routes GET /api/v1/tags should return 401 when not authenticated" name="Tags API Routes GET /api/v1/tags should return 401 when not authenticated" time="0.005">
+    </testcase>
+    <testcase classname="Tags API Routes POST /api/v1/tags should create a new tag" name="Tags API Routes POST /api/v1/tags should create a new tag" time="0.004">
+    </testcase>
+    <testcase classname="Tags API Routes POST /api/v1/tags should return 409 when tag name already exists" name="Tags API Routes POST /api/v1/tags should return 409 when tag name already exists" time="0.005">
+    </testcase>
+    <testcase classname="Tags API Routes POST /api/v1/tags should return 400 for invalid body" name="Tags API Routes POST /api/v1/tags should return 400 for invalid body" time="0.006">
+    </testcase>
+    <testcase classname="Tags API Routes POST /api/v1/tags should return 400 when name is missing" name="Tags API Routes POST /api/v1/tags should return 400 when name is missing" time="0.005">
+    </testcase>
+    <testcase classname="Tags API Routes POST /api/v1/tags should accept optional color field" name="Tags API Routes POST /api/v1/tags should accept optional color field" time="0.002">
+    </testcase>
+    <testcase classname="Tags API Routes POST /api/v1/tags should return 500 on database insert error" name="Tags API Routes POST /api/v1/tags should return 500 on database insert error" time="0.011">
+    </testcase>
+  </testsuite>
+  <testsuite name="withApiHandler" errors="0" failures="0" skipped="1" timestamp="2026-01-31T19:24:46" time="0.292" tests="26">
+    <testcase classname="withApiHandler successful requests should return handler response on success" name="withApiHandler successful requests should return handler response on success" time="0.006">
+    </testcase>
+    <testcase classname="withApiHandler successful requests should pass request and context to handler" name="withApiHandler successful requests should pass request and context to handler" time="0.003">
+    </testcase>
+    <testcase classname="withApiHandler successful requests should handle synchronous handlers" name="withApiHandler successful requests should handle synchronous handlers" time="0.002">
+    </testcase>
+    <testcase classname="withApiHandler AuthError handling should return 401 for AuthError" name="withApiHandler AuthError handling should return 401 for AuthError" time="0.035">
+    </testcase>
+    <testcase classname="withApiHandler AuthError handling should return custom status for AuthError" name="withApiHandler AuthError handling should return custom status for AuthError" time="0.005">
+    </testcase>
+    <testcase classname="withApiHandler ApiError handling should return error with custom status" name="withApiHandler ApiError handling should return error with custom status" time="0.024">
+    </testcase>
+    <testcase classname="withApiHandler ApiError handling should include error code if provided" name="withApiHandler ApiError handling should include error code if provided" time="0.009">
+    </testcase>
+    <testcase classname="withApiHandler ApiError handling should handle 400 Bad Request" name="withApiHandler ApiError handling should handle 400 Bad Request" time="0.005">
+    </testcase>
+    <testcase classname="withApiHandler ApiError handling should handle 500 Server Error" name="withApiHandler ApiError handling should handle 500 Server Error" time="0.004">
+    </testcase>
+    <testcase classname="withApiHandler unknown error handling should return 500 for unknown errors" name="withApiHandler unknown error handling should return 500 for unknown errors" time="0.004">
+    </testcase>
+    <testcase classname="withApiHandler unknown error handling should hide error details in production" name="withApiHandler unknown error handling should hide error details in production" time="0.005">
+    </testcase>
+    <testcase classname="ApiError should create error with message and default status" name="ApiError should create error with message and default status" time="0.001">
+    </testcase>
+    <testcase classname="ApiError should create error with custom status" name="ApiError should create error with custom status" time="0">
+    </testcase>
+    <testcase classname="ApiError should create error with code" name="ApiError should create error with code" time="0">
+    </testcase>
+    <testcase classname="ApiError should be instanceof Error" name="ApiError should be instanceof Error" time="0.001">
+    </testcase>
+    <testcase classname="apiResponse helpers success should return 200 by default" name="apiResponse helpers success should return 200 by default" time="0.001">
+    </testcase>
+    <testcase classname="apiResponse helpers success should accept custom status" name="apiResponse helpers success should accept custom status" time="0">
+    </testcase>
+    <testcase classname="apiResponse helpers error should return 500 by default" name="apiResponse helpers error should return 500 by default" time="0">
+    </testcase>
+    <testcase classname="apiResponse helpers error should accept custom status and code" name="apiResponse helpers error should accept custom status and code" time="0.001">
+    </testcase>
+    <testcase classname="apiResponse helpers created should return 201" name="apiResponse helpers created should return 201" time="0.001">
+    </testcase>
+    <testcase classname="apiResponse helpers noContent should return 204" name="apiResponse helpers noContent should return 204" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="apiResponse helpers notFound should return 404 with default message" name="apiResponse helpers notFound should return 404 with default message" time="0.001">
+    </testcase>
+    <testcase classname="apiResponse helpers notFound should accept custom message" name="apiResponse helpers notFound should accept custom message" time="0">
+    </testcase>
+    <testcase classname="apiResponse helpers unauthorized should return 401" name="apiResponse helpers unauthorized should return 401" time="0.001">
+    </testcase>
+    <testcase classname="apiResponse helpers forbidden should return 403" name="apiResponse helpers forbidden should return 403" time="0.001">
+    </testcase>
+    <testcase classname="apiResponse helpers badRequest should return 400" name="apiResponse helpers badRequest should return 400" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="validateBody" errors="0" failures="0" skipped="0" timestamp="2026-01-31T19:24:46" time="0.413" tests="15">
+    <testcase classname="validateBody should validate and return valid body data" name="validateBody should validate and return valid body data" time="0.004">
+    </testcase>
+    <testcase classname="validateBody should throw ApiError for missing required field" name="validateBody should throw ApiError for missing required field" time="0.028">
+    </testcase>
+    <testcase classname="validateBody should throw ApiError for invalid field type" name="validateBody should throw ApiError for invalid field type" time="0.001">
+    </testcase>
+    <testcase classname="validateBody should throw ApiError for invalid JSON body" name="validateBody should throw ApiError for invalid JSON body" time="0.001">
+    </testcase>
+    <testcase classname="validateBody should apply transformations" name="validateBody should apply transformations" time="0.009">
+    </testcase>
+    <testcase classname="validateQuery should validate and return valid query params" name="validateQuery should validate and return valid query params" time="0.005">
+    </testcase>
+    <testcase classname="validateQuery should apply default values for missing params" name="validateQuery should apply default values for missing params" time="0.001">
+    </testcase>
+    <testcase classname="validateQuery should parse boolean values correctly" name="validateQuery should parse boolean values correctly" time="0.001">
+    </testcase>
+    <testcase classname="validateQuery should throw ApiError for invalid query params" name="validateQuery should throw ApiError for invalid query params" time="0.005">
+    </testcase>
+    <testcase classname="validateQuery should throw ApiError for value exceeding max" name="validateQuery should throw ApiError for value exceeding max" time="0.007">
+    </testcase>
+    <testcase classname="validateParams should validate and return valid path params" name="validateParams should validate and return valid path params" time="0.002">
+    </testcase>
+    <testcase classname="validateParams should validate slug params" name="validateParams should validate slug params" time="0.002">
+    </testcase>
+    <testcase classname="validateParams should throw ApiError for invalid UUID" name="validateParams should throw ApiError for invalid UUID" time="0.002">
+    </testcase>
+    <testcase classname="validateParams should throw ApiError for missing required param" name="validateParams should throw ApiError for missing required param" time="0.004">
+    </testcase>
+    <testcase classname="validateParams should include error details in ApiError" name="validateParams should include error details in ApiError" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="rateLimitStore" errors="0" failures="0" skipped="0" timestamp="2026-01-31T19:24:44" time="2.505" tests="17">
+    <testcase classname="rateLimitStore check() should allow requests within rate limit" name="rateLimitStore check() should allow requests within rate limit" time="0.018">
+    </testcase>
+    <testcase classname="rateLimitStore check() should track remaining requests correctly" name="rateLimitStore check() should track remaining requests correctly" time="0.005">
+    </testcase>
+    <testcase classname="rateLimitStore check() should use sliding window algorithm" name="rateLimitStore check() should use sliding window algorithm" time="1.119">
+    </testcase>
+    <testcase classname="rateLimitStore check() should keep separate counts for different keys" name="rateLimitStore check() should keep separate counts for different keys" time="0.001">
+    </testcase>
+    <testcase classname="rateLimitStore peek() should return status without consuming a request" name="rateLimitStore peek() should return status without consuming a request" time="0.001">
+    </testcase>
+    <testcase classname="rateLimitStore reset() should clear rate limit for a specific key" name="rateLimitStore reset() should clear rate limit for a specific key" time="0.001">
+    </testcase>
+    <testcase classname="withRateLimit should call handler when within rate limit" name="withRateLimit should call handler when within rate limit" time="0.007">
+    </testcase>
+    <testcase classname="withRateLimit should add rate limit headers to response" name="withRateLimit should add rate limit headers to response" time="0.005">
+    </testcase>
+    <testcase classname="withRateLimit should return 429 when rate limit exceeded" name="withRateLimit should return 429 when rate limit exceeded" time="0.005">
+    </testcase>
+    <testcase classname="withRateLimit should use different keys for different IPs" name="withRateLimit should use different keys for different IPs" time="0.008">
+    </testcase>
+    <testcase classname="withRateLimit should pass context to handler" name="withRateLimit should pass context to handler" time="0.003">
+    </testcase>
+    <testcase classname="rateLimitConfigs should have predefined configurations" name="rateLimitConfigs should have predefined configurations" time="0.001">
+    </testcase>
+    <testcase classname="rateLimitConfigs should have stricter limits for auth routes" name="rateLimitConfigs should have stricter limits for auth routes" time="0">
+    </testcase>
+    <testcase classname="rateLimitConfigs should use per-user limiting for AI routes" name="rateLimitConfigs should use per-user limiting for AI routes" time="0.001">
+    </testcase>
+    <testcase classname="rateLimitConfigs should use IP-based limiting for public routes" name="rateLimitConfigs should use IP-based limiting for public routes" time="0.001">
+    </testcase>
+    <testcase classname="checkRateLimitStatus should return status without consuming request" name="checkRateLimitStatus should return status without consuming request" time="0.005">
+    </testcase>
+    <testcase classname="resetRateLimit should reset rate limit for a key" name="resetRateLimit should reset rate limit for a key" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="ApiClient" errors="0" failures="0" skipped="0" timestamp="2026-01-31T19:24:46" time="0.236" tests="15">
+    <testcase classname="ApiClient constructor should use default base URL when not provided" name="ApiClient constructor should use default base URL when not provided" time="0.002">
+    </testcase>
+    <testcase classname="ApiClient constructor should accept custom base URL" name="ApiClient constructor should accept custom base URL" time="0.001">
+    </testcase>
+    <testcase classname="ApiClient GET requests should make GET request and return data" name="ApiClient GET requests should make GET request and return data" time="0.002">
+    </testcase>
+    <testcase classname="ApiClient GET requests should throw ApiError on non-OK response" name="ApiClient GET requests should throw ApiError on non-OK response" time="0.031">
+    </testcase>
+    <testcase classname="ApiClient GET requests should include error data in ApiError" name="ApiClient GET requests should include error data in ApiError" time="0.001">
+    </testcase>
+    <testcase classname="ApiClient POST requests should make POST request with body" name="ApiClient POST requests should make POST request with body" time="0.001">
+    </testcase>
+    <testcase classname="ApiClient POST requests should throw ApiError on validation error" name="ApiClient POST requests should throw ApiError on validation error" time="0.004">
+    </testcase>
+    <testcase classname="ApiClient PATCH requests should make PATCH request with partial body" name="ApiClient PATCH requests should make PATCH request with partial body" time="0.001">
+    </testcase>
+    <testcase classname="ApiClient DELETE requests should make DELETE request" name="ApiClient DELETE requests should make DELETE request" time="0.001">
+    </testcase>
+    <testcase classname="ApiClient DELETE requests should throw on unauthorized delete" name="ApiClient DELETE requests should throw on unauthorized delete" time="0.001">
+    </testcase>
+    <testcase classname="ApiClient error handling should handle network errors" name="ApiClient error handling should handle network errors" time="0.001">
+    </testcase>
+    <testcase classname="ApiClient error handling should handle JSON parse errors" name="ApiClient error handling should handle JSON parse errors" time="0.001">
+    </testcase>
+    <testcase classname="ApiError should create error with message and status code" name="ApiError should create error with message and status code" time="0.001">
+    </testcase>
+    <testcase classname="ApiError should include additional data" name="ApiError should include additional data" time="0">
+    </testcase>
+    <testcase classname="ApiError should be instanceof Error" name="ApiError should be instanceof Error" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="cn (class name merge)" errors="0" failures="0" skipped="0" timestamp="2026-01-31T19:24:46" time="0.27" tests="31">
+    <testcase classname="cn (class name merge) should merge class names" name="cn (class name merge) should merge class names" time="0.005">
+    </testcase>
+    <testcase classname="cn (class name merge) should resolve Tailwind conflicts" name="cn (class name merge) should resolve Tailwind conflicts" time="0.001">
+    </testcase>
+    <testcase classname="cn (class name merge) should handle conditional classes" name="cn (class name merge) should handle conditional classes" time="0.001">
+    </testcase>
+    <testcase classname="cn (class name merge) should handle undefined and null values" name="cn (class name merge) should handle undefined and null values" time="0.001">
+    </testcase>
+    <testcase classname="formatRelativeTime should return &quot;just now&quot; for recent times" name="formatRelativeTime should return &quot;just now&quot; for recent times" time="0">
+    </testcase>
+    <testcase classname="formatRelativeTime should format minutes correctly" name="formatRelativeTime should format minutes correctly" time="0">
+    </testcase>
+    <testcase classname="formatRelativeTime should format single minute correctly" name="formatRelativeTime should format single minute correctly" time="0.001">
+    </testcase>
+    <testcase classname="formatRelativeTime should format hours correctly" name="formatRelativeTime should format hours correctly" time="0.001">
+    </testcase>
+    <testcase classname="formatRelativeTime should format days correctly" name="formatRelativeTime should format days correctly" time="0.001">
+    </testcase>
+    <testcase classname="formatRelativeTime should format months correctly" name="formatRelativeTime should format months correctly" time="0">
+    </testcase>
+    <testcase classname="formatRelativeTime should format years correctly" name="formatRelativeTime should format years correctly" time="0.001">
+    </testcase>
+    <testcase classname="formatRelativeTime should accept string dates" name="formatRelativeTime should accept string dates" time="0.001">
+    </testcase>
+    <testcase classname="truncate should not truncate short strings" name="truncate should not truncate short strings" time="0">
+    </testcase>
+    <testcase classname="truncate should truncate long strings with ellipsis" name="truncate should truncate long strings with ellipsis" time="0.001">
+    </testcase>
+    <testcase classname="truncate should handle exact length strings" name="truncate should handle exact length strings" time="0.001">
+    </testcase>
+    <testcase classname="capitalize should capitalize first letter" name="capitalize should capitalize first letter" time="0">
+    </testcase>
+    <testcase classname="capitalize should handle empty string" name="capitalize should handle empty string" time="0.001">
+    </testcase>
+    <testcase classname="capitalize should handle already capitalized string" name="capitalize should handle already capitalized string" time="0">
+    </testcase>
+    <testcase classname="capitalize should only capitalize first letter" name="capitalize should only capitalize first letter" time="0.001">
+    </testcase>
+    <testcase classname="generateId should generate a string" name="generateId should generate a string" time="0.001">
+    </testcase>
+    <testcase classname="generateId should generate unique IDs" name="generateId should generate unique IDs" time="0">
+    </testcase>
+    <testcase classname="generateId should generate IDs of consistent length" name="generateId should generate IDs of consistent length" time="0.001">
+    </testcase>
+    <testcase classname="deepClone should clone simple objects" name="deepClone should clone simple objects" time="0.003">
+    </testcase>
+    <testcase classname="deepClone should clone nested objects" name="deepClone should clone nested objects" time="0.001">
+    </testcase>
+    <testcase classname="deepClone should clone arrays" name="deepClone should clone arrays" time="0.006">
+    </testcase>
+    <testcase classname="debounce should debounce function calls" name="debounce should debounce function calls" time="0.006">
+    </testcase>
+    <testcase classname="debounce should pass arguments to debounced function" name="debounce should pass arguments to debounced function" time="0.002">
+    </testcase>
+    <testcase classname="debounce should reset timer on subsequent calls" name="debounce should reset timer on subsequent calls" time="0.001">
+    </testcase>
+    <testcase classname="isBrowser should detect browser environment correctly" name="isBrowser should detect browser environment correctly" time="0">
+    </testcase>
+    <testcase classname="sleep should return a promise" name="sleep should return a promise" time="0.005">
+    </testcase>
+    <testcase classname="sleep should resolve after specified time" name="sleep should resolve after specified time" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="Accessibility Tests" errors="0" failures="0" skipped="0" timestamp="2026-01-31T19:24:44" time="2.668" tests="23">
+    <testcase classname="Accessibility Tests Button should have no accessibility violations" name="Accessibility Tests Button should have no accessibility violations" time="0.183">
+    </testcase>
+    <testcase classname="Accessibility Tests Button should have no violations for all variants" name="Accessibility Tests Button should have no violations for all variants" time="0.107">
+    </testcase>
+    <testcase classname="Accessibility Tests Button should have no violations when disabled" name="Accessibility Tests Button should have no violations when disabled" time="0.028">
+    </testcase>
+    <testcase classname="Accessibility Tests Button should have no violations when loading" name="Accessibility Tests Button should have no violations when loading" time="0.056">
+    </testcase>
+    <testcase classname="Accessibility Tests Modal should have no accessibility violations" name="Accessibility Tests Modal should have no accessibility violations" time="0.058">
+    </testcase>
+    <testcase classname="Accessibility Tests Modal should have no violations with footer actions" name="Accessibility Tests Modal should have no violations with footer actions" time="0.031">
+    </testcase>
+    <testcase classname="Accessibility Tests ConfirmModal should have no accessibility violations" name="Accessibility Tests ConfirmModal should have no accessibility violations" time="0.041">
+    </testcase>
+    <testcase classname="Accessibility Tests ConfirmModal should have no violations with danger variant" name="Accessibility Tests ConfirmModal should have no violations with danger variant" time="0.031">
+    </testcase>
+    <testcase classname="Accessibility Tests AlertModal should have no violations for info alert" name="Accessibility Tests AlertModal should have no violations for info alert" time="0.033">
+    </testcase>
+    <testcase classname="Accessibility Tests AlertModal should have no violations for error alert" name="Accessibility Tests AlertModal should have no violations for error alert" time="0.029">
+    </testcase>
+    <testcase classname="Accessibility Tests AlertModal should have no violations for success alert" name="Accessibility Tests AlertModal should have no violations for success alert" time="0.03">
+    </testcase>
+    <testcase classname="Accessibility Tests Input should have no accessibility violations with label" name="Accessibility Tests Input should have no accessibility violations with label" time="0.043">
+    </testcase>
+    <testcase classname="Accessibility Tests Input should have no violations with error state" name="Accessibility Tests Input should have no violations with error state" time="0.036">
+    </testcase>
+    <testcase classname="Accessibility Tests Input should have no violations when disabled" name="Accessibility Tests Input should have no violations when disabled" time="0.029">
+    </testcase>
+    <testcase classname="Accessibility Tests Input should have no violations with helper text" name="Accessibility Tests Input should have no violations with helper text" time="0.032">
+    </testcase>
+    <testcase classname="Accessibility Tests Textarea should have no accessibility violations" name="Accessibility Tests Textarea should have no accessibility violations" time="0.031">
+    </testcase>
+    <testcase classname="Accessibility Tests Textarea should have no violations with error state" name="Accessibility Tests Textarea should have no violations with error state" time="0.035">
+    </testcase>
+    <testcase classname="Accessibility Tests Select should have no accessibility violations" name="Accessibility Tests Select should have no accessibility violations" time="0.045">
+    </testcase>
+    <testcase classname="Accessibility Tests Select should have no violations with error state" name="Accessibility Tests Select should have no violations with error state" time="0.052">
+    </testcase>
+    <testcase classname="Accessibility Tests Card should have no accessibility violations" name="Accessibility Tests Card should have no accessibility violations" time="0.065">
+    </testcase>
+    <testcase classname="Accessibility Tests Card should have no violations when clickable" name="Accessibility Tests Card should have no violations when clickable" time="0.02">
+    </testcase>
+    <testcase classname="Accessibility Tests Skeleton should have no accessibility violations" name="Accessibility Tests Skeleton should have no accessibility violations" time="0.063">
+    </testcase>
+    <testcase classname="Accessibility Tests Form combinations should have no violations for a complete form" name="Accessibility Tests Form combinations should have no violations for a complete form" time="0.087">
+    </testcase>
+  </testsuite>
+  <testsuite name="Logger" errors="0" failures="0" skipped="0" timestamp="2026-01-31T19:24:46" time="0.307" tests="8">
+    <testcase classname="Logger basic logging methods should log info messages" name="Logger basic logging methods should log info messages" time="0.003">
+    </testcase>
+    <testcase classname="Logger basic logging methods should log warning messages" name="Logger basic logging methods should log warning messages" time="0.001">
+    </testcase>
+    <testcase classname="Logger basic logging methods should log error messages" name="Logger basic logging methods should log error messages" time="0">
+    </testcase>
+    <testcase classname="Logger context logging should log messages with context object" name="Logger context logging should log messages with context object" time="0.001">
+    </testcase>
+    <testcase classname="Logger context logging should log errors with Error objects" name="Logger context logging should log errors with Error objects" time="0">
+    </testcase>
+    <testcase classname="Logger child logger should create child logger with context" name="Logger child logger should create child logger with context" time="0.001">
+    </testcase>
+    <testcase classname="Logger child logger should include parent context in child logs" name="Logger child logger should include parent context in child logs" time="0.001">
+    </testcase>
+    <testcase classname="Logger log formatting should format timestamps correctly" name="Logger log formatting should format timestamps correctly" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="Auth Middleware" errors="0" failures="0" skipped="0" timestamp="2026-01-31T19:24:46" time="0.328" tests="10">
+    <testcase classname="Auth Middleware requireAuth should return user and supabase client when authenticated" name="Auth Middleware requireAuth should return user and supabase client when authenticated" time="0.001">
+    </testcase>
+    <testcase classname="Auth Middleware requireAuth should throw AuthError when user is not authenticated" name="Auth Middleware requireAuth should throw AuthError when user is not authenticated" time="0.013">
+    </testcase>
+    <testcase classname="Auth Middleware requireAuth should throw AuthError with 401 status on auth failure" name="Auth Middleware requireAuth should throw AuthError with 401 status on auth failure" time="0.001">
+    </testcase>
+    <testcase classname="Auth Middleware requireAuth should throw AuthError when getUser returns error" name="Auth Middleware requireAuth should throw AuthError when getUser returns error" time="0.001">
+    </testcase>
+    <testcase classname="Auth Middleware optionalAuth should return user when authenticated" name="Auth Middleware optionalAuth should return user when authenticated" time="0.001">
+    </testcase>
+    <testcase classname="Auth Middleware optionalAuth should return null user when not authenticated" name="Auth Middleware optionalAuth should return null user when not authenticated" time="0.001">
+    </testcase>
+    <testcase classname="Auth Middleware optionalAuth should not throw when there is an auth error" name="Auth Middleware optionalAuth should not throw when there is an auth error" time="0">
+    </testcase>
+    <testcase classname="Auth Middleware AuthError should create error with message and default status" name="Auth Middleware AuthError should create error with message and default status" time="0.001">
+    </testcase>
+    <testcase classname="Auth Middleware AuthError should create error with custom status" name="Auth Middleware AuthError should create error with custom status" time="0">
+    </testcase>
+    <testcase classname="Auth Middleware AuthError should be instanceof Error" name="Auth Middleware AuthError should be instanceof Error" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="TemplateSelector" errors="0" failures="0" skipped="0" timestamp="2026-01-31T19:24:44" time="3.082" tests="17">
+    <testcase classname="TemplateSelector loading state should show loading state initially" name="TemplateSelector loading state should show loading state initially" time="0.083">
+    </testcase>
+    <testcase classname="TemplateSelector displaying templates should display all fetched templates" name="TemplateSelector displaying templates should display all fetched templates" time="0.117">
+    </testcase>
+    <testcase classname="TemplateSelector displaying templates should display template descriptions" name="TemplateSelector displaying templates should display template descriptions" time="0.056">
+    </testcase>
+    <testcase classname="TemplateSelector displaying templates should display layout badges" name="TemplateSelector displaying templates should display layout badges" time="0.073">
+    </testcase>
+    <testcase classname="TemplateSelector displaying templates should display supported sections count" name="TemplateSelector displaying templates should display supported sections count" time="0.047">
+    </testcase>
+    <testcase classname="TemplateSelector displaying templates should highlight the currently selected template" name="TemplateSelector displaying templates should highlight the currently selected template" time="0.104">
+    </testcase>
+    <testcase classname="TemplateSelector selecting templates should call API when selecting a new template" name="TemplateSelector selecting templates should call API when selecting a new template" time="0.128">
+    </testcase>
+    <testcase classname="TemplateSelector selecting templates should call onTemplateChange after successful update" name="TemplateSelector selecting templates should call onTemplateChange after successful update" time="0.129">
+    </testcase>
+    <testcase classname="TemplateSelector selecting templates should not call API when selecting current template" name="TemplateSelector selecting templates should not call API when selecting current template" time="0.12">
+    </testcase>
+    <testcase classname="TemplateSelector selecting templates should show updating state while saving" name="TemplateSelector selecting templates should show updating state while saving" time="0.172">
+    </testcase>
+    <testcase classname="TemplateSelector selecting templates should disable buttons while saving" name="TemplateSelector selecting templates should disable buttons while saving" time="0.157">
+    </testcase>
+    <testcase classname="TemplateSelector error handling should display error when loading fails" name="TemplateSelector error handling should display error when loading fails" time="0.03">
+    </testcase>
+    <testcase classname="TemplateSelector error handling should show retry button on error" name="TemplateSelector error handling should show retry button on error" time="0.03">
+    </testcase>
+    <testcase classname="TemplateSelector error handling should revert selection on save failure" name="TemplateSelector error handling should revert selection on save failure" time="0.114">
+    </testcase>
+    <testcase classname="TemplateSelector optimistic updates should show new template as selected immediately" name="TemplateSelector optimistic updates should show new template as selected immediately" time="0.137">
+    </testcase>
+    <testcase classname="TemplateSelector accessibility should have accessible buttons for each template" name="TemplateSelector accessibility should have accessible buttons for each template" time="0.056">
+    </testcase>
+    <testcase classname="TemplateSelector accessibility should have a heading for the selector" name="TemplateSelector accessibility should have a heading for the selector" time="0.022">
+    </testcase>
+  </testsuite>
+  <testsuite name="TagSelector" errors="0" failures="0" skipped="0" timestamp="2026-01-31T19:24:44" time="3.58" tests="18">
+    <testcase classname="TagSelector loading state should show loading spinner initially" name="TagSelector loading state should show loading spinner initially" time="0.059">
+    </testcase>
+    <testcase classname="TagSelector displaying tags should display all fetched tags" name="TagSelector displaying tags should display all fetched tags" time="0.039">
+    </testcase>
+    <testcase classname="TagSelector displaying tags should show selected count" name="TagSelector displaying tags should show selected count" time="0.015">
+    </testcase>
+    <testcase classname="TagSelector displaying tags should highlight selected tags" name="TagSelector displaying tags should highlight selected tags" time="0.169">
+    </testcase>
+    <testcase classname="TagSelector displaying tags should show unselected tags with gray styling" name="TagSelector displaying tags should show unselected tags with gray styling" time="0.047">
+    </testcase>
+    <testcase classname="TagSelector selecting tags should call onChange when selecting a tag" name="TagSelector selecting tags should call onChange when selecting a tag" time="0.132">
+    </testcase>
+    <testcase classname="TagSelector selecting tags should call onChange when unselecting a tag" name="TagSelector selecting tags should call onChange when unselecting a tag" time="0.092">
+    </testcase>
+    <testcase classname="TagSelector selecting tags should add to existing selection" name="TagSelector selecting tags should add to existing selection" time="0.077">
+    </testcase>
+    <testcase classname="TagSelector creating tags should create a new tag when form is submitted" name="TagSelector creating tags should create a new tag when form is submitted" time="0.225">
+    </testcase>
+    <testcase classname="TagSelector creating tags should not submit empty tag name" name="TagSelector creating tags should not submit empty tag name" time="0.055">
+    </testcase>
+    <testcase classname="TagSelector creating tags should disable button while creating" name="TagSelector creating tags should disable button while creating" time="0.32">
+    </testcase>
+    <testcase classname="TagSelector deleting tags should show confirmation before deleting" name="TagSelector deleting tags should show confirmation before deleting" time="0.169">
+    </testcase>
+    <testcase classname="TagSelector deleting tags should delete tag when confirmed" name="TagSelector deleting tags should delete tag when confirmed" time="0.189">
+    </testcase>
+    <testcase classname="TagSelector error handling should display error when loading fails" name="TagSelector error handling should display error when loading fails" time="0.095">
+    </testcase>
+    <testcase classname="TagSelector error handling should display error when creating fails" name="TagSelector error handling should display error when creating fails" time="0.232">
+    </testcase>
+    <testcase classname="TagSelector error handling should display error when deleting fails" name="TagSelector error handling should display error when deleting fails" time="0.17">
+    </testcase>
+    <testcase classname="TagSelector accessibility should have accessible form elements" name="TagSelector accessibility should have accessible form elements" time="0.025">
+    </testcase>
+    <testcase classname="TagSelector accessibility should have disabled state on submit button when empty" name="TagSelector accessibility should have disabled state on submit button when empty" time="0.011">
+    </testcase>
+  </testsuite>
+  <testsuite name="Builder" errors="0" failures="0" skipped="0" timestamp="2026-01-31T19:24:44" time="3.672" tests="13">
+    <testcase classname="Builder rendering should render empty state when no sections" name="Builder rendering should render empty state when no sections" time="0.082">
+    </testcase>
+    <testcase classname="Builder rendering should render section add menu" name="Builder rendering should render section add menu" time="0.009">
+    </testcase>
+    <testcase classname="Builder rendering should render AI resume generator even with no sections" name="Builder rendering should render AI resume generator even with no sections" time="0.005">
+    </testcase>
+    <testcase classname="Builder rendering should not render other AI features when no sections" name="Builder rendering should not render other AI features when no sections" time="0.005">
+    </testcase>
+    <testcase classname="Builder rendering should render all AI features when sections exist" name="Builder rendering should render all AI features when sections exist" time="0.011">
+    </testcase>
+    <testcase classname="Builder rendering should render sections as cards" name="Builder rendering should render sections as cards" time="0.006">
+    </testcase>
+    <testcase classname="Builder section management should add a new section when triggered" name="Builder section management should add a new section when triggered" time="0.105">
+    </testcase>
+    <testcase classname="Builder section management should delete a section when confirmed" name="Builder section management should delete a section when confirmed" time="0.189">
+    </testcase>
+    <testcase classname="Builder section management should cancel section deletion" name="Builder section management should cancel section deletion" time="0.126">
+    </testcase>
+    <testcase classname="Builder section editing should open editor when edit is clicked" name="Builder section editing should open editor when edit is clicked" time="0.063">
+    </testcase>
+    <testcase classname="Builder section editing should close editor when close is clicked" name="Builder section editing should close editor when close is clicked" time="0.121">
+    </testcase>
+    <testcase classname="Builder section editing should update section when saved" name="Builder section editing should update section when saved" time="0.124">
+    </testcase>
+    <testcase classname="Builder error handling should show error modal when delete fails" name="Builder error handling should show error modal when delete fails" time="0.251">
+    </testcase>
+  </testsuite>
+  <testsuite name="SectionEditor" errors="0" failures="0" skipped="0" timestamp="2026-01-31T19:24:44" time="4.222" tests="22">
+    <testcase classname="SectionEditor rendering should render editor modal with title" name="SectionEditor rendering should render editor modal with title" time="0.047">
+    </testcase>
+    <testcase classname="SectionEditor rendering should display section type" name="SectionEditor rendering should display section type" time="0.013">
+    </testcase>
+    <testcase classname="SectionEditor rendering should render cancel and save buttons" name="SectionEditor rendering should render cancel and save buttons" time="0.104">
+    </testcase>
+    <testcase classname="SectionEditor summary section should render summary editor with textarea" name="SectionEditor summary section should render summary editor with textarea" time="0.018">
+    </testcase>
+    <testcase classname="SectionEditor summary section should show AI summary generation buttons" name="SectionEditor summary section should show AI summary generation buttons" time="0.021">
+    </testcase>
+    <testcase classname="SectionEditor summary section should call generateSummary when generate button is clicked" name="SectionEditor summary section should call generateSummary when generate button is clicked" time="0.086">
+    </testcase>
+    <testcase classname="SectionEditor skills section should render skills editor with textarea" name="SectionEditor skills section should render skills editor with textarea" time="0.01">
+    </testcase>
+    <testcase classname="SectionEditor AI improvement should show AI improve toolbar for supported sections" name="SectionEditor AI improvement should show AI improve toolbar for supported sections" time="0.006">
+    </testcase>
+    <testcase classname="SectionEditor AI improvement should have tone selection options" name="SectionEditor AI improvement should have tone selection options" time="0.016">
+    </testcase>
+    <testcase classname="SectionEditor AI improvement should call improveText when improve button is clicked" name="SectionEditor AI improvement should call improveText when improve button is clicked" time="0.074">
+    </testcase>
+    <testcase classname="SectionEditor tag suggestions should show tag suggestion toolbar for work_experience" name="SectionEditor tag suggestions should show tag suggestion toolbar for work_experience" time="0.011">
+    </testcase>
+    <testcase classname="SectionEditor tag suggestions should call suggestTags when suggest button is clicked" name="SectionEditor tag suggestions should call suggestTags when suggest button is clicked" time="0.083">
+    </testcase>
+    <testcase classname="SectionEditor save and cancel should call onCancel when cancel button is clicked" name="SectionEditor save and cancel should call onCancel when cancel button is clicked" time="0.047">
+    </testcase>
+    <testcase classname="SectionEditor save and cancel should save section when save button is clicked" name="SectionEditor save and cancel should save section when save button is clicked" time="0.344">
+    </testcase>
+    <testcase classname="SectionEditor save and cancel should show saving state while saving" name="SectionEditor save and cancel should show saving state while saving" time="0.066">
+    </testcase>
+    <testcase classname="SectionEditor save and cancel should call onSave with updated section after successful save" name="SectionEditor save and cancel should call onSave with updated section after successful save" time="0.072">
+    </testcase>
+    <testcase classname="SectionEditor error handling should display error when save fails" name="SectionEditor error handling should display error when save fails" time="0.109">
+    </testcase>
+    <testcase classname="SectionEditor error handling should display error when AI improvement fails" name="SectionEditor error handling should display error when AI improvement fails" time="0.048">
+    </testcase>
+    <testcase classname="SectionEditor custom section should allow editing title for custom sections" name="SectionEditor custom section should allow editing title for custom sections" time="0.006">
+    </testcase>
+    <testcase classname="SectionEditor custom section should include title in save payload for custom sections" name="SectionEditor custom section should include title in save payload for custom sections" time="0.07">
+    </testcase>
+    <testcase classname="SectionEditor certifications section should disable save button for certifications section" name="SectionEditor certifications section should disable save button for certifications section" time="0.007">
+    </testcase>
+    <testcase classname="SectionEditor certifications section should show tag suggestion toolbar for certifications" name="SectionEditor certifications section should show tag suggestion toolbar for certifications" time="0.006">
+    </testcase>
+  </testsuite>
+  <testsuite name="CertificationForm" errors="0" failures="0" skipped="0" timestamp="2026-01-31T19:24:44" time="5.98" tests="20">
+    <testcase classname="CertificationForm create mode should render empty form in create mode" name="CertificationForm create mode should render empty form in create mode" time="0.362">
+    </testcase>
+    <testcase classname="CertificationForm create mode should have required fields marked" name="CertificationForm create mode should have required fields marked" time="0.026">
+    </testcase>
+    <testcase classname="CertificationForm create mode should submit form with valid data" name="CertificationForm create mode should submit form with valid data" time="1.046">
+    </testcase>
+    <testcase classname="CertificationForm create mode should default to manual certification type" name="CertificationForm create mode should default to manual certification type" time="0.034">
+    </testcase>
+    <testcase classname="CertificationForm edit mode should pre-fill form in edit mode" name="CertificationForm edit mode should pre-fill form in edit mode" time="0.036">
+    </testcase>
+    <testcase classname="CertificationForm edit mode should call PATCH when updating" name="CertificationForm edit mode should call PATCH when updating" time="0.316">
+    </testcase>
+    <testcase classname="CertificationForm edit mode should disable certification type change in edit mode" name="CertificationForm edit mode should disable certification type change in edit mode" time="0.023">
+    </testcase>
+    <testcase classname="CertificationForm certification types should show external URL field when external link type is selected" name="CertificationForm certification types should show external URL field when external link type is selected" time="0.072">
+    </testcase>
+    <testcase classname="CertificationForm certification types should show file upload when PDF type is selected" name="CertificationForm certification types should show file upload when PDF type is selected" time="0.064">
+    </testcase>
+    <testcase classname="CertificationForm optional fields should allow setting issue date" name="CertificationForm optional fields should allow setting issue date" time="0.214">
+    </testcase>
+    <testcase classname="CertificationForm optional fields should allow setting expiration date" name="CertificationForm optional fields should allow setting expiration date" time="0.202">
+    </testcase>
+    <testcase classname="CertificationForm optional fields should allow setting credential ID" name="CertificationForm optional fields should allow setting credential ID" time="0.216">
+    </testcase>
+    <testcase classname="CertificationForm optional fields should allow setting verification URL" name="CertificationForm optional fields should allow setting verification URL" time="0.454">
+    </testcase>
+    <testcase classname="CertificationForm optional fields should allow setting description" name="CertificationForm optional fields should allow setting description" time="0.28">
+    </testcase>
+    <testcase classname="CertificationForm visibility toggle should default to public" name="CertificationForm visibility toggle should default to public" time="0.011">
+    </testcase>
+    <testcase classname="CertificationForm visibility toggle should allow toggling visibility" name="CertificationForm visibility toggle should allow toggling visibility" time="0.052">
+    </testcase>
+    <testcase classname="CertificationForm error handling should display API error on submit failure" name="CertificationForm error handling should display API error on submit failure" time="0.48">
+    </testcase>
+    <testcase classname="CertificationForm error handling should show submitting state while saving" name="CertificationForm error handling should show submitting state while saving" time="0.453">
+    </testcase>
+    <testcase classname="CertificationForm tag selection should render tag selector label" name="CertificationForm tag selection should render tag selector label" time="0.01">
+    </testcase>
+    <testcase classname="CertificationForm cancel button should navigate back when cancel is clicked" name="CertificationForm cancel button should navigate back when cancel is clicked" time="0.062">
+    </testcase>
+  </testsuite>
+</testsuites>

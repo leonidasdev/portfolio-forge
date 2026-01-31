@@ -1,9 +1,9 @@
 /**
  * Section Card Component
- * 
+ *
  * Displays a single portfolio section with drag handle,
  * edit, and delete actions.
- * 
+ *
  * Uses dnd-kit's useSortable hook for drag-and-drop.
  * Integrates with SectionRenderer to display section content.
  */
@@ -21,24 +21,20 @@ interface SectionCardProps {
   section: Section
   onEdit: () => void
   onDelete: () => void
+  disabled?: boolean
 }
 
-export function SectionCard({ section, onEdit, onDelete }: SectionCardProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: section.id })
-  
+export function SectionCard({ section, onEdit, onDelete, disabled }: SectionCardProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: section.id,
+  })
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
   }
-  
+
   // Get section type label
   function getTypeLabel(type: string): string {
     switch (type) {
@@ -58,7 +54,7 @@ export function SectionCard({ section, onEdit, onDelete }: SectionCardProps) {
         return type
     }
   }
-  
+
   // Get section type color
   function getTypeColor(type: string): string {
     switch (type) {
@@ -78,7 +74,7 @@ export function SectionCard({ section, onEdit, onDelete }: SectionCardProps) {
         return 'bg-gray-100 text-gray-800'
     }
   }
-  
+
   return (
     <div
       ref={setNodeRef}
@@ -94,12 +90,7 @@ export function SectionCard({ section, onEdit, onDelete }: SectionCardProps) {
           className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600"
           title="Drag to reorder"
         >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -108,24 +99,22 @@ export function SectionCard({ section, onEdit, onDelete }: SectionCardProps) {
             />
           </svg>
         </button>
-        
+
         {/* Section info */}
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(section.section_type)}`}>
+            <span
+              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(section.section_type)}`}
+            >
               {getTypeLabel(section.section_type)}
             </span>
             {section.title && (
-              <span className="text-sm font-medium text-gray-900">
-                {section.title}
-              </span>
+              <span className="text-sm font-medium text-gray-900">{section.title}</span>
             )}
           </div>
-          <div className="mt-1 text-xs text-gray-500">
-            Position: {section.display_order}
-          </div>
+          <div className="mt-1 text-xs text-gray-500">Position: {section.display_order}</div>
         </div>
-        
+
         {/* Actions */}
         <div className="flex gap-2">
           <button
@@ -142,7 +131,7 @@ export function SectionCard({ section, onEdit, onDelete }: SectionCardProps) {
           </button>
         </div>
       </div>
-      
+
       {/* Section content preview (edit mode) */}
       <div className="p-4">
         <SectionRenderer section={section} mode="edit" />

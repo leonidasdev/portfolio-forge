@@ -107,7 +107,7 @@ describe('Accessibility Tests', () => {
           onConfirm={() => {}}
           title="Delete Item"
           message="This action cannot be undone."
-          confirmVariant="danger"
+          variant="danger"
         />
       )
       const results = await axe(container)

@@ -1,24 +1,24 @@
 /**
  * API Library Exports
- * 
+ *
  * Centralized exports for API-related utilities.
  */
 
 // Auth middleware
-export { requireAuth, requireOptionalAuth } from './auth-middleware'
+export { requireAuth, optionalAuth as requireOptionalAuth } from './auth-middleware'
 
 // API client
-export { apiClient, ApiError as ClientApiError } from './client'
+export { ApiError as ClientApiError, apiClient } from './client'
 
 // Rate limiting
-export { 
-  withRateLimit, 
-  rateLimitConfigs, 
-  checkRateLimitStatus, 
+export {
+  checkRateLimitStatus,
+  rateLimitConfigs,
+  rateLimitStore,
   resetRateLimit,
-  rateLimitStore 
+  withRateLimit,
 } from './rate-limit'
 export type { RateLimitResult, RateLimitStoreInterface } from './rate-limit-store'
 
 // Route handler
-export { withApiHandler, ApiError } from './route-handler'
+export { ApiError, withApiHandler } from './route-handler'

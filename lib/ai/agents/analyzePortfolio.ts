@@ -39,8 +39,7 @@ export async function analyzePortfolio(userId: string): Promise<{
   const supabase = await createServerClient()
 
   // Fetch portfolio and sections
-  const { data: portfolios } = await supabase
-    .from('portfolios')
+  const { data: portfolios } = await (supabase.from('portfolios') as any)
     .select('id')
     .eq('user_id', userId)
     .limit(1)
@@ -50,8 +49,7 @@ export async function analyzePortfolio(userId: string): Promise<{
     throw new Error('No portfolio found for user')
   }
 
-  const { data: sections } = await supabase
-    .from('portfolio_sections')
+  const { data: sections } = await (supabase.from('portfolio_sections') as any)
     .select('*')
     .eq('portfolio_id', portfolios.id)
     .order('display_order', { ascending: true })

@@ -121,7 +121,9 @@ export async function optimizePortfolioForJob(
   }
 
   // Fetch user's portfolios
-  const { data: portfolios } = await supabase.from('portfolios').select('id').eq('user_id', userId)
+  const { data: portfolios } = await (supabase.from('portfolios') as any)
+    .select('id')
+    .eq('user_id', userId)
 
   if (!portfolios || portfolios.length === 0) {
     return {
@@ -134,8 +136,7 @@ export async function optimizePortfolioForJob(
   const portfolioId = portfolios[0].id
 
   // Fetch all sections
-  const { data: sections } = await supabase
-    .from('portfolio_sections')
+  const { data: sections } = await (supabase.from('portfolio_sections') as any)
     .select('id, section_type, custom_content, description')
     .eq('portfolio_id', portfolioId)
     .in('section_type', ['about', 'skills', 'experience', 'custom'])

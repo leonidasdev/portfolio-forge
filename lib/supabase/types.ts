@@ -1,20 +1,14 @@
 /**
  * Database types for Portfolio Forge
- * 
+ *
  * Generate updated types by running:
  * npx supabase gen types typescript --project-id YOUR_PROJECT_ID > lib/supabase/types.ts
- * 
+ *
  * Or if using local Supabase:
  * npx supabase gen types typescript --local > lib/supabase/types.ts
  */
 
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
 export interface Database {
   public: {
@@ -77,6 +71,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       certification_tags: {
         Row: {
@@ -94,6 +89,7 @@ export interface Database {
           tag_id?: string
           created_at?: string
         }
+        Relationships: []
       }
       portfolios: {
         Row: {
@@ -102,6 +98,7 @@ export interface Database {
           title: string
           slug: string
           description: string | null
+          template: string | null
           theme: string
           is_public: boolean
           is_deleted: boolean
@@ -114,6 +111,7 @@ export interface Database {
           title: string
           slug: string
           description?: string | null
+          template?: string | null
           theme?: string
           is_public?: boolean
           is_deleted?: boolean
@@ -126,12 +124,14 @@ export interface Database {
           title?: string
           slug?: string
           description?: string | null
+          template?: string | null
           theme?: string
           is_public?: boolean
           is_deleted?: boolean
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       portfolio_items: {
         Row: {
@@ -167,12 +167,20 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       portfolio_sections: {
         Row: {
           id: string
           portfolio_id: string
-          section_type: 'about' | 'skills' | 'projects' | 'experience' | 'certifications' | 'contact' | 'custom'
+          section_type:
+            | 'about'
+            | 'skills'
+            | 'projects'
+            | 'experience'
+            | 'certifications'
+            | 'contact'
+            | 'custom'
           title: string
           description: string | null
           display_order: number
@@ -184,7 +192,14 @@ export interface Database {
         Insert: {
           id?: string
           portfolio_id: string
-          section_type: 'about' | 'skills' | 'projects' | 'experience' | 'certifications' | 'contact' | 'custom'
+          section_type:
+            | 'about'
+            | 'skills'
+            | 'projects'
+            | 'experience'
+            | 'certifications'
+            | 'contact'
+            | 'custom'
           title: string
           description?: string | null
           display_order?: number
@@ -196,7 +211,14 @@ export interface Database {
         Update: {
           id?: string
           portfolio_id?: string
-          section_type?: 'about' | 'skills' | 'projects' | 'experience' | 'certifications' | 'contact' | 'custom'
+          section_type?:
+            | 'about'
+            | 'skills'
+            | 'projects'
+            | 'experience'
+            | 'certifications'
+            | 'contact'
+            | 'custom'
           title?: string
           description?: string | null
           display_order?: number
@@ -205,6 +227,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -240,6 +263,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       projects: {
         Row: {
@@ -290,6 +314,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       project_tags: {
         Row: {
@@ -307,6 +332,7 @@ export interface Database {
           tag_id?: string
           created_at?: string
         }
+        Relationships: []
       }
       public_links: {
         Row: {
@@ -339,6 +365,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       skills: {
         Row: {
@@ -374,6 +401,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       skill_tags: {
         Row: {
@@ -391,6 +419,7 @@ export interface Database {
           tag_id?: string
           created_at?: string
         }
+        Relationships: []
       }
       tags: {
         Row: {
@@ -414,6 +443,7 @@ export interface Database {
           color?: string | null
           created_at?: string
         }
+        Relationships: []
       }
       templates: {
         Row: {
@@ -455,6 +485,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       themes: {
         Row: {
@@ -511,6 +542,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       work_experience: {
         Row: {
@@ -564,6 +596,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       work_experience_tags: {
         Row: {
@@ -581,6 +614,7 @@ export interface Database {
           tag_id?: string
           created_at?: string
         }
+        Relationships: []
       }
     }
     Views: {
@@ -611,9 +645,32 @@ export interface Database {
     Enums: {
       certification_type: 'pdf' | 'image' | 'external_link' | 'manual'
       portfolio_item_type: 'certification' | 'project' | 'skill' | 'work_experience'
-      section_type: 'about' | 'skills' | 'projects' | 'experience' | 'certifications' | 'contact' | 'custom'
+      section_type:
+        | 'about'
+        | 'skills'
+        | 'projects'
+        | 'experience'
+        | 'certifications'
+        | 'contact'
+        | 'custom'
       template_layout: 'single-column' | 'two-column' | 'grid' | 'timeline' | 'modern'
       theme_style: 'professional' | 'modern' | 'creative' | 'minimal' | 'elegant'
     }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
 }
+
+// Type helpers for Supabase queries
+export type Tables<T extends keyof Database['public']['Tables']> =
+  Database['public']['Tables'][T]['Row']
+export type TablesInsert<T extends keyof Database['public']['Tables']> =
+  Database['public']['Tables'][T]['Insert']
+export type TablesUpdate<T extends keyof Database['public']['Tables']> =
+  Database['public']['Tables'][T]['Update']
+export type Enums<T extends keyof Database['public']['Enums']> = Database['public']['Enums'][T]
+
+// Re-export SupabaseClient type for convenience
+import type { SupabaseClient } from '@supabase/supabase-js'
+export type TypedSupabaseClient = SupabaseClient<Database>

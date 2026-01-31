@@ -31,8 +31,7 @@ export const GET = withApiHandler(
     }
 
     // Fetch certification with tags
-    const { data: certification, error } = await supabase
-      .from('certifications')
+    const { data: certification, error } = await (supabase.from('certifications') as any)
       .select(
         `
       *,
@@ -107,8 +106,7 @@ export const PATCH = withApiHandler(
     }
 
     // First check if certification exists and belongs to user
-    const { data: existing, error: checkError } = await supabase
-      .from('certifications')
+    const { data: existing, error: checkError } = await (supabase.from('certifications') as any)
       .select('id')
       .eq('id', id)
       .eq('is_deleted', false)
@@ -119,8 +117,7 @@ export const PATCH = withApiHandler(
     }
 
     // Update the certification
-    const { data: certification, error } = await supabase
-      .from('certifications')
+    const { data: certification, error } = await (supabase.from('certifications') as any)
       .update(updates)
       .eq('id', id)
       .select()
@@ -150,8 +147,7 @@ export const DELETE = withApiHandler(
     }
 
     // First check if certification exists and belongs to user
-    const { data: existing, error: checkError } = await supabase
-      .from('certifications')
+    const { data: existing, error: checkError } = await (supabase.from('certifications') as any)
       .select('id')
       .eq('id', id)
       .eq('is_deleted', false)
@@ -162,8 +158,7 @@ export const DELETE = withApiHandler(
     }
 
     // Soft delete by setting is_deleted = true
-    const { error } = await supabase
-      .from('certifications')
+    const { error } = await (supabase.from('certifications') as any)
       .update({ is_deleted: true })
       .eq('id', id)
 

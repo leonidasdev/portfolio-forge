@@ -13,11 +13,12 @@
  * ```
  */
 
-import { NextRequest } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
 import { User } from '@supabase/supabase-js'
-import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Database } from '@/lib/supabase/types'
+import { NextRequest } from 'next/server'
+
+// Use Awaited to get the actual return type of createServerClient
+type TypedSupabaseClient = Awaited<ReturnType<typeof createServerClient>>
 
 /**
  * Custom error class for authentication failures
@@ -37,7 +38,7 @@ export class AuthError extends Error {
  */
 export interface AuthContext {
   user: User
-  supabase: SupabaseClient<Database>
+  supabase: TypedSupabaseClient
 }
 
 /**
@@ -99,7 +100,7 @@ export async function requireAuth(_request: NextRequest): Promise<AuthContext> {
  */
 export async function optionalAuth(_request: NextRequest): Promise<{
   user: User | null
-  supabase: SupabaseClient<Database>
+  supabase: TypedSupabaseClient
 }> {
   const supabase = await createServerClient()
 

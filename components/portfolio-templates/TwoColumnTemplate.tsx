@@ -12,12 +12,12 @@ import { SectionRenderer } from '@/components/portfolio-sections/SectionRenderer
 import type { TemplateComponentProps } from './registry'
 
 export function TwoColumnTemplate({ portfolio, sections, theme: _theme }: TemplateComponentProps) {
-  // Split sections: summary/skills in sidebar, rest in main content
+  // Split sections: about/skills in sidebar, rest in main content
   const sidebarSections = sections.filter(
-    (s) => s.section_type === 'summary' || s.section_type === 'skills'
+    (s) => s.section_type === 'about' || s.section_type === 'skills'
   )
   const mainSections = sections.filter(
-    (s) => s.section_type !== 'summary' && s.section_type !== 'skills'
+    (s) => s.section_type !== 'about' && s.section_type !== 'skills'
   )
 
   return (

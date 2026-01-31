@@ -98,19 +98,21 @@ interface SectionEditorProps {
   section: Section
   allSections?: Section[]
   onSave: (section: Section) => void
-  onCancel: () => void
+  onClose: () => void
 }
 
 // Section types that support AI improvement
-const AI_IMPROVE_SUPPORTED = ['summary', 'skills', 'work_experience', 'custom']
+const AI_IMPROVE_SUPPORTED = ['about', 'skills', 'experience', 'custom']
 
 // Section types that support tag suggestions
-const TAG_SUGGESTION_SUPPORTED = ['certifications', 'work_experience']
+const TAG_SUGGESTION_SUPPORTED = ['certifications', 'experience']
 
-export function SectionEditor({ section, allSections, onSave, onCancel }: SectionEditorProps) {
+export function SectionEditor({ section, allSections, onSave, onClose }: SectionEditorProps) {
   // Core state
   const [title, setTitle] = useState(section.title || '')
-  const [content, setContent] = useState<SectionContent>((section.content as SectionContent) || {})
+  const [content, setContent] = useState<SectionContent>(
+    (section.custom_content as SectionContent) || {}
+  )
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -131,7 +133,7 @@ export function SectionEditor({ section, allSections, onSave, onCancel }: Sectio
 
   // Initialize content based on section type
   useEffect(() => {
-    if (!section.content) {
+    if (!section.custom_content) {
       const defaultContent = getDefaultContent(section.section_type)
       setContent(defaultContent)
     }
@@ -251,11 +253,12 @@ export function SectionEditor({ section, allSections, onSave, onCancel }: Sectio
   // Add tag handler
   const handleAddTag = useCallback(
     (tagLabel: string) => {
-      const currentTags = content.tags || []
+      const workExpContent = content as WorkExperienceContent
+      const currentTags = workExpContent.tags || []
       const tagExists = currentTags.some((t: string) => t.toLowerCase() === tagLabel.toLowerCase())
 
       if (!tagExists) {
-        setContent({ ...content, tags: [...currentTags, tagLabel] })
+        setContent({ ...content, tags: [...currentTags, tagLabel] } as SectionContent)
         setSuggestedTagsList((prev) =>
           prev.filter((t) => t.label.toLowerCase() !== tagLabel.toLowerCase())
         )
@@ -267,8 +270,9 @@ export function SectionEditor({ section, allSections, onSave, onCancel }: Sectio
   // Feature flags
   const canUseAI = AI_IMPROVE_SUPPORTED.includes(section.section_type)
   const canSuggestTags = TAG_SUGGESTION_SUPPORTED.includes(section.section_type)
-  const isSummarySection = section.section_type === 'summary'
-  const hasSummary = content.text && content.text.trim().length > 0
+  const isSummarySection = section.section_type === 'about'
+  const summaryText = (content as SummaryContent).text
+  const hasSummary = Boolean(summaryText && summaryText.trim().length > 0)
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -337,7 +341,7 @@ export function SectionEditor({ section, allSections, onSave, onCancel }: Sectio
         {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
           <button
-            onClick={onCancel}
+            onClick={onClose}
             disabled={isSaving}
             type="button"
             className="px-4 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50"
@@ -361,11 +365,11 @@ export function SectionEditor({ section, allSections, onSave, onCancel }: Sectio
 // Helper: Get default content for section type
 function getDefaultContent(sectionType: string): SectionContent {
   switch (sectionType) {
-    case 'summary':
+    case 'about':
       return { text: '' } satisfies SummaryContent
     case 'skills':
       return { skills: [] } satisfies SkillsContent
-    case 'work_experience':
+    case 'experience':
       return { jobs: [] } satisfies WorkExperienceContent
     case 'custom':
       return { text: '' } satisfies CustomContent
@@ -377,11 +381,11 @@ function getDefaultContent(sectionType: string): SectionContent {
 // Helper: Extract text for AI improvement
 function extractTextForImprovement(sectionType: string, content: SectionContent): string {
   switch (sectionType) {
-    case 'summary':
+    case 'about':
       return (content as SummaryContent).text || ''
     case 'skills':
       return ((content as SkillsContent).skills || []).join('\n')
-    case 'work_experience':
+    case 'experience':
       return (content as WorkExperienceContent).description || ''
     case 'custom':
       return (content as CustomContent).text || ''
@@ -397,11 +401,11 @@ function applyImprovedText(
   improved: string
 ): SectionContent {
   switch (sectionType) {
-    case 'summary':
+    case 'about':
       return { text: improved } satisfies SummaryContent
     case 'skills':
       return { skills: improved.split('\n').filter((s) => s.trim()) } satisfies SkillsContent
-    case 'work_experience':
+    case 'experience':
       return {
         ...(content as WorkExperienceContent),
         description: improved,
@@ -424,15 +428,15 @@ function extractContextFromSections(allSections?: Section[]) {
   let skillsText: string | undefined
 
   const certSection = allSections.find((s) => s.section_type === 'certifications')
-  const certContent = certSection?.content as CertificationsContent | undefined
+  const certContent = certSection?.custom_content as CertificationsContent | undefined
   if (certContent?.certifications && Array.isArray(certContent.certifications)) {
     certificationsText = certContent.certifications
       .map((cert) => `${cert.title} - ${cert.issuer}`)
       .join('\n')
   }
 
-  const expSection = allSections.find((s) => s.section_type === 'work_experience')
-  const expContent = expSection?.content as WorkExperienceContent | undefined
+  const expSection = allSections.find((s) => s.section_type === 'experience')
+  const expContent = expSection?.custom_content as WorkExperienceContent | undefined
   if (expContent?.jobs && Array.isArray(expContent.jobs)) {
     experienceText = expContent.jobs
       .map((job) => `${job.role} at ${job.company}\n${job.description || ''}`)
@@ -442,7 +446,7 @@ function extractContextFromSections(allSections?: Section[]) {
   }
 
   const skillsSection = allSections.find((s) => s.section_type === 'skills')
-  const skillsContent = skillsSection?.content as SkillsContent | undefined
+  const skillsContent = skillsSection?.custom_content as SkillsContent | undefined
   if (skillsContent?.skills && Array.isArray(skillsContent.skills)) {
     skillsText = skillsContent.skills.join(', ')
   }
@@ -466,7 +470,7 @@ function extractTextForTagSuggestion(sectionType: string, content: SectionConten
       .join('\n\n')
   }
 
-  if (sectionType === 'work_experience') {
+  if (sectionType === 'experience') {
     const expContent = content as WorkExperienceContent
     const parts: string[] = []
 
@@ -504,19 +508,28 @@ interface EditorProps {
 
 function renderEditor(sectionType: string, props: EditorProps) {
   switch (sectionType) {
-    case 'summary':
-      return <SummaryEditor content={props.content} onChange={props.onContentChange} />
+    case 'about':
+      return (
+        <SummaryEditor content={props.content as SummaryContent} onChange={props.onContentChange} />
+      )
     case 'skills':
-      return <SkillsEditor content={props.content} onChange={props.onContentChange} />
-    case 'work_experience':
-      return <WorkExperienceEditor content={props.content} onChange={props.onContentChange} />
+      return (
+        <SkillsEditor content={props.content as SkillsContent} onChange={props.onContentChange} />
+      )
+    case 'experience':
+      return (
+        <WorkExperienceEditor
+          content={props.content as WorkExperienceContent}
+          onChange={props.onContentChange}
+        />
+      )
     case 'certifications':
       return <CertificationsEditor />
     case 'custom':
       return (
         <CustomEditor
           title={props.title}
-          content={props.content}
+          content={props.content as CustomContent}
           onTitleChange={props.onTitleChange}
           onChange={props.onContentChange}
         />

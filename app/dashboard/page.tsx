@@ -1,6 +1,6 @@
 /**
  * Dashboard Page - Example of using Supabase server client in a Server Component
- * 
+ *
  * This page demonstrates:
  * - Reading the authenticated user session
  * - Fetching data with RLS (user only sees their own data)
@@ -16,7 +16,7 @@ export default async function DashboardPage() {
   // Get the current session
   // This contains the authenticated user and tokens
   const session = await getSession()
-  
+
   // Redirect to login if no session exists
   if (!session) {
     redirect('/login')
@@ -24,39 +24,37 @@ export default async function DashboardPage() {
 
   // Get the current user (alternative to session.user)
   const user = await getUser()
-  
+
   // Redirect to login if not authenticated (redundant check, but shows pattern)
   if (!user) {
     redirect('/login')
   }
-  
+
   // Create a Supabase client
   const supabase = await createServerClient()
-  
+
   // Fetch user's portfolios (RLS ensures only their portfolios are returned)
-  const { data: portfolios, error: portfoliosError } = await supabase
-    .from('portfolios')
+  const { data: portfolios, error: portfoliosError } = await (supabase.from('portfolios') as any)
     .select('*')
     .eq('is_deleted', false)
     .order('created_at', { ascending: false })
-  
+
   // Fetch user's certifications
-  const { data: certifications, error: certificationsError } = await supabase
-    .from('certifications')
+  const { data: certifications, error: certificationsError } = await (
+    supabase.from('certifications') as any
+  )
     .select('*')
     .eq('is_deleted', false)
     .order('created_at', { ascending: false })
     .limit(5)
-  
+
   // Fetch user's tags
-  const { data: tags, error: tagsError } = await supabase
-    .from('tags')
+  const { data: tags, error: tagsError } = await (supabase.from('tags') as any)
     .select('*')
     .order('name', { ascending: true })
-  
+
   // Fetch user profile
-  const { data: profile } = await supabase
-    .from('profiles')
+  const { data: profile } = await (supabase.from('profiles') as any)
     .select('*')
     .eq('id', user.id)
     .single()
@@ -66,9 +64,7 @@ export default async function DashboardPage() {
       <div className="mb-8 flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-gray-600 mt-2">
-            Welcome back, {profile?.full_name || user.email}
-          </p>
+          <p className="text-gray-600 mt-2">Welcome back, {profile?.full_name || user.email}</p>
           <p className="text-xs text-gray-500 mt-1">
             Session expires: {new Date(session.expires_at! * 1000).toLocaleString()}
           </p>
@@ -87,14 +83,18 @@ export default async function DashboardPage() {
         )}
         {portfolios && portfolios.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {portfolios.map((portfolio) => (
+            {portfolios.map((portfolio: any) => (
               <div key={portfolio.id} className="border rounded-lg p-4">
                 <h3 className="font-semibold">{portfolio.title}</h3>
                 <p className="text-sm text-gray-600">{portfolio.description}</p>
                 <div className="mt-2 flex gap-2">
-                  <span className={`text-xs px-2 py-1 rounded ${
-                    portfolio.is_public ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                  }`}>
+                  <span
+                    className={`text-xs px-2 py-1 rounded ${
+                      portfolio.is_public
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}
+                  >
                     {portfolio.is_public ? 'Public' : 'Private'}
                   </span>
                 </div>
@@ -108,19 +108,22 @@ export default async function DashboardPage() {
       <section className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">Recent Certifications</h2>
         {certificationsError && (
-          <p className="text-red-600">Error loading certifications: {certificationsError.message}</p>
+          <p className="text-red-600">
+            Error loading certifications: {certificationsError.message}
+          </p>
         )}
         {certifications && certifications.length === 0 && (
           <p className="text-gray-500">No certifications yet. Add your first one!</p>
         )}
         {certifications && certifications.length > 0 && (
           <div className="space-y-3">
-            {certifications.map((cert) => (
+            {certifications.map((cert: any) => (
               <div key={cert.id} className="border rounded-lg p-4">
                 <h3 className="font-semibold">{cert.title}</h3>
                 <p className="text-sm text-gray-600">{cert.issuing_organization}</p>
                 <p className="text-xs text-gray-500 mt-1">
-                  Issued: {cert.date_issued ? new Date(cert.date_issued).toLocaleDateString() : 'N/A'}
+                  Issued:{' '}
+                  {cert.date_issued ? new Date(cert.date_issued).toLocaleDateString() : 'N/A'}
                 </p>
               </div>
             ))}
@@ -131,21 +134,19 @@ export default async function DashboardPage() {
       {/* Tags Section */}
       <section>
         <h2 className="text-2xl font-semibold mb-4">Your Tags</h2>
-        {tagsError && (
-          <p className="text-red-600">Error loading tags: {tagsError.message}</p>
-        )}
+        {tagsError && <p className="text-red-600">Error loading tags: {tagsError.message}</p>}
         {tags && tags.length === 0 && (
           <p className="text-gray-500">No tags yet. Create tags to organize your content!</p>
         )}
         {tags && tags.length > 0 && (
           <div className="flex flex-wrap gap-2">
-            {tags.map((tag) => (
+            {tags.map((tag: any) => (
               <span
                 key={tag.id}
                 className="px-3 py-1 rounded-full text-sm"
                 style={{
                   backgroundColor: tag.color || '#e5e7eb',
-                  color: '#1f2937'
+                  color: '#1f2937',
                 }}
               >
                 {tag.name}

@@ -166,7 +166,11 @@ describe('withApiHandler', () => {
 
     it('should hide error details in production', async () => {
       const originalEnv = process.env.NODE_ENV
-      process.env.NODE_ENV = 'production'
+      Object.defineProperty(process.env, 'NODE_ENV', {
+        value: 'production',
+        writable: true,
+        configurable: true,
+      })
 
       const handler = withApiHandler(async () => {
         throw new Error('Sensitive error details')
@@ -178,7 +182,11 @@ describe('withApiHandler', () => {
       expect(data.error).toBe('Internal server error')
       expect(data.error).not.toContain('Sensitive')
 
-      process.env.NODE_ENV = originalEnv
+      Object.defineProperty(process.env, 'NODE_ENV', {
+        value: originalEnv,
+        writable: true,
+        configurable: true,
+      })
     })
   })
 })

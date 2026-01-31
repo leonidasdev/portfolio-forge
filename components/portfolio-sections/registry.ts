@@ -1,17 +1,17 @@
 /**
  * Section Components Registry
- * 
+ *
  * Maps section types to their corresponding React components.
  * This allows dynamic rendering of sections based on type.
  */
 
-import { SummarySection } from './SummarySection'
-import { SkillsSection } from './SkillsSection'
-import { ExperienceSection } from './ExperienceSection'
+import type { Database } from '@/lib/supabase/types'
+import type { ComponentType } from 'react'
 import { CertificationsSection } from './CertificationsSection'
 import { CustomSection } from './CustomSection'
-import type { ComponentType } from 'react'
-import type { Database } from '@/lib/supabase/types'
+import { ExperienceSection } from './ExperienceSection'
+import { SkillsSection } from './SkillsSection'
+import { SummarySection } from './SummarySection'
 
 type Section = Database['public']['Tables']['portfolio_sections']['Row']
 
@@ -22,9 +22,9 @@ export interface SectionComponentProps {
 
 // Registry of section type → component
 export const sectionRegistry: Record<string, ComponentType<SectionComponentProps>> = {
-  summary: SummarySection,
+  about: SummarySection,
   skills: SkillsSection,
-  work_experience: ExperienceSection,
+  experience: ExperienceSection,
   projects: ExperienceSection, // Reuse experience for now
   certifications: CertificationsSection,
   custom: CustomSection,

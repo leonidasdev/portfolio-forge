@@ -1,6 +1,6 @@
 /**
  * Certification Upload Component
- * 
+ *
  * Example of using the Supabase client for file uploads
  * Demonstrates:
  * - File upload to Supabase Storage
@@ -27,7 +27,7 @@ export default function CertificationUpload() {
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
-    
+
     if (!file) {
       return
     }
@@ -55,8 +55,11 @@ export default function CertificationUpload() {
       const supabase = createBrowserClient()
 
       // Get current user
-      const { data: { user }, error: userError } = await supabase.auth.getUser()
-      
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser()
+
       if (userError || !user) {
         throw new Error('You must be logged in to upload files')
       }
@@ -64,11 +67,7 @@ export default function CertificationUpload() {
       setProgress(25)
 
       // Upload file to storage
-      const uploadResult = await storage.uploadCertification(
-        user.id,
-        file,
-        file.name
-      )
+      const uploadResult = await storage.uploadCertification(user.id, file, file.name)
 
       if (uploadResult.error) {
         throw new Error(uploadResult.error.message)
@@ -78,9 +77,8 @@ export default function CertificationUpload() {
 
       // Create certification record in database
       const certificationType = file.type === 'application/pdf' ? 'pdf' : 'image'
-      
-      const { data: certification, error: dbError } = await supabase
-        .from('certifications')
+
+      const { data: certification, error: dbError } = await (supabase.from('certifications') as any)
         .insert({
           user_id: user.id,
           title: file.name.replace(/\.[^/.]+$/, ''), // Remove file extension
@@ -117,12 +115,9 @@ export default function CertificationUpload() {
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-4">Upload Certification</h2>
-      
+
       <div className="mb-4">
-        <label
-          htmlFor="file-upload"
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
+        <label htmlFor="file-upload" className="block text-sm font-medium text-gray-700 mb-2">
           Select PDF or Image
         </label>
         <input
@@ -139,9 +134,7 @@ export default function CertificationUpload() {
             hover:file:bg-blue-100
             disabled:opacity-50 disabled:cursor-not-allowed"
         />
-        <p className="mt-1 text-xs text-gray-500">
-          PDF, JPEG, or PNG. Max 10MB.
-        </p>
+        <p className="mt-1 text-xs text-gray-500">PDF, JPEG, or PNG. Max 10MB.</p>
       </div>
 
       {uploading && (
@@ -167,12 +160,8 @@ export default function CertificationUpload() {
 
       {success && (
         <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md">
-          <p className="text-sm text-green-800 font-semibold">
-            Upload successful!
-          </p>
-          <p className="text-xs text-green-700 mt-1">
-            Certification ID: {success.certificationId}
-          </p>
+          <p className="text-sm text-green-800 font-semibold">Upload successful!</p>
+          <p className="text-xs text-green-700 mt-1">Certification ID: {success.certificationId}</p>
         </div>
       )}
 

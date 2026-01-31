@@ -21,9 +21,9 @@ const mockApiClient = apiClient as jest.Mocked<typeof apiClient>
 
 // Sample tags for testing
 const mockTags = [
-  { id: '1', name: 'JavaScript', user_id: 'user-1', created_at: '2024-01-01' },
-  { id: '2', name: 'TypeScript', user_id: 'user-1', created_at: '2024-01-02' },
-  { id: '3', name: 'React', user_id: 'user-1', created_at: '2024-01-03' },
+  { id: '1', name: 'JavaScript', user_id: 'user-1', color: null, created_at: '2024-01-01' },
+  { id: '2', name: 'TypeScript', user_id: 'user-1', color: null, created_at: '2024-01-02' },
+  { id: '3', name: 'React', user_id: 'user-1', color: null, created_at: '2024-01-03' },
 ]
 
 describe('TagSelector', () => {

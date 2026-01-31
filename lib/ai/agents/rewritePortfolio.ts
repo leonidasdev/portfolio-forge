@@ -32,7 +32,9 @@ export async function rewriteEntirePortfolio(
 
   // Fetch all portfolio sections for the user
   // First get the user's portfolios
-  const { data: portfolios } = await supabase.from('portfolios').select('id').eq('user_id', userId)
+  const { data: portfolios } = await (supabase.from('portfolios') as any)
+    .select('id')
+    .eq('user_id', userId)
 
   if (!portfolios || portfolios.length === 0) {
     return { sections: [] }
@@ -43,8 +45,7 @@ export async function rewriteEntirePortfolio(
   const portfolioId = portfolios[0].id
 
   // Fetch all sections for this portfolio
-  const { data: sections } = await supabase
-    .from('portfolio_sections')
+  const { data: sections } = await (supabase.from('portfolio_sections') as any)
     .select('id, section_type, custom_content, description')
     .eq('portfolio_id', portfolioId)
     .in('section_type', ['about', 'skills', 'experience', 'custom'])

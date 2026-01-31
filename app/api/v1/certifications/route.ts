@@ -33,8 +33,7 @@ export const GET = withApiHandler(async (request: NextRequest) => {
   const offset = searchParams.get('offset')
 
   // Build query
-  let query = supabase
-    .from('certifications')
+  let query = (supabase.from('certifications') as any)
     .select(
       `
         *,
@@ -72,7 +71,7 @@ export const GET = withApiHandler(async (request: NextRequest) => {
   }
 
   // Transform tags structure for easier consumption
-  const transformedCertifications = certifications?.map((cert) => ({
+  const transformedCertifications = certifications?.map((cert: any) => ({
     ...cert,
     tags: cert.certification_tags?.map((ct: { tags: unknown }) => ct.tags).filter(Boolean) || [],
     certification_tags: undefined, // Remove junction table data
@@ -112,8 +111,7 @@ export const POST = withApiHandler(async (request: NextRequest) => {
   const body = await validateBody(request, createCertificationSchema)
 
   // Create the certification
-  const { data: certification, error } = await supabase
-    .from('certifications')
+  const { data: certification, error } = await (supabase.from('certifications') as any)
     .insert({
       user_id: user.id,
       title: body.title,

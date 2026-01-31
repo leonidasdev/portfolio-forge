@@ -127,6 +127,7 @@ describe('CertificationForm', () => {
       verification_url: 'https://example.com/verify',
       description: 'Test description',
       is_public: true,
+      is_deleted: false,
       file_path: null,
       file_type: null,
       external_url: null,

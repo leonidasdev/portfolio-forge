@@ -5,26 +5,30 @@
  * DELETE /api/v1/portfolio-sections/[id] - Delete a section
  */
 
-import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/api/auth-middleware'
-import { withApiHandler, ApiError } from '@/lib/api/route-handler'
+import { ApiError, withApiHandler } from '@/lib/api/route-handler'
+import { createServerClient } from '@/lib/supabase/server'
 import { validateBody, validateParams } from '@/lib/validation/helpers'
-import { updateSectionSchema, idSchema } from '@/lib/validation/schemas'
+import { idSchema, updateSectionSchema } from '@/lib/validation/schemas'
+import { NextRequest, NextResponse } from 'next/server'
 
 // PATCH /api/v1/portfolio-sections/[id] - Update a section
 export const PATCH = withApiHandler(
   async (request: NextRequest, { params }: { params: { id: string } }) => {
     const { user, supabase } = await requireAuth(request)
 
-    // Validate params
-    const { id } = await validateParams(params, idSchema)
+    // Get section ID from params
+    const id = params?.id
+
+    if (!id) {
+      throw new ApiError('Section ID is required', 400)
+    }
 
     // Validate request body
     const body = await validateBody(request, updateSectionSchema)
 
     // Verify section exists and user owns the portfolio
-    const { data: section, error: fetchError } = await supabase
-      .from('portfolio_sections')
+    const { data: section, error: fetchError } = await (supabase.from('portfolio_sections') as any)
       .select('portfolio_id, portfolios!inner(user_id)')
       .eq('id', id)
       .single()
@@ -47,7 +51,7 @@ export const PATCH = withApiHandler(
     }
 
     if (body.content !== undefined) {
-      updates.content = body.content
+      updates.custom_content = body.content
     }
 
     if (body.settings !== undefined) {
@@ -64,8 +68,7 @@ export const PATCH = withApiHandler(
     }
 
     // Update the section
-    const { data: updatedSection, error } = await supabase
-      .from('portfolio_sections')
+    const { data: updatedSection, error } = await (supabase.from('portfolio_sections') as any)
       .update(updates)
       .eq('id', id)
       .select()
@@ -98,8 +101,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     const { id } = params
 
     // Verify section exists and get portfolio_id and current display_order
-    const { data: section, error: fetchError } = await supabase
-      .from('portfolio_sections')
+    const { data: section, error: fetchError } = await (supabase.from('portfolio_sections') as any)
       .select('id, portfolio_id, display_order, portfolios!inner(user_id)')
       .eq('id', id)
       .single()
@@ -118,7 +120,9 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     const portfolioId = section.portfolio_id
 
     // Delete the section
-    const { error: deleteError } = await supabase.from('portfolio_sections').delete().eq('id', id)
+    const { error: deleteError } = await (supabase.from('portfolio_sections') as any)
+      .delete()
+      .eq('id', id)
 
     if (deleteError) {
       console.error('Failed to delete section:', deleteError)
@@ -126,7 +130,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     }
 
     // Reorder remaining sections (decrement display_order for all sections after the deleted one)
-    const { error: reorderError } = await supabase.rpc('reorder_sections_after_delete', {
+    const { error: reorderError } = await (supabase.rpc as any)('reorder_sections_after_delete', {
       p_portfolio_id: portfolioId,
       p_deleted_order: deletedOrder,
     })
@@ -136,8 +140,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       console.warn('RPC function not available, using fallback reordering')
 
       // Fetch remaining sections with display_order > deleted order
-      const { data: remainingSections } = await supabase
-        .from('portfolio_sections')
+      const { data: remainingSections } = await (supabase.from('portfolio_sections') as any)
         .select('id, display_order')
         .eq('portfolio_id', portfolioId)
         .gt('display_order', deletedOrder)
@@ -146,8 +149,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       // Update each section's display_order
       if (remainingSections && remainingSections.length > 0) {
         for (const remainingSection of remainingSections) {
-          await supabase
-            .from('portfolio_sections')
+          await (supabase.from('portfolio_sections') as any)
             .update({ display_order: remainingSection.display_order - 1 })
             .eq('id', remainingSection.id)
         }

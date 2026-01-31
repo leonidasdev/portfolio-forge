@@ -42,27 +42,23 @@ export default async function SettingsPage() {
   const supabase = await createServerClient()
 
   // Fetch user profile
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
+  const { data: profile, error: profileError } = await (supabase.from('profiles') as any)
     .select('*')
     .eq('id', userId)
     .single()
 
   // Fetch user statistics
-  const { count: portfolioCount } = await supabase
-    .from('portfolios')
+  const { count: portfolioCount } = await (supabase.from('portfolios') as any)
     .select('*', { count: 'exact', head: true })
     .eq('user_id', userId)
     .eq('is_deleted', false)
 
-  const { count: certificationCount } = await supabase
-    .from('certifications')
+  const { count: certificationCount } = await (supabase.from('certifications') as any)
     .select('*', { count: 'exact', head: true })
     .eq('user_id', userId)
     .eq('is_deleted', false)
 
-  const { count: projectCount } = await supabase
-    .from('projects')
+  const { count: projectCount } = await (supabase.from('projects') as any)
     .select('*', { count: 'exact', head: true })
     .eq('user_id', userId)
     .eq('is_deleted', false)

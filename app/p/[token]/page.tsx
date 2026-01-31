@@ -20,8 +20,8 @@
  * - Sections with no visible content are hidden
  */
 
-import { createServerClient } from '@/lib/supabase/server'
 import { PortfolioRenderer } from '@/components/portfolio-renderer/PortfolioRenderer'
+import { createServerClient } from '@/lib/supabase/server'
 import type { Database } from '@/lib/supabase/types'
 
 type Section = Database['public']['Tables']['portfolio_sections']['Row']
@@ -32,8 +32,7 @@ export default async function PublicPortfolioPage({ params }: { params: { token:
   const supabase = await createServerClient()
 
   // Step 1: Validate token and fetch portfolio using public_link_token
-  const { data: portfolio, error: portfolioError } = await supabase
-    .from('portfolios')
+  const { data: portfolio, error: portfolioError } = await (supabase.from('portfolios') as any)
     .select('*')
     .eq('public_link_token', token)
     .eq('is_deleted', false)
@@ -63,8 +62,9 @@ export default async function PublicPortfolioPage({ params }: { params: { token:
   }
 
   // Step 3: Fetch all sections ordered by display_order
-  const { data: sections, error: sectionsError } = await supabase
-    .from('portfolio_sections')
+  const { data: sections, error: sectionsError } = await (
+    supabase.from('portfolio_sections') as any
+  )
     .select('*')
     .eq('portfolio_id', portfolio.id)
     .order('display_order', { ascending: true })
@@ -118,7 +118,7 @@ export default async function PublicPortfolioPage({ params }: { params: { token:
 async function filterVisibleSections(
   sections: Section[],
   userId: string,
-  supabase: ReturnType<typeof createServerClient>
+  supabase: Awaited<ReturnType<typeof createServerClient>>
 ): Promise<Section[]> {
   const visibleSections: Section[] = []
 
@@ -130,21 +130,21 @@ async function filterVisibleSections(
       if (filteredSection) {
         visibleSections.push(filteredSection)
       }
-    } else if (section.section_type === 'summary' || section.section_type === 'custom') {
-      // Summary and custom sections are always visible if they have content
-      const content = section.content as { text?: string } | null
+    } else if (section.section_type === 'about' || section.section_type === 'custom') {
+      // About and custom sections are always visible if they have content
+      const content = section.custom_content as { text?: string } | null
       if (content?.text && content.text.trim().length > 0) {
         visibleSections.push(section)
       }
     } else if (section.section_type === 'skills') {
       // Skills section visible if it has skills
-      const content = section.content as { skills?: string[] } | null
+      const content = section.custom_content as { skills?: string[] } | null
       if (content?.skills && content.skills.length > 0) {
         visibleSections.push(section)
       }
-    } else if (section.section_type === 'work_experience' || section.section_type === 'projects') {
+    } else if (section.section_type === 'experience' || section.section_type === 'projects') {
       // Experience/projects sections visible if they have content
-      const content = section.content as { description?: string } | null
+      const content = section.custom_content as { description?: string } | null
       if (content?.description && content.description.trim().length > 0) {
         visibleSections.push(section)
       }
@@ -170,9 +170,9 @@ async function filterVisibleSections(
 async function filterCertificationSection(
   section: Section,
   userId: string,
-  supabase: ReturnType<typeof createServerClient>
+  supabase: Awaited<ReturnType<typeof createServerClient>>
 ): Promise<Section | null> {
-  const content = section.content as { certificationIds?: string[] } | null
+  const content = section.custom_content as { certificationIds?: string[] } | null
   const certificationIds = content?.certificationIds || []
 
   if (certificationIds.length === 0) {
@@ -181,8 +181,7 @@ async function filterCertificationSection(
   }
 
   // Fetch certifications and filter for public ones
-  const { data: certifications } = await supabase
-    .from('certifications')
+  const { data: certifications } = await (supabase.from('certifications') as any)
     .select('id, is_public')
     .eq('user_id', userId)
     .in('id', certificationIds)
@@ -194,8 +193,8 @@ async function filterCertificationSection(
 
   // Filter to only public certifications
   const publicCertificationIds = certifications
-    .filter((cert: Certification) => cert.is_public)
-    .map((cert: Certification) => cert.id)
+    .filter((cert: any) => cert.is_public)
+    .map((cert: any) => cert.id)
 
   if (publicCertificationIds.length === 0) {
     // No public certifications, hide section
@@ -205,7 +204,7 @@ async function filterCertificationSection(
   // Return section with filtered certification IDs
   return {
     ...section,
-    content: {
+    custom_content: {
       ...content,
       certificationIds: publicCertificationIds,
     },
@@ -220,8 +219,7 @@ async function filterCertificationSection(
 export async function generateMetadata({ params }: { params: { token: string } }) {
   const supabase = await createServerClient()
 
-  const { data: portfolio } = await supabase
-    .from('portfolios')
+  const { data: portfolio } = await (supabase.from('portfolios') as any)
     .select('title, description')
     .eq('public_link_token', params.token)
     .eq('is_public', true)

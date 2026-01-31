@@ -25,13 +25,10 @@ export { ApiError } from './errors'
 /**
  * Type for route handler function
  * Compatible with Next.js 15 where params is a Promise
+ * Uses 'any' for context to allow flexible route definitions
  */
-type RouteHandler = (
-  request: NextRequest,
-  context?: {
-    params?: Promise<Record<string, string | string[]>> | Record<string, string | string[]>
-  }
-) => Promise<Response> | Response
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type RouteHandler = (request: NextRequest, context?: any) => Promise<Response> | Response
 
 /**
  * Wraps API route handlers with error handling and logging.
@@ -82,12 +79,8 @@ type RouteHandler = (
  * ```
  */
 export function withApiHandler(handler: RouteHandler): RouteHandler {
-  return async (
-    request: NextRequest,
-    context?: {
-      params?: Promise<Record<string, string | string[]>> | Record<string, string | string[]>
-    }
-  ) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return async (request: NextRequest, context?: any) => {
     const startTime = Date.now()
 
     try {
