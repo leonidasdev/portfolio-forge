@@ -12,10 +12,10 @@
  * 6. Redirect to certifications list
  */
 
-import { notFound } from 'next/navigation'
+import { CertificationForm } from '@/components/certifications/CertificationForm'
 import { requireUserId } from '@/lib/auth/requireSession'
 import { createServerClient } from '@/lib/supabase/server'
-import { CertificationForm } from '@/components/certifications/CertificationForm'
+import { notFound } from 'next/navigation'
 
 export default async function EditCertificationPage({
   params,

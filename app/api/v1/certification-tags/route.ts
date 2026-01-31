@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify certification belongs to user
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase client typing limitation
     const { data: certification, error: certError } = await (supabase.from('certifications') as any)
       .select('id')
       .eq('id', certification_id)
@@ -49,6 +50,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify tag belongs to user
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase client typing limitation
     const { data: tag, error: tagError } = await (supabase.from('tags') as any)
       .select('id')
       .eq('id', tag_id)
@@ -60,6 +62,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if assignment already exists
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase client typing limitation
     const { data: existing } = await (supabase.from('certification_tags') as any)
       .select('id')
       .eq('certification_id', certification_id)
@@ -72,6 +75,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create the assignment
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase client typing limitation
     const { error } = await (supabase.from('certification_tags') as any).insert({
       certification_id,
       tag_id,
@@ -117,6 +121,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Verify certification belongs to user
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase client typing limitation
     const { data: certification, error: certError } = await (supabase.from('certifications') as any)
       .select('id')
       .eq('id', certification_id)
@@ -128,6 +133,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete the assignment
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase client typing limitation
     const { error } = await (supabase.from('certification_tags') as any)
       .delete()
       .eq('certification_id', certification_id)

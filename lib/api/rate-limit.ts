@@ -26,8 +26,8 @@
  * ```
  */
 
-import { NextRequest, NextResponse } from 'next/server'
 import { config, RateLimitConfig } from '@/lib/config'
+import { NextRequest, NextResponse } from 'next/server'
 import { rateLimitStore, type RateLimitResult } from './rate-limit-store'
 
 // Re-export store for direct access if needed

@@ -33,6 +33,7 @@ export const GET = withApiHandler(
     }
 
     // Fetch certification with tags
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase client typing limitation
     const { data: certification, error } = await (supabase.from('certifications') as any)
       .select(
         `
@@ -110,6 +111,7 @@ export const PATCH = withApiHandler(
     }
 
     // First check if certification exists and belongs to user
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase client typing limitation
     const { data: existing, error: checkError } = await (supabase.from('certifications') as any)
       .select('id')
       .eq('id', id)
@@ -121,6 +123,7 @@ export const PATCH = withApiHandler(
     }
 
     // Update the certification
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase client typing limitation
     const { data: certification, error } = await (supabase.from('certifications') as any)
       .update(updates)
       .eq('id', id)
@@ -153,6 +156,7 @@ export const DELETE = withApiHandler(
     }
 
     // First check if certification exists and belongs to user
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase client typing limitation
     const { data: existing, error: checkError } = await (supabase.from('certifications') as any)
       .select('id')
       .eq('id', id)
@@ -164,6 +168,7 @@ export const DELETE = withApiHandler(
     }
 
     // Soft delete by setting is_deleted = true
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase client typing limitation
     const { error } = await (supabase.from('certifications') as any)
       .update({ is_deleted: true })
       .eq('id', id)

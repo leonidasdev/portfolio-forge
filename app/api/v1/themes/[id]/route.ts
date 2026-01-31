@@ -8,8 +8,8 @@
  * - 404: Theme not found
  */
 
-import { NextResponse } from 'next/server'
 import { THEMES } from '@/lib/templates-themes/definitions'
+import { NextResponse } from 'next/server'
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params

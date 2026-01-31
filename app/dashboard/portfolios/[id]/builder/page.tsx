@@ -10,10 +10,10 @@
  * - Live preview toggle
  */
 
-import { notFound } from 'next/navigation'
+import { BuilderWithSelector } from '@/components/portfolio-builder/BuilderWithSelector'
 import { requireUserId } from '@/lib/auth/requireSession'
 import { createServerClient } from '@/lib/supabase/server'
-import { BuilderWithSelector } from '@/components/portfolio-builder/BuilderWithSelector'
+import { notFound } from 'next/navigation'
 
 export default async function PortfolioBuilderPage({
   params,
