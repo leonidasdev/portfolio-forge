@@ -17,7 +17,7 @@ Portfolio Forge is a **well-architected Next.js 14+ application** with solid fun
 | **Architecture** | 8.5/10 | âœ… Strong |
 | **Code Quality** | 9/10 | âœ… Excellent (errors, constants, logger, hooks, UI lib, refactored components) |
 | **Documentation** | 9.5/10 | âœ… Excellent (SECURITY, CHANGELOG, DEPLOYMENT, RATE_LIMITING) |
-| **Testing** | 8.5/10 | âœ… Good (238 tests passing) |
+| **Testing** | 9/10 | âœ… Excellent (274 tests passing) |
 | **Linting/Formatting** | 10/10 | ✅ Excellent (0 warnings - all `any` types fixed, pre-commit hooks) |
 | **CI/CD** | 8.5/10 | âœ… Configured (CI + pre-commit/pre-push hooks) |
 | **Security** | 8/10 | âœ… Good (SECURITY.md, error boundaries) |
@@ -399,19 +399,21 @@ Portfolio Forge is a **well-architected Next.js 14+ application** with solid fun
 
 ### 4.1 Testing Improvements
 
-**Status:** GOOD (238 tests passing)
+**Status:** âœ… EXCELLENT (274 tests passing)
 **Current State:**
-- 12 test files, 238 tests passing (1 skipped)
-- Tests cover: lib/api/, lib/validation/, lib/__tests__/, components/ui/, components/tags/
-- Component tests exist for UI library
+- 15 test files, 274 tests passing (1 skipped)
+- Tests cover: lib/api/, lib/validation/, lib/__tests__/, components/ui/, components/tags/, components/portfolio-builder/, app/api/v1/
+- Component tests exist for UI library and Builder component
+- API route integration tests for tags and portfolios endpoints
 - No E2E tests yet
 - Coverage threshold: 50%
 
 **Action Items:**
 - [x] Add component tests with React Testing Library (UI components tested)
+- [x] Add integration tests for API routes (tags, portfolios)
+- [x] Add Builder component tests (13 tests)
 - [ ] Add E2E tests with Playwright
 - [ ] Increase coverage threshold to 70%
-- [ ] Add integration tests for API routes
 - [ ] Add snapshot tests for templates/themes
 
 ---
@@ -610,22 +612,23 @@ Portfolio Forge is a **well-architected Next.js 14+ application** with solid fun
 | `lib/api/` | 4 | ~60 | Good |
 | `lib/validation/` | 1 | ~20 | Good |
 | `lib/__tests__/` | 2 | ~39 | Good (logger, utils) |
-| `components/ui/` | 3 | ~74 | Good (Button, Modal, Toast) |
+| `components/ui/` | 4 | ~86 | Good (Button, Modal, Toast, Skeleton) |
 | `components/tags/` | 1 | ~18 | Good (TagSelector) |
-| API Routes | 0 | 0 | None |
+| `components/portfolio-builder/` | 1 | ~13 | Good (Builder) |
+| API Routes | 2 | ~22 | Good (tags, portfolios) |
 | E2E | 0 | 0 | None |
 
-**Total:** 238 tests passing (1 skipped)
+**Total:** 274 tests passing (1 skipped)
 
 ### 7.2 Testing Action Items
 
-- [x] Add component tests for UI library (Button, Modal, Toast)
-- [ ] Add component tests:
-  - [ ] `Builder.test.tsx`
+- [x] Add component tests for UI library (Button, Modal, Toast, Skeleton)
+- [x] Add component tests:
+  - [x] `Builder.test.tsx` (13 tests)
   - [ ] `SectionEditor.test.tsx`
   - [ ] `CertificationForm.test.tsx`
   - [ ] Template components
-- [ ] Add API route integration tests
+- [x] Add API route integration tests (tags, portfolios)
 - [ ] Add E2E tests with Playwright:
   - [ ] Auth flow
   - [ ] Portfolio creation
