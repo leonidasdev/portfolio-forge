@@ -5,9 +5,9 @@
  * Tests section management, drag-and-drop, and AI features integration.
  */
 
+import type { Database } from '@/lib/supabase/types'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import type { Database } from '@/lib/supabase/types'
 
 type Portfolio = Database['public']['Tables']['portfolios']['Row']
 type Section = Database['public']['Tables']['portfolio_sections']['Row']

@@ -5,7 +5,7 @@
  * that use sortable drag-and-drop functionality.
  */
 
-import React, { ReactNode } from 'react'
+import { ReactNode } from 'react'
 
 export const arrayMove = jest.fn((arr: unknown[], from: number, to: number) => {
   const result = [...arr]

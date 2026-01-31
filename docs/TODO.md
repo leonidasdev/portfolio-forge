@@ -76,12 +76,12 @@ Portfolio Forge is a **well-architected Next.js 14+ application** with solid fun
 
 **Status:** âœ… COMPLETED
 **Files Created:**
-- `LICENSE` - MIT License
+- `LICENSE` - Apache License 2.0
 - `CONTRIBUTING.md` - Comprehensive contribution guidelines
 
 **Action Items:**
 - [x] Create `CONTRIBUTING.md` with contribution guidelines
-- [x] Create `LICENSE` file (MIT as stated in README)
+- [x] Create `LICENSE` file (Apache 2.0)
 - [x] Verify `.env.example` contains all required variables
 
 ---
@@ -516,7 +516,7 @@ Portfolio Forge is a **well-architected Next.js 14+ application** with solid fun
 ### 5.1 Missing Documentation
 
 - [x] `CONTRIBUTING.md` - Contribution guidelines
-- [x] `LICENSE` - MIT license file
+- [x] `LICENSE` - Apache License 2.0 file
 - [x] `SECURITY.md` - Security policy and vulnerability reporting
 - [x] `CHANGELOG.md` - Version history
 - [x] `docs/DEPLOYMENT.md` - Deployment guide

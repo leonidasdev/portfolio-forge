@@ -7,7 +7,11 @@ Welcome to the Portfolio Forge documentation. This directory contains comprehens
 ```
 docs/
 ├── README.md                    # This file - Documentation index
+├── TODO.md                      # Project TODO list and progress tracker
 ├── CODE_REVIEW_SUMMARY.md       # Code review findings and status
+├── DEPLOYMENT.md                # Deployment guide for production
+├── DEVELOPMENT.md               # Local development setup guide
+├── RATE_LIMITING.md             # Rate limiting configuration guide
 ├── architecture/                # Architecture & design documents
 │   ├── ARCHITECTURE_REVIEW.md   # High-level architecture assessment
 │   └── ARCHITECTURE_DEEP_DIVE.md # Detailed code organization analysis
@@ -25,15 +29,22 @@ docs/
 
 ### For New Developers
 - [Project README](../README.md) - Getting started guide
+- [Development Guide](DEVELOPMENT.md) - Local development setup
 - [Architecture Review](architecture/ARCHITECTURE_REVIEW.md) - Understand the codebase
 - [Authentication](features/authentication.md) - OAuth flow overview
 - [Auth Utilities](features/auth-utilities.md) - Session handling API reference
 - [Supabase Client](features/supabase-client.md) - Database client usage
 
 ### For Contributors
+- [TODO List](TODO.md) - Project tasks and progress
 - [Architecture Deep Dive](architecture/ARCHITECTURE_DEEP_DIVE.md) - Code patterns & recommendations
 - [API Versioning](api/api-versioning.md) - API design guidelines
 - [Middleware](features/middleware.md) - Request handling
+- [Code Review Summary](CODE_REVIEW_SUMMARY.md) - Review findings
+
+### For DevOps
+- [Deployment Guide](DEPLOYMENT.md) - Production deployment instructions
+- [Rate Limiting](RATE_LIMITING.md) - Rate limiting configuration
 
 ### API Documentation
 - [API Versioning Strategy](api/api-versioning.md)

@@ -5,7 +5,7 @@
  * that use drag-and-drop functionality.
  */
 
-import React, { ReactNode } from 'react'
+import { ReactNode } from 'react'
 
 export const DndContext = ({ children }: { children: ReactNode }) => <div>{children}</div>
 export const closestCenter = jest.fn()

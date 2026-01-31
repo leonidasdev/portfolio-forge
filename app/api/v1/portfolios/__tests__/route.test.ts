@@ -30,8 +30,8 @@ jest.mock('@/lib/api/auth-middleware', () => ({
 }))
 
 // Import after mocking
+import { AuthError, requireAuth } from '@/lib/api/auth-middleware'
 import { GET, POST } from '../route'
-import { requireAuth, AuthError } from '@/lib/api/auth-middleware'
 
 describe('Portfolios API Routes', () => {
   beforeEach(() => {

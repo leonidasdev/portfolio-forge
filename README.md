@@ -281,7 +281,11 @@ portfolio-forge/
 | Document | Description |
 |----------|-------------|
 | [docs/README.md](docs/README.md) | Documentation index |
-| [docs/architecture/ARCHITECTURE_REVIEW.md](docs/architecture/ARCHITECTURE_REVIEW.md) | Architecture assessment (8.5/10) |
+| [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Local development guide |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Production deployment guide |
+| [docs/RATE_LIMITING.md](docs/RATE_LIMITING.md) | Rate limiting configuration |
+| [docs/TODO.md](docs/TODO.md) | Project tasks and progress |
+| [docs/architecture/ARCHITECTURE_REVIEW.md](docs/architecture/ARCHITECTURE_REVIEW.md) | Architecture assessment |
 | [docs/architecture/ARCHITECTURE_DEEP_DIVE.md](docs/architecture/ARCHITECTURE_DEEP_DIVE.md) | Code patterns & recommendations |
 | [docs/api/api-versioning.md](docs/api/api-versioning.md) | API versioning strategy |
 | [docs/features/authentication.md](docs/features/authentication.md) | Auth system documentation |
@@ -462,7 +466,7 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduc
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
 ---
 

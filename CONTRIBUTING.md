@@ -351,6 +351,10 @@ If you have questions, feel free to:
 - Check existing documentation in `/docs`
 - Review closed issues for similar questions
 
+## License
+
+By contributing to Portfolio Forge, you agree that your contributions will be licensed under the [Apache License 2.0](LICENSE).
+
 ---
 
-Thank you for contributing to Portfolio Forge! 🚀
+Thank you for contributing to Portfolio Forge!
