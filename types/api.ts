@@ -11,13 +11,13 @@
  */
 
 import type {
+  Certification,
+  CertificationWithTags,
   Portfolio,
   Section,
-  Certification,
   Tag,
   Template,
   Theme,
-  CertificationWithTags,
 } from './portfolio'
 
 // ============================================================================

@@ -5,15 +5,15 @@
  */
 
 import {
-  cn,
-  formatRelativeTime,
-  truncate,
   capitalize,
-  generateId,
-  deepClone,
+  cn,
   debounce,
+  deepClone,
+  formatRelativeTime,
+  generateId,
   isBrowser,
   sleep,
+  truncate,
 } from '../utils'
 
 describe('cn (class name merge)', () => {

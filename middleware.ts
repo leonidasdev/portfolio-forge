@@ -18,8 +18,8 @@
  * - Static files and Next.js internals
  */
 
-import { NextResponse, type NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
   // Create a response object to modify

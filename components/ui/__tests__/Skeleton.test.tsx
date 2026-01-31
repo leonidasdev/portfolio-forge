@@ -2,15 +2,15 @@
  * Tests for Skeleton Components
  */
 
-import { render, screen } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import {
   Skeleton,
-  SkeletonText,
   SkeletonAvatar,
   SkeletonButton,
   SkeletonCard,
-  SkeletonTable,
   SkeletonListItem,
+  SkeletonTable,
+  SkeletonText,
 } from '../Skeleton'
 
 describe('Skeleton', () => {
