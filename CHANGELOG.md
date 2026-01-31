@@ -36,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Feature request template
 - Security documentation (`SECURITY.md`)
 - Contribution guidelines (`CONTRIBUTING.md`)
-- CLAUDE.md - AI assistant context file for project continuity
+- CLAUDE.md - AI assistant context file for project continuity (moved to `.github/CLAUDE.md`)
 
 ### Changed
 - Updated route handler to use centralized logger
@@ -46,6 +46,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Next.js 15.5 compatibility:** Added Suspense boundaries and async params handling
 - Migrated ESLint to flat config format (`eslint.config.mjs`)
 - Documented Supabase query type safety as technical debt in TODO.md
+- **Documentation Reorganization:**
+  - Moved `CLAUDE.md` to `.github/CLAUDE.md`
+  - Merged `DEPLOYMENT.md` + `VERCEL_DEPLOYMENT.md` into single `docs/DEPLOYMENT.md`
+  - Merged `authentication.md` + `auth-utilities.md` into single `docs/features/authentication.md`
+  - Consolidated `ARCHITECTURE_REVIEW.md` + `ARCHITECTURE_DEEP_DIVE.md` into `docs/architecture/ARCHITECTURE.md`
+  - Deleted redundant `CODE_REVIEW_SUMMARY.md` (content in TODO.md)
 
 ### Fixed
 - Parsing errors in API routes (`suggest-tags`, `portfolio-sections`)

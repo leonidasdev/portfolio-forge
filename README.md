@@ -51,7 +51,7 @@ Create job-tailored resumes, generate compelling content, and stand out from the
 - **Centralized Error Handling**
 
 ### Modern Architecture
-- **Next.js 14+ App Router** with server components
+- **Next.js 15+ App Router** with server components
 - **TypeScript** throughout with strict typing
 - **API Versioning** (v1 namespace)
 - **Modular AI Layer** (provider → router → abilities → agents)
@@ -291,8 +291,7 @@ portfolio-forge/
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Production deployment guide |
 | [docs/RATE_LIMITING.md](docs/RATE_LIMITING.md) | Rate limiting configuration |
 | [docs/TODO.md](docs/TODO.md) | Project tasks and progress |
-| [docs/architecture/ARCHITECTURE_REVIEW.md](docs/architecture/ARCHITECTURE_REVIEW.md) | Architecture assessment |
-| [docs/architecture/ARCHITECTURE_DEEP_DIVE.md](docs/architecture/ARCHITECTURE_DEEP_DIVE.md) | Code patterns & recommendations |
+| [docs/architecture/ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md) | Architecture overview and patterns |
 | [docs/architecture/DIAGRAMS.md](docs/architecture/DIAGRAMS.md) | Visual architecture diagrams |
 | [docs/api/api-versioning.md](docs/api/api-versioning.md) | API versioning strategy |
 | [docs/features/authentication.md](docs/features/authentication.md) | Auth system documentation |

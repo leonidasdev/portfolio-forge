@@ -419,7 +419,7 @@ In development mode, rate limiting uses in-memory storage and is less restrictiv
 
 ## Additional Resources
 
-- [Architecture Deep Dive](./architecture/ARCHITECTURE_DEEP_DIVE.md)
+- [Architecture Overview](./architecture/ARCHITECTURE.md)
 - [API Versioning Guide](./api/api-versioning.md)
 - [Rate Limiting Guide](./RATE_LIMITING.md)
 - [Deployment Guide](./DEPLOYMENT.md)

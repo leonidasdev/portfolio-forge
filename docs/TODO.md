@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-Portfolio Forge is a **well-architected Next.js 14+ application** with solid fundamentals. The codebase demonstrates good practices in API design, authentication, and AI integration. However, there are several areas requiring attention before production deployment and for long-term maintainability.
+Portfolio Forge is a **well-architected Next.js 15+ application** with solid fundamentals. The codebase demonstrates good practices in API design, authentication, and AI integration. However, there are several areas requiring attention before production deployment and for long-term maintainability.
 
 ### Overall Assessment Scores
 
