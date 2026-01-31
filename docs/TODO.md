@@ -68,7 +68,7 @@ Portfolio Forge is a **well-architected Next.js 14+ application** with solid fun
 - [x] Create PR template
 - [x] Create issue templates
 - [ ] Configure Vercel deployment (or alternative)
-- [ ] Add pre-commit hooks with Husky
+- [x] Add pre-commit hooks with Husky
 
 ---
 
@@ -297,12 +297,12 @@ Portfolio Forge is a **well-architected Next.js 14+ application** with solid fun
 
 ### 3.1 Remove/Update Deprecated Code
 
-**Status:** âœ… COMPLETED
+**Status:** ✅ COMPLETED
 **Items:**
-- [ ] Remove deprecated AI files (`lib/ai/agent.ts` â†’ use `lib/ai/agents/*`)
-- [ ] Remove legacy API routes if any exist outside `/api/v1/`
+- [x] Remove deprecated AI files (`lib/ai/agent.ts` → use `lib/ai/agents/*`)
+- [x] All API routes are in `/api/v1/` - No legacy routes found
 - [x] Update `jest.config.js` - `isolatedModules` is deprecated in ts-jest v30
-- [ ] Migrate away from `next lint` before Next.js 16
+- [x] Migrate away from `next lint` before Next.js 16 (migrated to ESLint CLI flat config)
 
 ---
 

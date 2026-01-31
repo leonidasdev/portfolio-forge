@@ -1,4 +1,4 @@
-/**
+﻿/**
  * API Route: Generate Portfolio Summary
  *
  * POST /api/v1/ai/generate-portfolio-summary
@@ -8,7 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
-import { generatePortfolioSummaryForUser } from '@/lib/ai/agent'
+import { generatePortfolioSummaryForUser } from '@/lib/ai/agents'
 
 export async function POST(_request: NextRequest) {
   try {
