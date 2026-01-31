@@ -1,8 +1,8 @@
 /**
  * Tag Selector Component
- * 
+ *
  * Reusable component for selecting tags and managing them inline.
- * 
+ *
  * Features:
  * - Display all user's tags as selectable chips
  * - Select/unselect tags
@@ -15,6 +15,7 @@
 
 import { useState, useEffect } from 'react'
 import { apiClient } from '@/lib/api/client'
+import { ConfirmModal } from '@/components/ui/Modal'
 import type { Database } from '@/lib/supabase/types'
 
 type Tag = Database['public']['Tables']['tags']['Row']
@@ -30,6 +31,7 @@ export function TagSelector({ selectedTags, onChange }: TagSelectorProps) {
   const [isCreating, setIsCreating] = useState(false)
   const [newTagName, setNewTagName] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [tagToDelete, setTagToDelete] = useState<Tag | null>(null)
 
   // Load all tags on mount
   useEffect(() => {
@@ -39,7 +41,7 @@ export function TagSelector({ selectedTags, onChange }: TagSelectorProps) {
   async function loadTags() {
     setIsLoading(true)
     setError(null)
-    
+
     try {
       const data = await apiClient.get<{ tags: Tag[] }>('/tags')
       setAllTags(data.tags || [])
@@ -54,7 +56,7 @@ export function TagSelector({ selectedTags, onChange }: TagSelectorProps) {
   // Toggle tag selection
   function toggleTag(tag: Tag) {
     const isSelected = selectedTags.some((t) => t.id === tag.id)
-    
+
     if (isSelected) {
       onChange(selectedTags.filter((t) => t.id !== tag.id))
     } else {
@@ -65,24 +67,24 @@ export function TagSelector({ selectedTags, onChange }: TagSelectorProps) {
   // Create new tag
   async function handleCreateTag(e: React.FormEvent) {
     e.preventDefault()
-    
+
     if (!newTagName.trim()) return
-    
+
     setIsCreating(true)
     setError(null)
-    
+
     try {
-      const data = await apiClient.post<{ tag: Tag }>('/tags', { 
-        name: newTagName.trim() 
+      const data = await apiClient.post<{ tag: Tag }>('/tags', {
+        name: newTagName.trim(),
       })
       const newTag = data.tag
-      
+
       // Add to all tags
       setAllTags([...allTags, newTag])
-      
+
       // Auto-select the newly created tag
       onChange([...selectedTags, newTag])
-      
+
       // Reset form
       setNewTagName('')
     } catch (err) {
@@ -93,22 +95,25 @@ export function TagSelector({ selectedTags, onChange }: TagSelectorProps) {
     }
   }
 
-  // Delete tag
-  async function handleDeleteTag(tag: Tag, e: React.MouseEvent) {
+  // Delete tag - show confirmation modal
+  function handleDeleteTag(tag: Tag, e: React.MouseEvent) {
     e.stopPropagation() // Prevent tag toggle
-    
-    const confirmed = confirm(
-      `Are you sure you want to delete the tag "${tag.name}"?\n\nThis will remove it from all certifications, projects, skills, and work experience.`
-    )
-    
-    if (!confirmed) return
-    
+    setTagToDelete(tag)
+  }
+
+  // Confirm delete tag
+  async function confirmDeleteTag() {
+    if (!tagToDelete) return
+
+    const tag = tagToDelete
+    setTagToDelete(null)
+
     try {
       await apiClient.delete(`/tags/${tag.id}`)
-      
+
       // Remove from all tags
       setAllTags(allTags.filter((t) => t.id !== tag.id))
-      
+
       // Remove from selected tags
       onChange(selectedTags.filter((t) => t.id !== tag.id))
     } catch (err) {
@@ -120,9 +125,25 @@ export function TagSelector({ selectedTags, onChange }: TagSelectorProps) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-4">
-        <svg className="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        <svg
+          className="animate-spin h-5 w-5 text-gray-400"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
         </svg>
         <span className="ml-2 text-sm text-gray-600">Loading tags...</span>
       </div>
@@ -132,11 +153,7 @@ export function TagSelector({ selectedTags, onChange }: TagSelectorProps) {
   return (
     <div className="space-y-3">
       {/* Error message */}
-      {error && (
-        <div className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded">
-          {error}
-        </div>
-      )}
+      {error && <div className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded">{error}</div>}
 
       {/* Selected tags display */}
       {allTags.length > 0 && (
@@ -147,7 +164,7 @@ export function TagSelector({ selectedTags, onChange }: TagSelectorProps) {
           <div className="flex flex-wrap gap-2">
             {allTags.map((tag) => {
               const isSelected = selectedTags.some((t) => t.id === tag.id)
-              
+
               return (
                 <button
                   key={tag.id}
@@ -160,7 +177,7 @@ export function TagSelector({ selectedTags, onChange }: TagSelectorProps) {
                   }`}
                 >
                   {tag.name}
-                  
+
                   {/* Delete button (shows on hover) */}
                   <span
                     onClick={(e) => handleDeleteTag(tag, e)}
@@ -212,6 +229,22 @@ export function TagSelector({ selectedTags, onChange }: TagSelectorProps) {
           Create tags to organize your certifications, projects, skills, and work experience
         </p>
       </div>
+
+      {/* Delete confirmation modal */}
+      <ConfirmModal
+        isOpen={!!tagToDelete}
+        onClose={() => setTagToDelete(null)}
+        onConfirm={confirmDeleteTag}
+        title="Delete Tag"
+        message={
+          tagToDelete
+            ? `Are you sure you want to delete the tag "${tagToDelete.name}"? This will remove it from all certifications, projects, skills, and work experience.`
+            : ''
+        }
+        variant="danger"
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   )
 }

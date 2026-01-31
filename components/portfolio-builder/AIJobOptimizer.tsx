@@ -9,6 +9,7 @@
 
 import { useState } from 'react'
 import { apiClient } from '@/lib/api/client'
+import { AlertModal } from '@/components/ui/Modal'
 import type { Database } from '@/lib/supabase/types'
 
 type Section = Database['public']['Tables']['portfolio_sections']['Row']
@@ -33,6 +34,7 @@ export function AIJobOptimizer({ sections, onSectionsUpdate }: AIJobOptimizerPro
   const [isOptimizing, setIsOptimizing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [results, setResults] = useState<OptimizationResults | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
   async function handleOptimize() {
     if (!jobDescription.trim()) {
@@ -78,10 +80,10 @@ export function AIJobOptimizer({ sections, onSectionsUpdate }: AIJobOptimizerPro
         jobInsights,
       })
 
-      alert(`Successfully optimized ${updatedSections.length} section(s) for the job!`)
-    } catch (error) {
-      console.error('Failed to optimize portfolio:', error)
-      setError(error instanceof Error ? error.message : 'Failed to optimize portfolio')
+      setSuccessMessage(`Successfully optimized ${updatedSections.length} section(s) for the job!`)
+    } catch (err) {
+      console.error('Failed to optimize portfolio:', err)
+      setError(err instanceof Error ? err.message : 'Failed to optimize portfolio')
     } finally {
       setIsOptimizing(false)
     }
@@ -208,6 +210,15 @@ export function AIJobOptimizer({ sections, onSectionsUpdate }: AIJobOptimizerPro
           </div>
         </div>
       )}
+
+      {/* Success message modal */}
+      <AlertModal
+        isOpen={!!successMessage}
+        onClose={() => setSuccessMessage(null)}
+        title="Success"
+        message={successMessage || ''}
+        type="success"
+      />
     </div>
   )
 }

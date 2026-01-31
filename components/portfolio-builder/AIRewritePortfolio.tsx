@@ -9,6 +9,7 @@
 
 import { useState } from 'react'
 import { apiClient } from '@/lib/api/client'
+import { ConfirmModal, AlertModal } from '@/components/ui/Modal'
 import type { Database } from '@/lib/supabase/types'
 
 type Section = Database['public']['Tables']['portfolio_sections']['Row']
@@ -23,14 +24,15 @@ export function AIRewritePortfolio({ sections, onSectionsUpdate }: AIRewritePort
   const [tone, setTone] = useState<Tone>('concise')
   const [isRewriting, setIsRewriting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showConfirm, setShowConfirm] = useState(false)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
-  async function handleRewrite() {
-    const confirmed = confirm(
-      `Rewrite entire portfolio with AI?\n\nThis will rewrite all text sections (summary, skills, experience, custom) in a ${tone} tone.\n\nYou can save or discard changes after reviewing.`
-    )
+  function handleRewriteClick() {
+    setShowConfirm(true)
+  }
 
-    if (!confirmed) return
-
+  async function handleConfirmRewrite() {
+    setShowConfirm(false)
     setIsRewriting(true)
     setError(null)
 
@@ -54,11 +56,12 @@ export function AIRewritePortfolio({ sections, onSectionsUpdate }: AIRewritePort
       })
 
       onSectionsUpdate(updatedSections)
-      alert(`Successfully rewrote ${rewrittenSections.length} section(s)!`)
-    } catch (error) {
-      console.error('Failed to rewrite portfolio:', error)
-      setError(error instanceof Error ? error.message : 'Failed to rewrite portfolio')
-      alert('Failed to rewrite portfolio. Please try again.')
+      setSuccessMessage(`Successfully rewrote ${rewrittenSections.length} section(s)!`)
+    } catch (err) {
+      console.error('Failed to rewrite portfolio:', err)
+      setError(
+        err instanceof Error ? err.message : 'Failed to rewrite portfolio. Please try again.'
+      )
     } finally {
       setIsRewriting(false)
     }
@@ -88,7 +91,7 @@ export function AIRewritePortfolio({ sections, onSectionsUpdate }: AIRewritePort
           </select>
 
           <button
-            onClick={handleRewrite}
+            onClick={handleRewriteClick}
             disabled={isRewriting || sections.length === 0}
             className="px-4 py-1.5 text-sm text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-md hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
@@ -120,6 +123,26 @@ export function AIRewritePortfolio({ sections, onSectionsUpdate }: AIRewritePort
       </div>
 
       {error && <div className="mt-3 text-sm text-red-600">{error}</div>}
+
+      {/* Confirmation modal */}
+      <ConfirmModal
+        isOpen={showConfirm}
+        onClose={() => setShowConfirm(false)}
+        onConfirm={handleConfirmRewrite}
+        title="Rewrite Portfolio with AI"
+        message={`This will rewrite all text sections (summary, skills, experience, custom) in a ${tone} tone. You can save or discard changes after reviewing.`}
+        confirmText="Rewrite"
+        cancelText="Cancel"
+      />
+
+      {/* Success message modal */}
+      <AlertModal
+        isOpen={!!successMessage}
+        onClose={() => setSuccessMessage(null)}
+        title="Success"
+        message={successMessage || ''}
+        type="success"
+      />
     </div>
   )
 }

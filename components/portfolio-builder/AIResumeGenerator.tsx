@@ -9,6 +9,7 @@
 
 import { useState } from 'react'
 import { apiClient } from '@/lib/api/client'
+import { ConfirmModal, AlertModal } from '@/components/ui/Modal'
 import type { Database } from '@/lib/supabase/types'
 
 type Section = Database['public']['Tables']['portfolio_sections']['Row']
@@ -34,8 +35,10 @@ export function AIResumeGenerator({
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<ResumeGenerationResult | null>(null)
+  const [showConfirm, setShowConfirm] = useState(false)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
-  async function handleGenerate() {
+  function handleGenerateClick() {
     if (!resumeText.trim()) {
       setError('Please paste your resume text')
       return
@@ -46,12 +49,11 @@ export function AIResumeGenerator({
       return
     }
 
-    const confirmed = confirm(
-      'Generate portfolio from resume?\n\nThis will DELETE all existing sections and create new ones from your resume.\n\nThis action cannot be undone.'
-    )
+    setShowConfirm(true)
+  }
 
-    if (!confirmed) return
-
+  async function handleConfirmGenerate() {
+    setShowConfirm(false)
     setIsGenerating(true)
     setError(null)
 
@@ -102,14 +104,16 @@ export function AIResumeGenerator({
         suggestedTheme,
       })
 
-      alert(`Successfully generated ${createdSections.length} section(s) from your resume!`)
+      setSuccessMessage(
+        `Successfully generated ${createdSections.length} section(s) from your resume!`
+      )
 
       // Clear form
       setResumeText('')
       setShowGenerator(false)
-    } catch (error) {
-      console.error('Failed to generate portfolio from resume:', error)
-      setError(error instanceof Error ? error.message : 'Failed to generate portfolio from resume')
+    } catch (err) {
+      console.error('Failed to generate portfolio from resume:', err)
+      setError(err instanceof Error ? err.message : 'Failed to generate portfolio from resume')
     } finally {
       setIsGenerating(false)
     }
@@ -167,7 +171,7 @@ export function AIResumeGenerator({
         <span className="text-xs text-gray-500">{resumeText.length} characters (min 100)</span>
 
         <button
-          onClick={handleGenerate}
+          onClick={handleGenerateClick}
           disabled={isGenerating || resumeText.trim().length < 100}
           className="px-4 py-1.5 text-sm text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-md hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         >
@@ -212,6 +216,27 @@ export function AIResumeGenerator({
           </div>
         </div>
       )}
+
+      {/* Confirmation modal */}
+      <ConfirmModal
+        isOpen={showConfirm}
+        onClose={() => setShowConfirm(false)}
+        onConfirm={handleConfirmGenerate}
+        title="Generate Portfolio from Resume"
+        message="This will DELETE all existing sections and create new ones from your resume. This action cannot be undone."
+        variant="danger"
+        confirmText="Generate"
+        cancelText="Cancel"
+      />
+
+      {/* Success message modal */}
+      <AlertModal
+        isOpen={!!successMessage}
+        onClose={() => setSuccessMessage(null)}
+        title="Success"
+        message={successMessage || ''}
+        type="success"
+      />
     </div>
   )
 }

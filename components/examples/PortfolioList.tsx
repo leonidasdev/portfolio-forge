@@ -14,6 +14,7 @@
 
 import { useEffect, useState } from 'react'
 import { createBrowserClient } from '@/lib/supabase/client'
+import { ConfirmModal } from '@/components/ui/Modal'
 import { Database } from '@/lib/supabase/types'
 
 type Portfolio = Database['public']['Tables']['portfolios']['Row']
@@ -23,6 +24,7 @@ export default function PortfolioList() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
+  const [portfolioToDelete, setPortfolioToDelete] = useState<string | null>(null)
 
   // Fetch portfolios on mount
   useEffect(() => {
@@ -175,9 +177,14 @@ export default function PortfolioList() {
   }
 
   const deletePortfolio = async (portfolioId: string) => {
-    if (!confirm('Are you sure you want to delete this portfolio?')) {
-      return
-    }
+    setPortfolioToDelete(portfolioId)
+  }
+
+  const confirmDeletePortfolio = async () => {
+    if (!portfolioToDelete) return
+
+    const portfolioId = portfolioToDelete
+    setPortfolioToDelete(null)
 
     try {
       const supabase = createBrowserClient()
@@ -292,6 +299,18 @@ export default function PortfolioList() {
           ))}
         </div>
       )}
+
+      {/* Delete confirmation modal */}
+      <ConfirmModal
+        isOpen={!!portfolioToDelete}
+        onClose={() => setPortfolioToDelete(null)}
+        onConfirm={confirmDeletePortfolio}
+        title="Delete Portfolio"
+        message="Are you sure you want to delete this portfolio? This action cannot be undone."
+        variant="danger"
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   )
 }

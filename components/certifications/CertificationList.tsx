@@ -1,9 +1,9 @@
 /**
  * Certification List Component
- * 
+ *
  * Client component that displays certifications with filtering, sorting,
  * and actions (edit, delete).
- * 
+ *
  * Features:
  * - Table layout with key metadata
  * - Sort by date or name
@@ -18,6 +18,7 @@ import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { apiClient } from '@/lib/api/client'
+import { ConfirmModal, AlertModal } from '@/components/ui/Modal'
 import type { CertificationWithTags } from '@/app/dashboard/certifications/page'
 
 type SortOption = 'newest' | 'oldest' | 'a-z'
@@ -28,11 +29,13 @@ interface CertificationListProps {
 
 export function CertificationList({ certifications }: CertificationListProps) {
   const router = useRouter()
-  
+
   // State
   const [sortBy, setSortBy] = useState<SortOption>('newest')
   const [selectedTag, setSelectedTag] = useState<string>('all')
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [certToDelete, setCertToDelete] = useState<{ id: string; title: string } | null>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   // Extract unique tags from all certifications
   const availableTags = useMemo(() => {
@@ -48,16 +51,14 @@ export function CertificationList({ certifications }: CertificationListProps) {
   // Filter by tag
   const filteredCertifications = useMemo(() => {
     if (selectedTag === 'all') return certifications
-    
-    return certifications.filter((cert) =>
-      cert.tags.some((tag) => tag.name === selectedTag)
-    )
+
+    return certifications.filter((cert) => cert.tags.some((tag) => tag.name === selectedTag))
   }, [certifications, selectedTag])
 
   // Sort certifications
   const sortedCertifications = useMemo(() => {
     const sorted = [...filteredCertifications]
-    
+
     switch (sortBy) {
       case 'newest':
         return sorted.sort((a, b) => {
@@ -78,24 +79,27 @@ export function CertificationList({ certifications }: CertificationListProps) {
     }
   }, [filteredCertifications, sortBy])
 
-  // Delete handler
-  async function handleDelete(id: string, title: string) {
-    const confirmed = confirm(
-      `Are you sure you want to delete "${title}"?\n\nThis action cannot be undone.`
-    )
-    
-    if (!confirmed) return
-    
+  // Delete handler - show confirmation modal
+  function handleDelete(id: string, title: string) {
+    setCertToDelete({ id, title })
+  }
+
+  // Confirm delete
+  async function confirmDelete() {
+    if (!certToDelete) return
+
+    const { id } = certToDelete
+    setCertToDelete(null)
     setDeletingId(id)
-    
+
     try {
       await apiClient.delete(`/certifications/${id}`)
-      
+
       // Refresh the page to show updated list
       router.refresh()
     } catch (error) {
       console.error('Delete error:', error)
-      alert(error instanceof Error ? error.message : 'Failed to delete certification')
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to delete certification')
     } finally {
       setDeletingId(null)
     }
@@ -150,7 +154,9 @@ export function CertificationList({ certifications }: CertificationListProps) {
         <div className="flex gap-4 items-center">
           {/* Sort dropdown */}
           <div>
-            <label htmlFor="sort" className="sr-only">Sort by</label>
+            <label htmlFor="sort" className="sr-only">
+              Sort by
+            </label>
             <select
               id="sort"
               value={sortBy}
@@ -165,7 +171,9 @@ export function CertificationList({ certifications }: CertificationListProps) {
 
           {/* Tag filter dropdown */}
           <div>
-            <label htmlFor="tag-filter" className="sr-only">Filter by tag</label>
+            <label htmlFor="tag-filter" className="sr-only">
+              Filter by tag
+            </label>
             <select
               id="tag-filter"
               value={selectedTag}
@@ -173,9 +181,7 @@ export function CertificationList({ certifications }: CertificationListProps) {
               className="block rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
             >
               <option value="all">All Tags</option>
-              {availableTags.length === 0 && (
-                <option disabled>No tags yet</option>
-              )}
+              {availableTags.length === 0 && <option disabled>No tags yet</option>}
               {availableTags.map((tag) => (
                 <option key={tag} value={tag}>
                   {tag}
@@ -186,7 +192,8 @@ export function CertificationList({ certifications }: CertificationListProps) {
 
           {/* Results count */}
           <div className="text-sm text-gray-600">
-            {sortedCertifications.length} {sortedCertifications.length === 1 ? 'certification' : 'certifications'}
+            {sortedCertifications.length}{' '}
+            {sortedCertifications.length === 1 ? 'certification' : 'certifications'}
           </div>
         </div>
 
@@ -219,7 +226,7 @@ export function CertificationList({ certifications }: CertificationListProps) {
             {selectedTag === 'all' ? 'No certifications' : 'No certifications with this tag'}
           </h3>
           <p className="mt-1 text-sm text-gray-500">
-            {selectedTag === 'all' 
+            {selectedTag === 'all'
               ? 'Get started by creating a new certification.'
               : 'Try selecting a different tag or create a new certification.'}
           </p>
@@ -242,22 +249,40 @@ export function CertificationList({ certifications }: CertificationListProps) {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Certification
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Issuer
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Issue Date
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Type
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Visibility
                 </th>
-                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Actions
                 </th>
               </tr>
@@ -266,9 +291,7 @@ export function CertificationList({ certifications }: CertificationListProps) {
               {sortedCertifications.map((cert) => (
                 <tr key={cert.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {cert.title}
-                    </div>
+                    <div className="text-sm font-medium text-gray-900">{cert.title}</div>
                     {cert.tags.length > 0 && (
                       <div className="mt-1 flex gap-1 flex-wrap">
                         {cert.tags.map((tag) => (
@@ -283,14 +306,10 @@ export function CertificationList({ certifications }: CertificationListProps) {
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
-                      {cert.issuing_organization}
-                    </div>
+                    <div className="text-sm text-gray-900">{cert.issuing_organization}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
-                      {formatDate(cert.date_issued)}
-                    </div>
+                    <div className="text-sm text-gray-900">{formatDate(cert.date_issued)}</div>
                     {cert.expiration_date && (
                       <div className="text-xs text-gray-500">
                         Expires: {formatDate(cert.expiration_date)}
@@ -298,7 +317,9 @@ export function CertificationList({ certifications }: CertificationListProps) {
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeBadgeColor(cert.certification_type)}`}>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeBadgeColor(cert.certification_type)}`}
+                    >
                       {getTypeLabel(cert.certification_type)}
                     </span>
                   </td>
@@ -336,6 +357,31 @@ export function CertificationList({ certifications }: CertificationListProps) {
           </table>
         </div>
       )}
+
+      {/* Delete confirmation modal */}
+      <ConfirmModal
+        isOpen={!!certToDelete}
+        onClose={() => setCertToDelete(null)}
+        onConfirm={confirmDelete}
+        title="Delete Certification"
+        message={
+          certToDelete
+            ? `Are you sure you want to delete "${certToDelete.title}"? This action cannot be undone.`
+            : ''
+        }
+        variant="danger"
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
+
+      {/* Error alert modal */}
+      <AlertModal
+        isOpen={!!errorMessage}
+        onClose={() => setErrorMessage(null)}
+        title="Error"
+        message={errorMessage || ''}
+        type="error"
+      />
     </div>
   )
 }

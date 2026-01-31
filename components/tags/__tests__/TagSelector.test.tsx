@@ -193,7 +193,6 @@ describe('TagSelector', () => {
   describe('deleting tags', () => {
     it('should show confirmation before deleting', async () => {
       const user = userEvent.setup()
-      window.confirm = jest.fn(() => false) // User cancels
 
       render(<TagSelector selectedTags={[]} onChange={mockOnChange} />)
 
@@ -209,13 +208,25 @@ describe('TagSelector', () => {
         await user.click(deleteIcon)
       }
 
-      expect(window.confirm).toHaveBeenCalled()
+      // Should show the confirmation modal
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument()
+        expect(screen.getByText('Delete Tag')).toBeInTheDocument()
+      })
+
+      // Click cancel to dismiss
+      const cancelButton = screen.getByRole('button', { name: /Cancel/i })
+      await user.click(cancelButton)
+
+      // Modal should close and API should not be called
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+      })
       expect(mockApiClient.delete).not.toHaveBeenCalled()
     })
 
     it('should delete tag when confirmed', async () => {
       const user = userEvent.setup()
-      window.confirm = jest.fn(() => true) // User confirms
       mockApiClient.delete.mockResolvedValue({})
 
       render(<TagSelector selectedTags={[mockTags[0]]} onChange={mockOnChange} />)
@@ -231,6 +242,15 @@ describe('TagSelector', () => {
       if (deleteIcon) {
         await user.click(deleteIcon)
       }
+
+      // Wait for modal to appear
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument()
+      })
+
+      // Click the Delete button to confirm
+      const deleteButton = screen.getByRole('button', { name: /^Delete$/i })
+      await user.click(deleteButton)
 
       await waitFor(() => {
         expect(mockApiClient.delete).toHaveBeenCalledWith('/tags/1')
@@ -275,7 +295,6 @@ describe('TagSelector', () => {
 
     it('should display error when deleting fails', async () => {
       const user = userEvent.setup()
-      window.confirm = jest.fn(() => true)
       mockApiClient.delete.mockRejectedValue(new Error('Failed to delete'))
 
       render(<TagSelector selectedTags={[]} onChange={mockOnChange} />)
@@ -290,6 +309,14 @@ describe('TagSelector', () => {
       if (deleteIcon) {
         await user.click(deleteIcon)
       }
+
+      // Wait for modal to appear and click delete
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument()
+      })
+
+      const deleteButton = screen.getByRole('button', { name: /^Delete$/i })
+      await user.click(deleteButton)
 
       await waitFor(() => {
         expect(screen.getByText('Failed to delete')).toBeInTheDocument()
