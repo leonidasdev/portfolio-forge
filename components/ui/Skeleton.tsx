@@ -15,13 +15,14 @@ import { cn } from '@/lib/utils'
 
 interface SkeletonProps {
   className?: string
+  style?: React.CSSProperties
 }
 
 /**
  * Basic skeleton element with pulse animation
  */
-export function Skeleton({ className }: SkeletonProps) {
-  return <div className={cn('animate-pulse bg-gray-200 rounded', className)} />
+export function Skeleton({ className, style }: SkeletonProps) {
+  return <div className={cn('animate-pulse bg-gray-200 rounded', className)} style={style} />
 }
 
 interface SkeletonTextProps {
