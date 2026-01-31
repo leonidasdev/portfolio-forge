@@ -45,9 +45,9 @@ export async function rewriteEntirePortfolio(
   // Fetch all sections for this portfolio
   const { data: sections } = await supabase
     .from('portfolio_sections')
-    .select('id, section_type, content')
+    .select('id, section_type, custom_content, description')
     .eq('portfolio_id', portfolioId)
-    .in('section_type', ['summary', 'skills', 'work_experience', 'custom'])
+    .in('section_type', ['about', 'skills', 'experience', 'custom'])
 
   if (!sections || sections.length === 0) {
     return { sections: [] }
@@ -55,16 +55,20 @@ export async function rewriteEntirePortfolio(
 
   const rewrittenSections: RewrittenSection[] = []
 
+  // Type for custom_content - flexible JSON structure
+  type ContentJson = Record<string, unknown> | null
+
   // Process each section
   for (const section of sections) {
     try {
       let textToImprove = ''
-      let updatedContent = { ...section.content }
+      const content = section.custom_content as ContentJson
+      let updatedContent: Record<string, unknown> = content ? { ...content } : {}
 
       // Extract text based on section type
       switch (section.section_type) {
-        case 'summary':
-          textToImprove = section.content?.text || ''
+        case 'about':
+          textToImprove = (content?.text as string) || section.description || ''
           if (textToImprove.trim()) {
             const improved = await improveText({ text: textToImprove, tone })
             updatedContent = { text: improved.improved }
@@ -72,7 +76,7 @@ export async function rewriteEntirePortfolio(
           break
 
         case 'skills':
-          const skills = section.content?.skills || []
+          const skills = (content?.skills as string[]) || []
           if (skills.length > 0) {
             textToImprove = skills.join('\n')
             const improved = await improveText({ text: textToImprove, tone })
@@ -83,19 +87,19 @@ export async function rewriteEntirePortfolio(
           }
           break
 
-        case 'work_experience':
-          textToImprove = section.content?.description || ''
+        case 'experience':
+          textToImprove = (content?.description as string) || section.description || ''
           if (textToImprove.trim()) {
             const improved = await improveText({ text: textToImprove, tone })
             updatedContent = {
-              ...section.content,
+              ...content,
               description: improved.improved,
             }
           }
           break
 
         case 'custom':
-          textToImprove = section.content?.text || ''
+          textToImprove = (content?.text as string) || ''
           if (textToImprove.trim()) {
             const improved = await improveText({ text: textToImprove, tone })
             updatedContent = { text: improved.improved }

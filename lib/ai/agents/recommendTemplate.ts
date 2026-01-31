@@ -50,35 +50,41 @@ export async function recommendTemplateAndTheme(userId: string): Promise<{
   // Extract content characteristics
   let summaryText = ''
   const experienceDescriptions: string[] = []
-  const certifications: string[] = []
-  const skills: string[] = []
+  let certifications: string[] = []
+  let skills: string[] = []
   const customSections: string[] = []
 
+  // Type for custom_content - flexible JSON structure
+  type ContentJson = Record<string, unknown> | null
+
   for (const section of sections) {
+    const content = section.custom_content as ContentJson
+
     switch (section.section_type) {
-      case 'summary':
-        summaryText = section.content?.text || ''
+      case 'about':
+        summaryText = (content?.text as string) || section.description || ''
         break
-      case 'work_experience':
-        if (section.content?.description) {
-          experienceDescriptions.push(section.content.description)
+      case 'experience':
+        if (content?.description || section.description) {
+          experienceDescriptions.push((content?.description as string) || section.description || '')
         }
-        if (section.content?.jobs && Array.isArray(section.content.jobs)) {
+        const jobs = content?.jobs
+        if (jobs && Array.isArray(jobs)) {
           experienceDescriptions.push(
-            ...section.content.jobs.map((job: { description?: string }) => job.description || '')
+            ...jobs.map((job: { description?: string }) => job.description || '')
           )
         }
         break
       case 'certifications':
-        if (section.content?.certifications && Array.isArray(section.content.certifications)) {
-          certifications = section.content.certifications.map(
-            (cert: { title?: string }) => cert.title || ''
-          )
+        const certs = content?.certifications
+        if (certs && Array.isArray(certs)) {
+          certifications = certs.map((cert: { title?: string }) => cert.title || '')
         }
         break
       case 'skills':
-        if (section.content?.skills && Array.isArray(section.content.skills)) {
-          skills = section.content.skills
+        const skillsList = content?.skills
+        if (skillsList && Array.isArray(skillsList)) {
+          skills = skillsList as string[]
         }
         break
       case 'custom':
@@ -140,7 +146,7 @@ Available themes:
 - elegant: Sophisticated, premium. Good for executives and high-level professionals.
 
 Section types you might see:
-- summary, skills, work_experience, certifications, custom sections (like Education, Projects, etc.)
+- about, skills, experience, certifications, projects, contact, custom sections
 
 Return ONLY valid JSON in this format:
 {

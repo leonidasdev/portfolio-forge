@@ -10,6 +10,7 @@ docs/
 ├── TODO.md                      # Project TODO list and progress tracker
 ├── CODE_REVIEW_SUMMARY.md       # Code review findings and status
 ├── DEPLOYMENT.md                # Deployment guide for production
+├── VERCEL_DEPLOYMENT.md         # Vercel-specific deployment guide
 ├── DEVELOPMENT.md               # Local development setup guide
 ├── RATE_LIMITING.md             # Rate limiting configuration guide
 ├── architecture/                # Architecture & design documents
@@ -48,11 +49,13 @@ docs/
 
 ### For DevOps
 - [Deployment Guide](DEPLOYMENT.md) - Production deployment instructions
+- [Vercel Deployment](VERCEL_DEPLOYMENT.md) - Vercel-specific deployment guide
 - [Rate Limiting](RATE_LIMITING.md) - Rate limiting configuration
 
 ### API Documentation
 - [API Reference](api/API_REFERENCE.md) - Complete REST API documentation
 - [API Versioning Strategy](api/api-versioning.md)
+- [Health Check Endpoint](/api/health) - System health monitoring
 
 ## Documentation Guidelines
 

@@ -29,6 +29,13 @@ export async function middleware(request: NextRequest) {
     },
   })
 
+  // Type for cookie options
+  type CookieOptions = {
+    name: string
+    value: string
+    options?: Record<string, unknown>
+  }
+
   // Create a Supabase client configured to use cookies
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -38,8 +45,8 @@ export async function middleware(request: NextRequest) {
         getAll() {
           return request.cookies.getAll()
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, _options }) => request.cookies.set(name, value))
+        setAll(cookiesToSet: CookieOptions[]) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           response = NextResponse.next({
             request,
           })

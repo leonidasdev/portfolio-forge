@@ -136,9 +136,9 @@ export async function optimizePortfolioForJob(
   // Fetch all sections
   const { data: sections } = await supabase
     .from('portfolio_sections')
-    .select('id, section_type, content')
+    .select('id, section_type, custom_content, description')
     .eq('portfolio_id', portfolioId)
-    .in('section_type', ['summary', 'skills', 'work_experience', 'custom'])
+    .in('section_type', ['about', 'skills', 'experience', 'custom'])
 
   if (!sections || sections.length === 0) {
     return {
@@ -151,18 +151,22 @@ export async function optimizePortfolioForJob(
   const updatedSections: RewrittenSection[] = []
   let userSkills: string[] = []
 
+  // Type for custom_content - flexible JSON structure
+  type ContentJson = Record<string, unknown> | null
+
   // Process each section with job context
   for (const section of sections) {
     try {
       let textToImprove = ''
-      let updatedContent = { ...section.content }
+      const content = section.custom_content as ContentJson
+      let updatedContent: Record<string, unknown> = content ? { ...content } : {}
 
       // Build context-aware prompt suffix
       const contextSuffix = `\n\nOptimize this for a job that requires: ${jobInsights.requiredSkills.slice(0, 5).join(', ')}. Emphasize relevant experience with: ${jobInsights.responsibilities.slice(0, 3).join(', ')}.`
 
       switch (section.section_type) {
-        case 'summary':
-          textToImprove = section.content?.text || ''
+        case 'about':
+          textToImprove = (content?.text as string) || section.description || ''
           if (textToImprove.trim()) {
             const enhanced = textToImprove + contextSuffix
             const improved = await improveText({ text: enhanced, tone })
@@ -171,7 +175,7 @@ export async function optimizePortfolioForJob(
           break
 
         case 'skills':
-          userSkills = section.content?.skills || []
+          userSkills = (content?.skills as string[]) || []
           if (userSkills.length > 0) {
             textToImprove = userSkills.join('\n')
             // Don't add context suffix for skills - just improve formatting
@@ -182,20 +186,20 @@ export async function optimizePortfolioForJob(
           }
           break
 
-        case 'work_experience':
-          textToImprove = section.content?.description || ''
+        case 'experience':
+          textToImprove = (content?.description as string) || section.description || ''
           if (textToImprove.trim()) {
             const enhanced = textToImprove + contextSuffix
             const improved = await improveText({ text: enhanced, tone })
             updatedContent = {
-              ...section.content,
+              ...content,
               description: improved.improved,
             }
           }
           break
 
         case 'custom':
-          textToImprove = section.content?.text || ''
+          textToImprove = (content?.text as string) || ''
           if (textToImprove.trim()) {
             const enhanced = textToImprove + contextSuffix
             const improved = await improveText({ text: enhanced, tone })

@@ -1,6 +1,6 @@
 # Portfolio Forge API Reference
 
-**Version:** 1.0.0  
+**Version:** 1.0.0
 **Base URL:** `/api/v1`
 
 This document provides a comprehensive reference for the Portfolio Forge REST API. All endpoints follow RESTful conventions and return JSON responses.

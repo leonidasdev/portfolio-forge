@@ -42,7 +42,12 @@ export async function validateBody<T>(request: NextRequest, schema: ZodSchema<T>
         const path = err.path?.join('.') || ''
         return path ? `${path}: ${err.message}` : err.message
       })
-      throw new ApiError(`Validation failed: ${errorMessages.join(', ')}`, 400, { errors: issues })
+      throw new ApiError(
+        `Validation failed: ${errorMessages.join(', ')}`,
+        400,
+        'VALIDATION_ERROR',
+        { errors: issues }
+      )
     }
     throw new ApiError('Invalid request body', 400)
   }
@@ -88,7 +93,12 @@ export function validateQuery<T>(request: NextRequest, schema: ZodSchema<T>): T 
         const path = err.path?.join('.') || ''
         return path ? `${path}: ${err.message}` : err.message
       })
-      throw new ApiError(`Validation failed: ${errorMessages.join(', ')}`, 400, { errors: issues })
+      throw new ApiError(
+        `Validation failed: ${errorMessages.join(', ')}`,
+        400,
+        'VALIDATION_ERROR',
+        { errors: issues }
+      )
     }
     throw new ApiError('Invalid query parameters', 400)
   }
@@ -120,7 +130,12 @@ export function validateParams<T>(
         const path = err.path?.join('.') || ''
         return path ? `${path}: ${err.message}` : err.message
       })
-      throw new ApiError(`Validation failed: ${errorMessages.join(', ')}`, 400, { errors: issues })
+      throw new ApiError(
+        `Validation failed: ${errorMessages.join(', ')}`,
+        400,
+        'VALIDATION_ERROR',
+        { errors: issues }
+      )
     }
     throw new ApiError('Invalid path parameters', 400)
   }

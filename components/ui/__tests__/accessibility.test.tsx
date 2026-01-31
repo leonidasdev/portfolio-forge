@@ -8,10 +8,10 @@
 import { render } from '@testing-library/react'
 import { axe, toHaveNoViolations } from 'jest-axe'
 import { Button } from '../Button'
-import { Modal, ConfirmModal, AlertModal } from '../Modal'
-import { Input, Textarea, Select } from '../Input'
-import { Card, CardHeader, CardBody, CardFooter } from '../Card'
-import { Skeleton, SkeletonText, SkeletonAvatar, SkeletonCard } from '../Skeleton'
+import { Card, CardBody, CardFooter, CardHeader } from '../Card'
+import { Input, Select, Textarea } from '../Input'
+import { AlertModal, ConfirmModal, Modal } from '../Modal'
+import { Skeleton, SkeletonAvatar, SkeletonCard, SkeletonText } from '../Skeleton'
 
 // Extend Jest matchers
 expect.extend(toHaveNoViolations)

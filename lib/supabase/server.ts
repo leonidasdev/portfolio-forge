@@ -54,6 +54,13 @@ import { Database } from './types'
 export async function createServerClient() {
   const cookieStore = await cookies()
 
+  // Type for cookie options
+  type CookieOptions = {
+    name: string
+    value: string
+    options?: Record<string, unknown>
+  }
+
   return createSupabaseServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -62,7 +69,7 @@ export async function createServerClient() {
         getAll() {
           return cookieStore.getAll()
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: CookieOptions[]) {
           try {
             cookiesToSet.forEach(({ name, value, options }) => {
               cookieStore.set(name, value, options)

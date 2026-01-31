@@ -69,21 +69,27 @@ export async function analyzePortfolio(userId: string): Promise<{
   const sectionCount = sections.length
   let wordCount = 0
 
+  // Type for custom_content - flexible JSON structure
+  type ContentJson = Record<string, unknown> | null
+
   for (const section of sections) {
+    const content = section.custom_content as ContentJson
+
     switch (section.section_type) {
-      case 'summary':
-        summaryText = section.content?.text || ''
+      case 'about':
+        summaryText = (content?.text as string) || section.description || ''
         summarySectionId = section.id
         wordCount += summaryText.split(/\s+/).length
         break
-      case 'work_experience':
-        const expText = section.content?.description || ''
+      case 'experience':
+        const expText = (content?.description as string) || section.description || ''
         if (expText) {
           experienceTexts.push({ text: expText, id: section.id })
           wordCount += expText.split(/\s+/).length
         }
-        if (section.content?.jobs && Array.isArray(section.content.jobs)) {
-          section.content.jobs.forEach((job: { description?: string }) => {
+        const jobs = content?.jobs
+        if (jobs && Array.isArray(jobs)) {
+          jobs.forEach((job: { description?: string }) => {
             if (job.description) {
               wordCount += job.description.split(/\s+/).length
             }
@@ -91,19 +97,19 @@ export async function analyzePortfolio(userId: string): Promise<{
         }
         break
       case 'certifications':
-        if (section.content?.certifications && Array.isArray(section.content.certifications)) {
-          certificationTexts.push(
-            ...section.content.certifications.map((cert: { title?: string }) => cert.title || '')
-          )
+        const certs = content?.certifications
+        if (certs && Array.isArray(certs)) {
+          certificationTexts.push(...certs.map((cert: { title?: string }) => cert.title || ''))
         }
         break
       case 'skills':
-        if (section.content?.skills && Array.isArray(section.content.skills)) {
-          skills.push(...section.content.skills)
+        const skillsList = content?.skills
+        if (skillsList && Array.isArray(skillsList)) {
+          skills.push(...(skillsList as string[]))
         }
         break
       case 'custom':
-        const customText = section.content?.text || ''
+        const customText = (content?.text as string) || ''
         wordCount += customText.split(/\s+/).length
         break
     }
@@ -227,16 +233,17 @@ Provide score, subscores, and 3-5 specific recommendations. Include suggestedRew
     // Add section IDs to recommendations where applicable
     const enhancedRecommendations = parsed.recommendations.map(
       (rec: { title: string; suggestedRewrite?: string; [key: string]: unknown }) => {
-        // If the recommendation mentions summary and we have a suggestedRewrite
+        // If the recommendation mentions summary/about and we have a suggestedRewrite
         if (
           rec.suggestedRewrite &&
-          rec.title.toLowerCase().includes('summary') &&
+          (rec.title.toLowerCase().includes('summary') ||
+            rec.title.toLowerCase().includes('about')) &&
           summarySectionId
         ) {
           return {
             ...rec,
             sectionId: summarySectionId,
-            sectionType: 'summary',
+            sectionType: 'about',
           }
         }
         // If the recommendation mentions experience and we have a suggestedRewrite
@@ -248,7 +255,7 @@ Provide score, subscores, and 3-5 specific recommendations. Include suggestedRew
           return {
             ...rec,
             sectionId: experienceTexts[0].id,
-            sectionType: 'work_experience',
+            sectionType: 'experience',
           }
         }
         return rec

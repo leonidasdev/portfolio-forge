@@ -2,13 +2,19 @@
 
 <div align="center">
 
-![Next.js](https://img.shields.io/badge/Next.js-14+-black?style=for-the-badge&logo=next.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue?style=for-the-badge&logo=typescript)
+![Next.js](https://img.shields.io/badge/Next.js-15+-black?style=for-the-badge&logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.7+-blue?style=for-the-badge&logo=typescript)
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-green?style=for-the-badge&logo=supabase)
 ![Groq](https://img.shields.io/badge/AI-Groq-orange?style=for-the-badge)
-![Tests](https://img.shields.io/badge/Tests-82%20passing-brightgreen?style=for-the-badge)
+![Tests](https://img.shields.io/badge/Tests-380%20passing-brightgreen?style=for-the-badge)
+![License](https://img.shields.io/badge/License-Apache%202.0-blue?style=for-the-badge)
 
-A modern, AI-powered portfolio management platform built with Next.js 14+, Supabase, and Groq AI.
+**🚀 AI-powered portfolio builder for creating stunning professional portfolios**
+
+Build, customize, and optimize your professional portfolio with intelligent AI assistance.
+Create job-tailored resumes, generate compelling content, and stand out from the crowd.
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/leonidasdev/portfolio-forge&env=NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY,GROQ_API_KEY)
 
 [Features](#-features) • [Quick Start](#-quick-start) • [Documentation](#-documentation) • [API Reference](#-api-reference)
 
