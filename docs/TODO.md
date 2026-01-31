@@ -17,7 +17,7 @@ Portfolio Forge is a **well-architected Next.js 14+ application** with solid fun
 | **Architecture** | 8.5/10 | âœ… Strong |
 | **Code Quality** | 9/10 | âœ… Excellent (errors, constants, logger, hooks, UI lib, refactored components) |
 | **Documentation** | 9.5/10 | âœ… Excellent (SECURITY, CHANGELOG, DEPLOYMENT, RATE_LIMITING) |
-| **Testing** | 9/10 | âœ… Excellent (274 tests passing) |
+| **Testing** | 9.5/10 | ✅ Excellent (317 tests passing) |
 | **Linting/Formatting** | 10/10 | ✅ Excellent (0 warnings - all `any` types fixed, pre-commit hooks) |
 | **CI/CD** | 8.5/10 | âœ… Configured (CI + pre-commit/pre-push hooks) |
 | **Security** | 8/10 | âœ… Good (SECURITY.md, error boundaries) |
@@ -615,10 +615,11 @@ Portfolio Forge is a **well-architected Next.js 14+ application** with solid fun
 | `components/ui/` | 4 | ~86 | Good (Button, Modal, Toast, Skeleton) |
 | `components/tags/` | 1 | ~18 | Good (TagSelector) |
 | `components/portfolio-builder/` | 2 | ~35 | Good (Builder, SectionEditor) |
+| `components/certifications/` | 1 | ~20 | Good (CertificationForm) |
 | API Routes | 2 | ~22 | Good (tags, portfolios) |
 | E2E | 3 | ~15 | Good (auth, home, api) |
 
-**Total:** 296 tests passing (1 skipped) + E2E tests with Playwright
+**Total:** 317 tests passing (1 skipped) + E2E tests with Playwright
 
 ### 7.2 Testing Action Items
 
@@ -626,7 +627,7 @@ Portfolio Forge is a **well-architected Next.js 14+ application** with solid fun
 - [x] Add component tests:
   - [x] `Builder.test.tsx` (13 tests)
   - [x] `SectionEditor.test.tsx` (22 tests)
-  - [ ] `CertificationForm.test.tsx`
+  - [x] `CertificationForm.test.tsx` (20 tests)
   - [ ] Template components
 - [x] Add API route integration tests (tags, portfolios)
 - [x] Add E2E tests with Playwright:
