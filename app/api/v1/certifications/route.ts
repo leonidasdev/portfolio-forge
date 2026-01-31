@@ -8,11 +8,11 @@
  * RLS policies ensure users only access their own certifications.
  */
 
-import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/api/auth-middleware'
-import { withApiHandler, ApiError } from '@/lib/api/route-handler'
+import { ApiError, withApiHandler } from '@/lib/api/route-handler'
 import { validateBody } from '@/lib/validation/helpers'
 import { createCertificationSchema } from '@/lib/validation/schemas'
+import { NextRequest, NextResponse } from 'next/server'
 
 /**
  * GET /api/v1/certifications

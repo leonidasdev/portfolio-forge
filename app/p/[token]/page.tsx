@@ -25,10 +25,14 @@ import { createServerClient } from '@/lib/supabase/server'
 import type { Database } from '@/lib/supabase/types'
 
 type Section = Database['public']['Tables']['portfolio_sections']['Row']
-type Certification = Database['public']['Tables']['certifications']['Row']
+type _Certification = Database['public']['Tables']['certifications']['Row']
 
-export default async function PublicPortfolioPage({ params }: { params: { token: string } }) {
-  const { token } = params
+export default async function PublicPortfolioPage({
+  params,
+}: {
+  params: Promise<{ token: string }>
+}) {
+  const { token } = await params
   const supabase = await createServerClient()
 
   // Step 1: Validate token and fetch portfolio using public_link_token
@@ -216,12 +220,13 @@ async function filterCertificationSection(
  *
  * Fetches portfolio title and description for page metadata
  */
-export async function generateMetadata({ params }: { params: { token: string } }) {
+export async function generateMetadata({ params }: { params: Promise<{ token: string }> }) {
+  const { token } = await params
   const supabase = await createServerClient()
 
   const { data: portfolio } = await (supabase.from('portfolios') as any)
     .select('title, description')
-    .eq('public_link_token', params.token)
+    .eq('public_link_token', token)
     .eq('is_public', true)
     .eq('is_deleted', false)
     .single()

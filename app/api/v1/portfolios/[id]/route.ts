@@ -6,17 +6,19 @@
  * DELETE /api/v1/portfolios/[id] - Delete a portfolio and its sections
  */
 
-import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/api/auth-middleware'
-import { withApiHandler, ApiError } from '@/lib/api/route-handler'
+import { ApiError, withApiHandler } from '@/lib/api/route-handler'
 import { validateBody } from '@/lib/validation/helpers'
 import { updatePortfolioSchema } from '@/lib/validation/schemas'
+import { NextRequest, NextResponse } from 'next/server'
 
 // GET /api/v1/portfolios/[id] - Fetch a single portfolio with its sections
 export const GET = withApiHandler(
-  async (request: NextRequest, context?: { params?: { id: string } }) => {
+  async (request: NextRequest, context?: { params?: Promise<{ id: string }> }) => {
     const { supabase } = await requireAuth(request)
-    const { id } = context?.params || {}
+    // Next.js 15 - params is a Promise
+    const resolvedParams = context?.params ? await context.params : { id: '' }
+    const { id } = resolvedParams
 
     if (!id) {
       throw new ApiError('Portfolio ID is required', 400)
@@ -56,9 +58,11 @@ export const GET = withApiHandler(
 
 // PATCH /api/v1/portfolios/[id] - Update portfolio metadata
 export const PATCH = withApiHandler(
-  async (request: NextRequest, context?: { params?: { id: string } }) => {
+  async (request: NextRequest, context?: { params?: Promise<{ id: string }> }) => {
     const { supabase } = await requireAuth(request)
-    const { id } = context?.params || {}
+    // Next.js 15 - params is a Promise
+    const resolvedParams = context?.params ? await context.params : { id: '' }
+    const { id } = resolvedParams
 
     if (!id) {
       throw new ApiError('Portfolio ID is required', 400)
@@ -89,9 +93,11 @@ export const PATCH = withApiHandler(
 
 // DELETE /api/v1/portfolios/[id] - Delete a portfolio and its sections
 export const DELETE = withApiHandler(
-  async (request: NextRequest, context?: { params?: { id: string } }) => {
+  async (request: NextRequest, context?: { params?: Promise<{ id: string }> }) => {
     const { supabase } = await requireAuth(request)
-    const { id } = context?.params || {}
+    // Next.js 15 - params is a Promise
+    const resolvedParams = context?.params ? await context.params : { id: '' }
+    const { id } = resolvedParams
 
     if (!id) {
       throw new ApiError('Portfolio ID is required', 400)

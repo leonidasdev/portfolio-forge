@@ -10,11 +10,11 @@
  * 3. requireUserId() - Quick access to just the user ID
  */
 
-import { redirect } from 'next/navigation'
+import { LogoutButton } from '@/app/(auth)/logout/LogoutButton'
 import { getAuthSession } from '@/lib/auth/getSession'
 import { requireUserId } from '@/lib/auth/requireSession'
 import { createServerClient } from '@/lib/supabase/server'
-import { LogoutButton } from '@/app/(auth)/logout/LogoutButton'
+import { redirect } from 'next/navigation'
 
 export default async function SettingsPage() {
   // PATTERN 1: Manual session check with getAuthSession()

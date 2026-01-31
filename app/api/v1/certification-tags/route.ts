@@ -7,8 +7,8 @@
  * Note: This is a junction table endpoint for managing many-to-many relationships.
  */
 
-import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 // POST /api/v1/certification-tags - Assign a tag to a certification
 export async function POST(request: NextRequest) {

@@ -9,11 +9,11 @@
  * RLS policies ensure users only access their own certifications.
  */
 
-import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/api/auth-middleware'
-import { withApiHandler, ApiError } from '@/lib/api/route-handler'
+import { ApiError, withApiHandler } from '@/lib/api/route-handler'
 import { validateBody } from '@/lib/validation/helpers'
 import { updateCertificationSchema } from '@/lib/validation/schemas'
+import { NextRequest, NextResponse } from 'next/server'
 
 /**
  * GET /api/v1/certifications/[id]
@@ -22,9 +22,11 @@ import { updateCertificationSchema } from '@/lib/validation/schemas'
  * Includes associated tags.
  */
 export const GET = withApiHandler(
-  async (request: NextRequest, context?: { params?: { id: string } }) => {
+  async (request: NextRequest, context?: { params?: Promise<{ id: string }> }) => {
     const { supabase } = await requireAuth(request)
-    const { id } = context?.params || {}
+    // Next.js 15 - params is a Promise
+    const resolvedParams = context?.params ? await context.params : { id: '' }
+    const { id } = resolvedParams
 
     if (!id) {
       throw new ApiError('Certification ID is required', 400)
@@ -89,9 +91,11 @@ export const GET = withApiHandler(
  * }
  */
 export const PATCH = withApiHandler(
-  async (request: NextRequest, context?: { params?: { id: string } }) => {
+  async (request: NextRequest, context?: { params?: Promise<{ id: string }> }) => {
     const { supabase } = await requireAuth(request)
-    const { id } = context?.params || {}
+    // Next.js 15 - params is a Promise
+    const resolvedParams = context?.params ? await context.params : { id: '' }
+    const { id } = resolvedParams
 
     if (!id) {
       throw new ApiError('Certification ID is required', 400)
@@ -138,9 +142,11 @@ export const PATCH = withApiHandler(
  * This preserves data integrity for portfolio items that reference this certification.
  */
 export const DELETE = withApiHandler(
-  async (request: NextRequest, context?: { params?: { id: string } }) => {
+  async (request: NextRequest, context?: { params?: Promise<{ id: string }> }) => {
     const { supabase } = await requireAuth(request)
-    const { id } = context?.params || {}
+    // Next.js 15 - params is a Promise
+    const resolvedParams = context?.params ? await context.params : { id: '' }
+    const { id } = resolvedParams
 
     if (!id) {
       throw new ApiError('Certification ID is required', 400)

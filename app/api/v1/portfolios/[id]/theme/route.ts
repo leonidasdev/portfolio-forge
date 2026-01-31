@@ -17,17 +17,19 @@
  * - Only portfolio owner can update theme
  */
 
-import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/api/auth-middleware'
-import { withApiHandler, ApiError } from '@/lib/api/route-handler'
+import { ApiError, withApiHandler } from '@/lib/api/route-handler'
+import { THEMES } from '@/lib/templates-themes/definitions'
 import { validateBody } from '@/lib/validation/helpers'
 import { updatePortfolioThemeSchema } from '@/lib/validation/schemas'
-import { THEMES } from '@/lib/templates-themes/definitions'
+import { NextRequest, NextResponse } from 'next/server'
 
 export const PATCH = withApiHandler(
-  async (request: NextRequest, context?: { params?: { id: string } }) => {
+  async (request: NextRequest, context?: { params?: Promise<{ id: string }> }) => {
     const { supabase } = await requireAuth(request)
-    const { id } = context?.params || {}
+    // Next.js 15 - params is a Promise
+    const resolvedParams = context?.params ? await context.params : { id: '' }
+    const { id } = resolvedParams
 
     if (!id) {
       throw new ApiError('Portfolio ID is required', 400)

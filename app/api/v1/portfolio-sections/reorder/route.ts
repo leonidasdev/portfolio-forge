@@ -7,8 +7,8 @@
  * at once, which is essential for drag-and-drop functionality.
  */
 
-import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 // PATCH /api/v1/portfolio-sections/reorder - Bulk reorder sections
 export async function PATCH(request: NextRequest) {

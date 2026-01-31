@@ -1,8 +1,8 @@
 /**
  * Edit Certification Page
- * 
+ *
  * Allows authenticated users to edit an existing certification.
- * 
+ *
  * Flow:
  * 1. Load certification data from database
  * 2. User edits form
@@ -20,15 +20,16 @@ import { CertificationForm } from '@/components/certifications/CertificationForm
 export default async function EditCertificationPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   // Enforce authentication and get user ID
   const userId = await requireUserId()
-  const { id } = params
+  // Next.js 15 - params is a Promise
+  const { id } = await params
 
   // Fetch certification data
   const supabase = await createServerClient()
-  
+
   const { data: certification, error } = await supabase
     .from('certifications')
     .select('*')
@@ -45,18 +46,11 @@ export default async function EditCertificationPage({
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Edit Certification
-        </h1>
-        <p className="mt-2 text-gray-600">
-          Update your certification details.
-        </p>
+        <h1 className="text-3xl font-bold text-gray-900">Edit Certification</h1>
+        <p className="mt-2 text-gray-600">Update your certification details.</p>
       </div>
 
-      <CertificationForm 
-        mode="edit" 
-        initialData={certification}
-      />
+      <CertificationForm mode="edit" initialData={certification} />
     </div>
   )
 }

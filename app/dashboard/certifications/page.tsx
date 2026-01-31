@@ -7,9 +7,9 @@
  * Data fetching happens on the server for optimal performance and SEO.
  */
 
+import { CertificationList } from '@/components/certifications/CertificationList'
 import { requireUserId } from '@/lib/auth/requireSession'
 import { createServerClient } from '@/lib/supabase/server'
-import { CertificationList } from '@/components/certifications/CertificationList'
 import type { Database } from '@/lib/supabase/types'
 
 type Certification = Database['public']['Tables']['certifications']['Row']

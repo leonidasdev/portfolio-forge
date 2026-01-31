@@ -8,10 +8,10 @@
  * without requiring authentication.
  */
 
-import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/api/auth-middleware'
-import { withApiHandler, ApiError } from '@/lib/api/route-handler'
+import { ApiError, withApiHandler } from '@/lib/api/route-handler'
 import { randomBytes } from 'crypto'
+import { NextRequest, NextResponse } from 'next/server'
 
 // Generate a cryptographically secure random token
 function generatePublicToken(): string {
@@ -25,9 +25,11 @@ function generatePublicToken(): string {
 
 // POST /api/v1/portfolios/[id]/public-link - Generate a new public link token
 export const POST = withApiHandler(
-  async (request: NextRequest, context?: { params?: { id: string } }) => {
+  async (request: NextRequest, context?: { params?: Promise<{ id: string }> }) => {
     const { supabase } = await requireAuth(request)
-    const { id } = context?.params || {}
+    // Next.js 15 - params is a Promise
+    const resolvedParams = context?.params ? await context.params : { id: '' }
+    const { id } = resolvedParams
 
     if (!id) {
       throw new ApiError('Portfolio ID is required', 400)
@@ -69,9 +71,11 @@ export const POST = withApiHandler(
 
 // DELETE /api/v1/portfolios/[id]/public-link - Revoke the public link token
 export const DELETE = withApiHandler(
-  async (request: NextRequest, context?: { params?: { id: string } }) => {
+  async (request: NextRequest, context?: { params?: Promise<{ id: string }> }) => {
     const { supabase } = await requireAuth(request)
-    const { id } = context?.params || {}
+    // Next.js 15 - params is a Promise
+    const resolvedParams = context?.params ? await context.params : { id: '' }
+    const { id } = resolvedParams
 
     if (!id) {
       throw new ApiError('Portfolio ID is required', 400)

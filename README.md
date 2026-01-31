@@ -9,7 +9,7 @@
 ![Tests](https://img.shields.io/badge/Tests-380%20passing-brightgreen?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-Apache%202.0-blue?style=for-the-badge)
 
-**🚀 AI-powered portfolio builder for creating stunning professional portfolios**
+**AI-powered portfolio builder for creating stunning professional portfolios**
 
 Build, customize, and optimize your professional portfolio with intelligent AI assistance.
 Create job-tailored resumes, generate compelling content, and stand out from the crowd.

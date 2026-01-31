@@ -8,9 +8,9 @@
  * - Using the logout server action
  */
 
-import { redirect } from 'next/navigation'
-import { createServerClient, getUser, getSession } from '@/lib/supabase/server'
 import { LogoutButton } from '@/app/(auth)/logout/LogoutButton'
+import { createServerClient, getSession, getUser } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
 
 export default async function DashboardPage() {
   // Get the current session

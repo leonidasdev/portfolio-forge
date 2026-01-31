@@ -15,10 +15,14 @@ import { requireUserId } from '@/lib/auth/requireSession'
 import { createServerClient } from '@/lib/supabase/server'
 import { BuilderWithSelector } from '@/components/portfolio-builder/BuilderWithSelector'
 
-export default async function PortfolioBuilderPage({ params }: { params: { id: string } }) {
+export default async function PortfolioBuilderPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
   // Enforce authentication
   const userId = await requireUserId()
-  const { id } = params
+  const { id } = await params
 
   const supabase = await createServerClient()
 

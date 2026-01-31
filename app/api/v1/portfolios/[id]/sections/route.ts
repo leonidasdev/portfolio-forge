@@ -7,19 +7,18 @@
  * For individual section operations (update, delete), use /api/v1/portfolio-sections/[id]
  */
 
-import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/api/auth-middleware'
-import { withApiHandler, ApiError } from '@/lib/api/route-handler'
-import { validateParams } from '@/lib/validation/helpers'
-import { idSchema } from '@/lib/validation/schemas'
+import { ApiError, withApiHandler } from '@/lib/api/route-handler'
+import { NextRequest, NextResponse } from 'next/server'
 
 // GET /api/v1/portfolios/[id]/sections - Fetch all sections for a portfolio
 export const GET = withApiHandler(
-  async (request: NextRequest, context?: { params?: { id: string } }) => {
+  async (request: NextRequest, context?: { params?: Promise<{ id: string }> }) => {
     const { supabase } = await requireAuth(request)
 
-    // Get portfolio ID from params
-    const portfolioId = context?.params?.id
+    // Get portfolio ID from params (Next.js 15 - params is a Promise)
+    const resolvedParams = context?.params ? await context.params : { id: '' }
+    const portfolioId = resolvedParams.id
 
     if (!portfolioId) {
       throw new ApiError('Portfolio ID is required', 400)

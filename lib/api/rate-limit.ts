@@ -40,13 +40,10 @@ export { rateLimitStore }
 /**
  * Type for route handler function
  * Compatible with Next.js 15 where params is a Promise
+ * Uses 'any' for context to allow flexible route definitions
  */
-type RouteHandler = (
-  request: NextRequest,
-  context?: {
-    params?: Promise<Record<string, string | string[]>> | Record<string, string | string[]>
-  }
-) => Promise<Response> | Response
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type RouteHandler = (request: NextRequest, context?: any) => Promise<Response> | Response
 
 // ============================================================================
 // Key Generation
@@ -171,12 +168,8 @@ export function withRateLimit(
   rateLimitConfig?: RateLimitConfig,
   getUserId?: (request: NextRequest) => string | null
 ): RouteHandler {
-  return async (
-    request: NextRequest,
-    context?: {
-      params?: Promise<Record<string, string | string[]>> | Record<string, string | string[]>
-    }
-  ) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return async (request: NextRequest, context?: any) => {
     // Check if rate limiting is enabled globally
     if (!config.rateLimit.enabled || !config.features.rateLimitEnabled) {
       return handler(request, context)

@@ -8,17 +8,17 @@
 import { requireAuth } from '@/lib/api/auth-middleware'
 import { ApiError, withApiHandler } from '@/lib/api/route-handler'
 import { createServerClient } from '@/lib/supabase/server'
-import { validateBody, validateParams } from '@/lib/validation/helpers'
-import { idSchema, updateSectionSchema } from '@/lib/validation/schemas'
+import { validateBody } from '@/lib/validation/helpers'
+import { updateSectionSchema } from '@/lib/validation/schemas'
 import { NextRequest, NextResponse } from 'next/server'
 
 // PATCH /api/v1/portfolio-sections/[id] - Update a section
 export const PATCH = withApiHandler(
-  async (request: NextRequest, { params }: { params: { id: string } }) => {
+  async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
     const { user, supabase } = await requireAuth(request)
 
-    // Get section ID from params
-    const id = params?.id
+    // Get section ID from params (Next.js 15 - params is a Promise)
+    const { id } = await params
 
     if (!id) {
       throw new ApiError('Section ID is required', 400)
@@ -84,7 +84,10 @@ export const PATCH = withApiHandler(
 )
 
 // DELETE /api/v1/portfolio-sections/[id] - Delete a section and reorder remaining
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const supabase = await createServerClient()
 
@@ -98,7 +101,8 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { id } = params
+    // Next.js 15 - params is a Promise
+    const { id } = await params
 
     // Verify section exists and get portfolio_id and current display_order
     const { data: section, error: fetchError } = await (supabase.from('portfolio_sections') as any)

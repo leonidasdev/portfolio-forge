@@ -7,19 +7,17 @@
  * (certification_tags, project_tags, etc.) due to database constraints.
  */
 
-import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/api/auth-middleware'
-import { withApiHandler, ApiError } from '@/lib/api/route-handler'
-import { validateParams } from '@/lib/validation/helpers'
-import { idSchema } from '@/lib/validation/schemas'
+import { ApiError, withApiHandler } from '@/lib/api/route-handler'
+import { NextRequest, NextResponse } from 'next/server'
 
 // DELETE /api/v1/tags/[id] - Delete a tag
 export const DELETE = withApiHandler(
-  async (request: NextRequest, { params }: { params: { id: string } }) => {
+  async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
     const { user, supabase } = await requireAuth(request)
 
-    // Get tag ID from params
-    const id = params?.id
+    // Get tag ID from params (Next.js 15 - params is a Promise)
+    const { id } = await params
 
     if (!id) {
       throw new ApiError('Tag ID is required', 400)

@@ -10,10 +10,10 @@
 
 'use client'
 
-import { useSortable } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
 import { SectionRenderer } from '@/components/portfolio-sections/SectionRenderer'
 import type { Database } from '@/lib/supabase/types'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 type Section = Database['public']['Tables']['portfolio_sections']['Row']
 
@@ -24,7 +24,7 @@ interface SectionCardProps {
   disabled?: boolean
 }
 
-export function SectionCard({ section, onEdit, onDelete, disabled }: SectionCardProps) {
+export function SectionCard({ section, onEdit, onDelete, disabled: _disabled }: SectionCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: section.id,
   })
