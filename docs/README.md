@@ -14,7 +14,8 @@ docs/
 ├── RATE_LIMITING.md             # Rate limiting configuration guide
 ├── architecture/                # Architecture & design documents
 │   ├── ARCHITECTURE_REVIEW.md   # High-level architecture assessment
-│   └── ARCHITECTURE_DEEP_DIVE.md # Detailed code organization analysis
+│   ├── ARCHITECTURE_DEEP_DIVE.md # Detailed code organization analysis
+│   └── DIAGRAMS.md              # Visual architecture diagrams (Mermaid)
 ├── api/                         # API documentation
 │   └── api-versioning.md        # API versioning strategy
 └── features/                    # Feature-specific documentation
@@ -31,6 +32,7 @@ docs/
 - [Project README](../README.md) - Getting started guide
 - [Development Guide](DEVELOPMENT.md) - Local development setup
 - [Architecture Review](architecture/ARCHITECTURE_REVIEW.md) - Understand the codebase
+- [Architecture Diagrams](architecture/DIAGRAMS.md) - Visual system diagrams
 - [Authentication](features/authentication.md) - OAuth flow overview
 - [Auth Utilities](features/auth-utilities.md) - Session handling API reference
 - [Supabase Client](features/supabase-client.md) - Database client usage
@@ -38,6 +40,7 @@ docs/
 ### For Contributors
 - [TODO List](TODO.md) - Project tasks and progress
 - [Architecture Deep Dive](architecture/ARCHITECTURE_DEEP_DIVE.md) - Code patterns & recommendations
+- [Architecture Diagrams](architecture/DIAGRAMS.md) - Visual system diagrams
 - [API Versioning](api/api-versioning.md) - API design guidelines
 - [Middleware](features/middleware.md) - Request handling
 - [Code Review Summary](CODE_REVIEW_SUMMARY.md) - Review findings

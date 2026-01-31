@@ -287,6 +287,7 @@ portfolio-forge/
 | [docs/TODO.md](docs/TODO.md) | Project tasks and progress |
 | [docs/architecture/ARCHITECTURE_REVIEW.md](docs/architecture/ARCHITECTURE_REVIEW.md) | Architecture assessment |
 | [docs/architecture/ARCHITECTURE_DEEP_DIVE.md](docs/architecture/ARCHITECTURE_DEEP_DIVE.md) | Code patterns & recommendations |
+| [docs/architecture/DIAGRAMS.md](docs/architecture/DIAGRAMS.md) | Visual architecture diagrams |
 | [docs/api/api-versioning.md](docs/api/api-versioning.md) | API versioning strategy |
 | [docs/features/authentication.md](docs/features/authentication.md) | Auth system documentation |
 

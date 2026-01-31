@@ -524,11 +524,11 @@ Portfolio Forge is a **well-architected Next.js 14+ application** with solid fun
 
 ### 5.2 Documentation Improvements
 
-- [ ] Add architecture diagrams (Mermaid/PlantUML)
+- [x] Add architecture diagrams (Mermaid) - `docs/architecture/DIAGRAMS.md`
 - [ ] Create API reference with examples
 - [ ] Add troubleshooting guide
 - [ ] Document environment variables completely
-- [ ] Add database schema diagram
+- [ ] Add database schema diagram (included in DIAGRAMS.md)
 
 ### 5.3 Code Documentation
 
