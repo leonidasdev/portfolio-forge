@@ -5,9 +5,9 @@
  * Tests different section types, AI features, and save/cancel flows.
  */
 
+import type { Database } from '@/lib/supabase/types'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import type { Database } from '@/lib/supabase/types'
 
 type Section = Database['public']['Tables']['portfolio_sections']['Row']
 
@@ -38,10 +38,10 @@ jest.mock('@/hooks/useSuggestTags', () => ({
 }))
 
 // Import after mocks
-import { SectionEditor } from '../SectionEditor'
-import { improveText } from '@/hooks/useImproveText'
 import { generateSummary } from '@/hooks/useGenerateSummary'
+import { improveText } from '@/hooks/useImproveText'
 import { suggestTags } from '@/hooks/useSuggestTags'
+import { SectionEditor } from '../SectionEditor'
 
 // Helper to create mock section
 function createMockSection(overrides: Partial<Section> = {}): Section {

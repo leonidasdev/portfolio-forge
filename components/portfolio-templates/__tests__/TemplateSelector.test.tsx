@@ -5,10 +5,10 @@
  * and select portfolio templates.
  */
 
+import { apiClient } from '@/lib/api/client'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { TemplateSelector } from '../TemplateSelector'
-import { apiClient } from '@/lib/api/client'
 
 // Mock the API client
 jest.mock('@/lib/api/client', () => ({
