@@ -614,18 +614,18 @@ Portfolio Forge is a **well-architected Next.js 14+ application** with solid fun
 | `lib/__tests__/` | 2 | ~39 | Good (logger, utils) |
 | `components/ui/` | 4 | ~86 | Good (Button, Modal, Toast, Skeleton) |
 | `components/tags/` | 1 | ~18 | Good (TagSelector) |
-| `components/portfolio-builder/` | 1 | ~13 | Good (Builder) |
+| `components/portfolio-builder/` | 2 | ~35 | Good (Builder, SectionEditor) |
 | API Routes | 2 | ~22 | Good (tags, portfolios) |
-| E2E | 0 | 0 | None |
+| E2E | 3 | ~15 | Good (auth, home, api) |
 
-**Total:** 274 tests passing (1 skipped) + E2E tests with Playwright
+**Total:** 296 tests passing (1 skipped) + E2E tests with Playwright
 
 ### 7.2 Testing Action Items
 
 - [x] Add component tests for UI library (Button, Modal, Toast, Skeleton)
 - [x] Add component tests:
   - [x] `Builder.test.tsx` (13 tests)
-  - [ ] `SectionEditor.test.tsx`
+  - [x] `SectionEditor.test.tsx` (22 tests)
   - [ ] `CertificationForm.test.tsx`
   - [ ] Template components
 - [x] Add API route integration tests (tags, portfolios)

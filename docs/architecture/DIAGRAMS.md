@@ -124,7 +124,7 @@ sequenceDiagram
     NextJS->>Supabase: exchangeCodeForSession()
     Supabase-->>NextJS: Session Token
     NextJS->>Browser: Set Cookie & Redirect
-    
+
     Note over Browser,Middleware: Subsequent Requests
     Browser->>Middleware: Request with Cookie
     Middleware->>Supabase: Validate Session
@@ -193,20 +193,20 @@ flowchart TB
     subgraph AISystem["AI System"]
         direction TB
         Router["AI Router"]
-        
+
         subgraph Abilities["Abilities (Simple Tasks)"]
             A1[generateSummary]
             A2[improveText]
             A3[suggestTags]
             A4[analyzePortfolio]
         end
-        
+
         subgraph Agents["Agents (Complex Workflows)"]
             AG1[resumeAgent]
             AG2[optimizeAgent]
             AG3[rewriteAgent]
         end
-        
+
         Provider["AI Provider (Groq)"]
     end
 
@@ -233,25 +233,25 @@ User interaction flow in the Portfolio Builder component.
 stateDiagram-v2
     [*] --> Empty: No Sections
     Empty --> AddSection: Click Add
-    
+
     AddSection --> SelectType: Choose Section Type
     SelectType --> CreateSection: API Call
     CreateSection --> ViewSections: Success
-    
+
     ViewSections --> EditSection: Click Edit
     EditSection --> SaveChanges: Save
     SaveChanges --> ViewSections: Success
-    
+
     ViewSections --> DeleteSection: Click Delete
     DeleteSection --> Confirm: Show Modal
     Confirm --> ViewSections: Cancel
     Confirm --> RemoveSection: Confirm
     RemoveSection --> ViewSections: Success
     RemoveSection --> Empty: Last Section
-    
+
     ViewSections --> ReorderSections: Drag & Drop
     ReorderSections --> ViewSections: Update Order
-    
+
     ViewSections --> AIFeatures: Use AI Tools
     AIFeatures --> ViewSections: Apply Changes
 ```
@@ -269,13 +269,13 @@ erDiagram
     users ||--o{ certifications : uploads
     portfolios ||--o{ portfolio_sections : contains
     portfolios }o--o{ tags : tagged_with
-    
+
     users {
         uuid id PK
         string email
         timestamp created_at
     }
-    
+
     portfolios {
         uuid id PK
         uuid user_id FK
@@ -288,7 +288,7 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
-    
+
     portfolio_sections {
         uuid id PK
         uuid portfolio_id FK
@@ -298,7 +298,7 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
-    
+
     tags {
         uuid id PK
         uuid user_id FK
@@ -306,7 +306,7 @@ erDiagram
         string color
         timestamp created_at
     }
-    
+
     certifications {
         uuid id PK
         uuid user_id FK
@@ -329,13 +329,13 @@ Main component structure of the application.
 flowchart TB
     subgraph App["App Layout"]
         RootLayout["RootLayout"]
-        
+
         subgraph Auth["Auth Pages"]
             Login[LoginPage]
             Signup[SignupPage]
             Callback[CallbackPage]
         end
-        
+
         subgraph Dashboard["Dashboard"]
             DashLayout["DashboardLayout"]
             Overview[OverviewPage]
@@ -343,24 +343,24 @@ flowchart TB
             Certs[CertificationsPage]
             Settings[SettingsPage]
         end
-        
+
         subgraph Public["Public Pages"]
             Home[HomePage]
             PublicPortfolio["PublicPortfolio [token]"]
         end
     end
-    
+
     RootLayout --> Auth
     RootLayout --> Dashboard
     RootLayout --> Public
-    
+
     subgraph BuilderComponents["Portfolio Builder"]
         Builder[Builder]
         BuilderCtx[BuilderContext]
         SectionCard[SectionCard]
         SectionEditor[SectionEditor]
         SectionAddMenu[SectionAddMenu]
-        
+
         subgraph AITools["AI Tools"]
             Analyzer[AIPortfolioAnalyzer]
             Generator[AIResumeGenerator]
@@ -368,7 +368,7 @@ flowchart TB
             Rewriter[AIRewritePortfolio]
         end
     end
-    
+
     Portfolios --> Builder
     Builder --> BuilderCtx
     BuilderCtx --> SectionCard
@@ -388,12 +388,12 @@ flowchart TB
     subgraph Incoming["Incoming Request"]
         Req[Request]
     end
-    
+
     subgraph Identification["Key Identification"]
         IP["IP Address"]
         UserID["User ID"]
     end
-    
+
     subgraph Configs["Rate Limit Configs"]
         direction TB
         Public["Public: 100/min (IP)"]
@@ -401,18 +401,18 @@ flowchart TB
         API["API: 100/min (User)"]
         AI["AI: 20/min (User)"]
     end
-    
+
     subgraph Check["Rate Limit Check"]
         Store["In-Memory Store"]
         Count["Request Count"]
         Window["Time Window"]
     end
-    
+
     subgraph Result["Result"]
         Pass["Pass: Add Headers"]
         Block["Block: 429 Response"]
     end
-    
+
     Req --> IP
     Req --> UserID
     IP --> Public
@@ -463,23 +463,23 @@ flowchart TB
     subgraph Users["Users"]
         Browser[Browser]
     end
-    
+
     subgraph Vercel["Vercel Edge Network"]
         CDN[CDN/Edge Cache]
         Serverless[Serverless Functions]
     end
-    
+
     subgraph Supabase["Supabase Cloud"]
         Auth[Auth Service]
         DB[(PostgreSQL)]
         Storage[Storage Buckets]
         Realtime[Realtime]
     end
-    
+
     subgraph External["External APIs"]
         Groq[Groq AI]
     end
-    
+
     Browser -->|HTTPS| CDN
     CDN -->|Static Assets| Browser
     CDN -->|API Requests| Serverless

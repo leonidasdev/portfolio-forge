@@ -4,7 +4,7 @@
  * Tests for API endpoints accessibility and basic responses.
  */
 
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 test.describe('API Health', () => {
   test.describe('Public API Endpoints', () => {

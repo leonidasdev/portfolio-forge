@@ -148,8 +148,8 @@ function processUser(user: any): void {
 // ✅ Good - Small, focused component
 export function UserAvatar({ user }: { user: User }) {
   return (
-    <img 
-      src={user.avatarUrl} 
+    <img
+      src={user.avatarUrl}
       alt={user.name}
       className="w-10 h-10 rounded-full"
     />
@@ -174,9 +174,9 @@ export function UserProfile({ user }) {
 export const POST = withApiHandler(async (request: NextRequest) => {
   const { user, supabase } = await requireAuth(request)
   const body = await validateBody(request, createPortfolioSchema)
-  
+
   // ... implementation
-  
+
   return NextResponse.json({ portfolio })
 })
 ```
@@ -202,11 +202,11 @@ components/
 ```typescript
 /**
  * Generates a public share link for a portfolio.
- * 
+ *
  * @param portfolioId - The UUID of the portfolio
  * @returns Object containing the public URL and token
  * @throws {ApiError} If portfolio not found or user unauthorized
- * 
+ *
  * @example
  * const { url, token } = await generatePublicLink('abc-123')
  */
