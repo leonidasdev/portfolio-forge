@@ -3,20 +3,21 @@
  *
  * A button component that triggers export to GitHub Pages.
  * Shows progress and handles the entire export flow.
+ * Includes built-in GitHub PAT input when no token is provided.
  */
 
 'use client'
 
 import { Button } from '@/components/ui/Button'
 import { AlertModal, ConfirmModal } from '@/components/ui/Modal'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface GitHubExportButtonProps {
   portfolioId: string
   portfolioTitle: string
-  /** GitHub OAuth token - must be obtained before rendering this component */
+  /** GitHub OAuth token - if not provided, will prompt user for PAT */
   githubToken?: string
-  /** Called when GitHub auth is needed */
+  /** Called when GitHub auth is needed (for OAuth flow) */
   onAuthRequired?: () => void
   /** Custom class name */
   className?: string
@@ -30,37 +31,123 @@ interface ExportResult {
   totalSize: number
 }
 
-type ExportStatus = 'idle' | 'configuring' | 'exporting' | 'success' | 'error'
+type ExportStatus = 'idle' | 'auth' | 'configuring' | 'exporting' | 'success' | 'error'
+
+// Local storage keys
+const GITHUB_TOKEN_KEY = 'portfolio-forge-github-token'
+const GITHUB_CONFIG_KEY = 'portfolio-forge-github-config'
+
+interface DeployConfig {
+  repoName: string
+  customDomain?: string
+  isPrivate: boolean
+  lastDeployed?: string
+  pagesUrl?: string
+  repoUrl?: string
+}
 
 export function GitHubExportButton({
   portfolioId,
   portfolioTitle,
-  githubToken,
+  githubToken: propToken,
   onAuthRequired,
   className,
 }: GitHubExportButtonProps) {
   const [status, setStatus] = useState<ExportStatus>('idle')
+  const [showAuthModal, setShowAuthModal] = useState(false)
   const [showConfigModal, setShowConfigModal] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [showErrorModal, setShowErrorModal] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [exportResult, setExportResult] = useState<ExportResult | null>(null)
+
+  // Config state
   const [repoName, setRepoName] = useState('portfolio')
   const [customDomain, setCustomDomain] = useState('')
   const [isPrivate, setIsPrivate] = useState(false)
+  const [lastDeployConfig, setLastDeployConfig] = useState<DeployConfig | null>(null)
+
+  // Token state
+  const [tokenInput, setTokenInput] = useState('')
+  const [storedToken, setStoredToken] = useState<string | null>(null)
+
+  // Load stored token and config on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedToken = localStorage.getItem(GITHUB_TOKEN_KEY)
+      if (savedToken) {
+        setStoredToken(savedToken)
+      }
+
+      // Load saved deploy config for this portfolio
+      const savedConfig = localStorage.getItem(`${GITHUB_CONFIG_KEY}-${portfolioId}`)
+      if (savedConfig) {
+        try {
+          const config = JSON.parse(savedConfig) as DeployConfig
+          setLastDeployConfig(config)
+          // Pre-fill form with last config
+          setRepoName(config.repoName)
+          setCustomDomain(config.customDomain || '')
+          setIsPrivate(config.isPrivate)
+        } catch {
+          // Ignore parse errors
+        }
+      }
+    }
+  }, [portfolioId])
+
+  const effectiveToken = propToken || storedToken
+
+  // Save config after successful deployment
+  const saveDeployConfig = (result: ExportResult) => {
+    const config: DeployConfig = {
+      repoName,
+      customDomain: customDomain || undefined,
+      isPrivate,
+      lastDeployed: new Date().toISOString(),
+      pagesUrl: result.pagesUrl,
+      repoUrl: result.repoUrl,
+    }
+    localStorage.setItem(`${GITHUB_CONFIG_KEY}-${portfolioId}`, JSON.stringify(config))
+    setLastDeployConfig(config)
+  }
 
   const handleClick = () => {
-    if (!githubToken) {
-      onAuthRequired?.()
+    if (!effectiveToken) {
+      // Show auth modal to get token
+      setShowAuthModal(true)
+      setStatus('auth')
+    } else {
+      // Skip auth, go straight to config
+      setShowConfigModal(true)
+      setStatus('configuring')
+    }
+  }
+
+  const handleSaveToken = () => {
+    if (!tokenInput.trim()) {
       return
     }
+    // Save token to localStorage
+    localStorage.setItem(GITHUB_TOKEN_KEY, tokenInput.trim())
+    setStoredToken(tokenInput.trim())
+    setShowAuthModal(false)
+    setTokenInput('')
+    // Now show config modal
     setShowConfigModal(true)
     setStatus('configuring')
   }
 
+  const handleClearToken = () => {
+    localStorage.removeItem(GITHUB_TOKEN_KEY)
+    setStoredToken(null)
+  }
+
   const handleExport = async () => {
-    if (!githubToken) {
-      onAuthRequired?.()
+    const token = effectiveToken
+    if (!token) {
+      setShowAuthModal(true)
+      setStatus('auth')
       return
     }
 
@@ -78,17 +165,22 @@ export function GitHubExportButton({
           repoName,
           customDomain: customDomain || undefined,
           isPrivate,
-          githubToken,
+          githubToken: token,
         }),
       })
 
       if (!response.ok) {
         const error = await response.json()
+        // If token is invalid, clear it
+        if (response.status === 401 || error.error?.includes('Bad credentials')) {
+          handleClearToken()
+        }
         throw new Error(error.error || 'Export failed')
       }
 
       const data = await response.json()
       setExportResult(data.export)
+      saveDeployConfig(data.export)
       setStatus('success')
       setShowSuccessModal(true)
     } catch (error) {
@@ -96,6 +188,18 @@ export function GitHubExportButton({
       setStatus('error')
       setShowErrorModal(true)
     }
+  }
+
+  // Quick re-deploy with same config
+  const handleRedeploy = async () => {
+    setShowSuccessModal(false)
+    await handleExport()
+  }
+
+  const handleCloseAuth = () => {
+    setShowAuthModal(false)
+    setTokenInput('')
+    setStatus('idle')
   }
 
   const handleCloseConfig = () => {
@@ -123,8 +227,115 @@ export function GitHubExportButton({
           </svg>
         }
       >
-        {status === 'exporting' ? 'Deploying...' : 'Deploy to GitHub Pages'}
+        {status === 'exporting'
+          ? 'Deploying...'
+          : lastDeployConfig?.lastDeployed
+            ? 'Re-deploy to GitHub'
+            : 'Deploy to GitHub Pages'}
       </Button>
+
+      {/* Last deployment info badge */}
+      {lastDeployConfig?.lastDeployed && status === 'idle' && (
+        <a
+          href={lastDeployConfig.pagesUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            fontSize: '0.75rem',
+            color: '#059669',
+            marginLeft: '0.5rem',
+            textDecoration: 'none',
+          }}
+          title={`Last deployed: ${new Date(lastDeployConfig.lastDeployed).toLocaleString()}`}
+        >
+          Live
+        </a>
+      )}
+
+      {/* GitHub Token Auth Modal */}
+      <ConfirmModal
+        isOpen={showAuthModal}
+        onClose={handleCloseAuth}
+        onConfirm={handleSaveToken}
+        title="Connect GitHub Account"
+        confirmText="Continue"
+        variant="primary"
+        message={
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <p style={{ color: 'var(--color-text)', opacity: 0.8 }}>
+              To deploy to GitHub Pages, you need a GitHub Personal Access Token (PAT) with{' '}
+              <code
+                style={{
+                  background: '#f3f4f6',
+                  padding: '0.125rem 0.25rem',
+                  borderRadius: '0.25rem',
+                }}
+              >
+                repo
+              </code>{' '}
+              scope.
+            </p>
+
+            <div>
+              <label
+                htmlFor="githubToken"
+                style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500 }}
+              >
+                GitHub Token
+              </label>
+              <input
+                id="githubToken"
+                type="password"
+                value={tokenInput}
+                onChange={(e) => setTokenInput(e.target.value)}
+                placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                autoComplete="off"
+                style={{
+                  width: '100%',
+                  padding: '0.5rem 0.75rem',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  fontFamily: 'monospace',
+                }}
+              />
+            </div>
+
+            <div
+              style={{
+                background: '#f0f9ff',
+                padding: '0.75rem',
+                borderRadius: '0.375rem',
+                fontSize: '0.75rem',
+              }}
+            >
+              <p style={{ fontWeight: 500, marginBottom: '0.25rem' }}>How to create a token:</p>
+              <ol style={{ marginLeft: '1rem', lineHeight: 1.6 }}>
+                <li>
+                  Go to{' '}
+                  <a
+                    href="https://github.com/settings/tokens/new"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: '#2563eb' }}
+                  >
+                    GitHub Token Settings
+                  </a>
+                </li>
+                <li>Select &quot;Generate new token (classic)&quot;</li>
+                <li>
+                  Check the <strong>repo</strong> scope
+                </li>
+                <li>Generate and copy the token</li>
+              </ol>
+            </div>
+
+            <p style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+              Your token is stored locally in your browser and never sent to our servers.
+            </p>
+          </div>
+        }
+      />
 
       {/* Configuration Modal */}
       <ConfirmModal
@@ -202,6 +413,32 @@ export function GitHubExportButton({
                 Make repository private
               </label>
             </div>
+
+            {storedToken && (
+              <div
+                style={{ borderTop: '1px solid #e5e7eb', paddingTop: '1rem', marginTop: '0.5rem' }}
+              >
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowConfigModal(false)
+                    handleClearToken()
+                    setShowAuthModal(true)
+                    setStatus('auth')
+                  }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#6b7280',
+                    fontSize: '0.75rem',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                  }}
+                >
+                  Using saved GitHub token - click to change
+                </button>
+              </div>
+            )}
           </div>
         }
       />
@@ -259,6 +496,25 @@ export function GitHubExportButton({
             <p style={{ fontSize: '0.75rem', color: '#6b7280' }}>
               Note: It may take 1-2 minutes for GitHub Pages to fully deploy your site.
             </p>
+
+            <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '1rem' }}>
+              <button
+                type="button"
+                onClick={handleRedeploy}
+                style={{
+                  width: '100%',
+                  padding: '0.5rem 1rem',
+                  background: '#f3f4f6',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  color: '#374151',
+                }}
+              >
+                Re-deploy (update with latest changes)
+              </button>
+            </div>
           </div>
         }
       />

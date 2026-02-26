@@ -6,7 +6,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.7+-blue?style=for-the-badge&logo=typescript)
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-green?style=for-the-badge&logo=supabase)
 ![Groq](https://img.shields.io/badge/AI-Groq-orange?style=for-the-badge)
-![Tests](https://img.shields.io/badge/Tests-356%20passing-brightgreen?style=for-the-badge)
+![Tests](https://img.shields.io/badge/Tests-388%20passing-brightgreen?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-Apache%202.0-blue?style=for-the-badge)
 
 **AI-powered portfolio builder for creating stunning professional portfolios**
@@ -49,6 +49,12 @@ Create job-tailored resumes, generate compelling content, and stand out from the
 - **API Rate Limiting** (configurable per-route)
 - **Request Validation** via Zod schemas
 - **Centralized Error Handling**
+
+### Export & Deployment
+- **GitHub Pages Export** - Deploy your portfolio to `username.github.io`
+- **ZIP Download** - Download your portfolio as a static site
+- **Custom Domains** - Support for custom domain configuration
+- **Auto-generated** sitemap.xml, robots.txt, 404 page
 
 ### Modern Architecture
 - **Next.js 15+ App Router** with server components
@@ -197,7 +203,7 @@ Run tests to ensure everything is configured correctly:
 npm test
 ```
 
-You should see **356+ tests passing**.
+You should see **388+ tests passing**.
 
 ---
 

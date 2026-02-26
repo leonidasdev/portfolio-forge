@@ -15,12 +15,14 @@
 |--------|-------|
 | **Framework** | Next.js 15.1.3 (App Router) |
 | **Language** | TypeScript 5.7.2 (strict mode) |
-| **Database** | Supabase (PostgreSQL + Auth + Storage) |
+| **Database** | Supabase (PostgreSQL + Auth + Storage + RLS) |
 | **AI Provider** | Groq API (llama-3.3-70b-versatile) |
 | **Styling** | Tailwind CSS 3.4.17 |
-| **Testing** | Jest 30 + React Testing Library + Playwright |
+| **Testing** | Jest 30 (388 tests) + Playwright (E2E) |
 | **Package Manager** | npm |
 | **License** | Apache 2.0 |
+| **TypeScript Errors** | 0 |
+| **ESLint Errors** | 0 (4 warnings) |
 
 ### Repository
 
@@ -127,24 +129,17 @@ API Routes (/api/v1/ai/*)
 
 ## Known Technical Debt
 
-### 1. Supabase Query Type Safety (P3 - Low Impact/High Effort)
+### 1. Supabase Query Type Safety (P3 - Resolved)
 
-**Issue:** ~10 ESLint warnings for `@typescript-eslint/no-explicit-any` in API routes
+**Status:** MOSTLY RESOLVED - Typed query helpers created in `lib/supabase/queries.ts`
 
-**Root Cause:** Supabase's query builder loses type inference with:
-- Complex joins (e.g., `certification_tags -> tags`)
-- Dynamic queries with conditional `.eq()`, `.limit()`
+**Remaining:** 4 ESLint warnings for unused `userId` parameters in AI agents:
+- `lib/ai/agents/analyzePortfolio.ts`
+- `lib/ai/agents/generateSummary.ts`
+- `lib/ai/agents/recommendTemplate.ts`
+- `tests/api.spec.ts`
 
-**Affected Files:**
-- `app/api/v1/certifications/route.ts`
-- `app/api/v1/certifications/[id]/route.ts`
-- `app/api/v1/certification-tags/route.ts`
-- Other routes with complex Supabase queries
-
-**Decision:** Keep warnings visible. The `as any` casts are functionally correct:
-- RLS ensures data security
-- Runtime behavior is correct
-- Fixing requires significant refactoring (typed repository layer)
+**Decision:** Low priority - these are intentional API signatures that may use userId in future.
 
 ### 2. In-Memory Rate Limiting
 
@@ -164,33 +159,43 @@ UPSTASH_REDIS_REST_TOKEN=your_token
 
 ---
 
-## Recent Changes (as of January 31, 2026)
+## Recent Changes (as of February 26, 2026)
 
 ### Completed Recently
 
-1. **Next.js 15.5 Compatibility**
-   - Added async params handling in dynamic routes
-   - Added Suspense boundaries for `useSearchParams()`
-   - Fixed all build errors
+1. **Type Safety Improvements**
+   - Created typed query helpers in `lib/supabase/queries.ts`
+   - All API routes now use typed helpers
+   - 0 TypeScript compilation errors
 
-2. **ESLint Configuration**
-   - Migrated to flat config (`eslint.config.mjs`)
-   - Set `@typescript-eslint/no-explicit-any` to `warn`
-   - Documented Supabase typing as tech debt
+2. **Code Quality**
+   - Added explicit return types to all exported functions
+   - Added `SECTION_TYPE_LABELS` and `SECTION_TYPE_COLORS` constants
+   - Refactored SectionCard.tsx to use constants
+   - All 10 AI routes have proper rate limiting
 
-3. **Test Coverage**
-   - 356+ unit tests passing
-   - 19 test files
+3. **Documentation**
+   - Added File Headers templates to CONTRIBUTING.md
+   - Fixed all markdown file references (kebab-case)
+   - Updated TODO.md with Current Sprint section
+
+4. **Test Coverage**
+   - 388+ unit tests passing
+   - 22 test files
    - Accessibility tests with jest-axe
+   - E2E tests for auth, home, API
 
-4. **Component Refactoring**
-   - Split `Builder.tsx` (1150 → 209 lines)
-   - Split `SectionEditor.tsx` (759 → 459 lines)
-   - Created UI component library
+5. **Component Library**
+   - Complete UI library: Button, Modal, Toast, Input, Card, Skeleton
+   - All components have JSDoc file headers
+   - Props interfaces follow `{ComponentName}Props` pattern
 
-5. **Documentation**
-   - Updated all markdown files
-   - Created CLAUDE.md for AI continuity
+6. **GitHub Pages Export** (COMPLETED)
+   - Static export engine with all templates/themes
+   - GitHub API client for repo management
+   - Export API routes with rate limiting (5 req/min)
+   - Dashboard UI with config modal, token input, success/error states
+   - Re-deploy support (same flow updates existing repo)
 
 ---
 
@@ -292,7 +297,27 @@ npm run validate         # typecheck + lint + test
 
 | Date | Changes |
 |------|---------|
+| 2026-02-26 | Completed GitHub Pages export; updated docs, rate limits |
+| 2026-02-26 | Updated with current state: 388 tests, typed queries, new sprint priorities |
 | 2026-01-31 | Initial creation - comprehensive project context |
+
+---
+
+## Current Focus Areas
+
+### Priority 1: CI/CD Improvements
+- Configure Vercel preview deployments
+- Add production deployment workflow
+
+### Priority 2: Testing
+- E2E tests for authenticated flows (portfolio CRUD, AI features)
+- Increase coverage threshold to 70%
+
+### Priority 3: Polish
+- Dark mode support
+- Complete accessibility audit
+- Performance optimizations
+- Fix 4 ESLint warnings (unused userId in AI agents)
 
 ---
 

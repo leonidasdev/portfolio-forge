@@ -35,6 +35,7 @@ Portfolio Forge implements rate limiting to:
 | Standard API | 100 | 1 minute | IP |
 | Auth Routes | 10 | 1 minute | IP |
 | AI Endpoints | 20 | 1 minute | User ID |
+| Export Endpoints | 5 | 1 minute | User ID |
 | Public Routes | 30 | 1 minute | IP |
 
 ### Configuration in Code
@@ -42,10 +43,11 @@ Portfolio Forge implements rate limiting to:
 ```typescript
 // lib/api/rate-limit.ts
 export const rateLimitConfigs = {
-  standard: { limit: 100, windowMs: 60000, keyBy: 'ip' },
-  auth: { limit: 10, windowMs: 60000, keyBy: 'ip' },
-  ai: { limit: 20, windowMs: 60000, keyBy: 'user' },
-  public: { limit: 30, windowMs: 60000, keyBy: 'ip' },
+  api: { maxRequests: 100, windowSeconds: 60, perUser: true },
+  auth: { maxRequests: 10, windowSeconds: 60, perUser: false },
+  ai: { maxRequests: 20, windowSeconds: 60, perUser: true },
+  export: { maxRequests: 5, windowSeconds: 60, perUser: true },
+  public: { maxRequests: 30, windowSeconds: 60, perUser: false },
 }
 ```
 

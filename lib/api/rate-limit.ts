@@ -218,6 +218,12 @@ export const rateLimitConfigs = {
   ai: config.rateLimit.ai,
   /** Public endpoints (30/min per IP) */
   public: config.rateLimit.public,
+  /** Export operations - very expensive (5/min per user) */
+  export: {
+    maxRequests: 5,
+    windowSeconds: 60,
+    perUser: true,
+  } as RateLimitConfig,
 
   /** Custom configuration helper */
   custom: (maxRequests: number, windowSeconds: number, perUser = true): RateLimitConfig => ({

@@ -82,7 +82,8 @@ API requests are rate-limited to prevent abuse. Default limits:
 |------------|-------|--------|
 | Standard API | 100 requests | 60 seconds |
 | Auth routes | 5 requests | 60 seconds |
-| AI endpoints | 10 requests | 60 seconds |
+| AI endpoints | 20 requests | 60 seconds |
+| Export endpoints | 5 requests | 60 seconds |
 
 Rate limit headers are included in all responses:
 
