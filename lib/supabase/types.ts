@@ -102,6 +102,7 @@ export interface Database {
           theme: string
           is_public: boolean
           is_deleted: boolean
+          public_link_token: string | null
           created_at: string
           updated_at: string
         }
@@ -115,6 +116,7 @@ export interface Database {
           theme?: string
           is_public?: boolean
           is_deleted?: boolean
+          public_link_token?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -128,6 +130,7 @@ export interface Database {
           theme?: string
           is_public?: boolean
           is_deleted?: boolean
+          public_link_token?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -672,5 +675,7 @@ export type TablesUpdate<T extends keyof Database['public']['Tables']> =
 export type Enums<T extends keyof Database['public']['Enums']> = Database['public']['Enums'][T]
 
 // Re-export SupabaseClient type for convenience
+// Using `any, any` for schema flexibility between server/client instantiation patterns
 import type { SupabaseClient } from '@supabase/supabase-js'
-export type TypedSupabaseClient = SupabaseClient<Database>
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type TypedSupabaseClient = SupabaseClient<Database, any, any>

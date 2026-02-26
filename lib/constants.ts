@@ -160,6 +160,34 @@ export const SECTION_TYPES = [
 
 export type SectionType = (typeof SECTION_TYPES)[number]
 
+/**
+ * Human-readable labels for section types
+ */
+export const SECTION_TYPE_LABELS: Record<string, string> = {
+  summary: 'Summary',
+  experience: 'Experience',
+  work_experience: 'Work Experience',
+  education: 'Education',
+  skills: 'Skills',
+  projects: 'Projects',
+  certifications: 'Certifications',
+  custom: 'Custom',
+} as const
+
+/**
+ * Tailwind CSS color classes for section types
+ */
+export const SECTION_TYPE_COLORS: Record<string, string> = {
+  summary: 'bg-blue-100 text-blue-800',
+  experience: 'bg-purple-100 text-purple-800',
+  work_experience: 'bg-purple-100 text-purple-800',
+  education: 'bg-indigo-100 text-indigo-800',
+  skills: 'bg-green-100 text-green-800',
+  projects: 'bg-orange-100 text-orange-800',
+  certifications: 'bg-pink-100 text-pink-800',
+  custom: 'bg-gray-100 text-gray-800',
+} as const
+
 // =============================================================================
 // UI CONSTANTS
 // =============================================================================

@@ -376,6 +376,73 @@ View structured logs in terminal during development.
 
 ---
 
+## GitHub Pages Export
+
+The GitHub Pages export feature allows users to deploy their portfolio as a static site directly to GitHub Pages.
+
+### User Requirements
+
+Users need to provide a **GitHub Personal Access Token** with the `repo` scope to deploy portfolios:
+
+1. Go to [GitHub Settings > Developer Settings > Personal Access Tokens](https://github.com/settings/tokens)
+2. Click "Generate new token (classic)"
+3. Select the `repo` scope (Full control of private repositories)
+4. Generate and copy the token
+5. Use the token when deploying via the "Deploy to GitHub Pages" button
+
+### How It Works
+
+1. User clicks "Deploy to GitHub Pages" in the portfolio builder
+2. User provides their GitHub token and configures repository settings
+3. The system generates a static HTML/CSS site from the portfolio data
+4. Creates or updates the GitHub repository via the GitHub API
+5. Pushes files including a GitHub Actions workflow
+6. GitHub Actions automatically deploys to GitHub Pages
+
+### Generated Files
+
+The export system generates:
+
+```
+repository/
+├── index.html          # Portfolio content with embedded styles
+├── 404.html            # Custom 404 page
+├── robots.txt          # SEO robots file
+├── sitemap.xml         # SEO sitemap
+├── CNAME               # Custom domain (if configured)
+├── .nojekyll           # Disables Jekyll processing
+└── .github/
+    └── workflows/
+        └── deploy.yml  # GitHub Actions deployment workflow
+```
+
+### Testing Export Locally
+
+To test the export feature:
+
+```typescript
+// In a test file or node script
+import { generateStaticSite } from '@/lib/export/static-generator'
+
+const bundle = await generateStaticSite({
+  portfolio: portfolioData,
+  sections: sectionsData,
+  template: 'single-column',
+  theme: 'light-blue',
+})
+
+console.log(bundle.files) // Array of generated files
+```
+
+### Download as ZIP
+
+Users can also download their portfolio as a ZIP file without needing a GitHub token:
+
+1. Click "Download ZIP" in the portfolio builder
+2. Extract the ZIP to any static hosting service (Netlify, Vercel, Cloudflare Pages, etc.)
+
+---
+
 ## Troubleshooting
 
 ### Common Issues
@@ -419,8 +486,8 @@ In development mode, rate limiting uses in-memory storage and is less restrictiv
 
 ## Additional Resources
 
-- [Architecture Overview](./architecture/ARCHITECTURE.md)
+- [Architecture Overview](./architecture/architecture.md)
 - [API Versioning Guide](./api/api-versioning.md)
-- [Rate Limiting Guide](./RATE_LIMITING.md)
-- [Deployment Guide](./DEPLOYMENT.md)
+- [Rate Limiting Guide](./rate-limiting.md)
+- [Deployment Guide](./deployment-guide.md)
 - [Security Policy](../SECURITY.md)

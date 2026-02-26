@@ -540,7 +540,7 @@ test('user can create portfolio', async ({ page }) => {
 
 ## Further Reading
 
-- [Deployment Guide](../DEPLOYMENT.md)
+- [Deployment Guide](../deployment-guide.md)
 - [Authentication](../features/authentication.md)
 - [API Versioning](../api/api-versioning.md)
 - [Middleware](../features/middleware.md)

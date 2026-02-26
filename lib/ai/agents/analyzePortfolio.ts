@@ -5,6 +5,7 @@
  * actionable recommendations with scoring.
  */
 
+import { queries } from '@/lib/supabase/queries'
 import { createServerClient } from '@/lib/supabase/server'
 import { aiComplete } from '../router'
 
@@ -38,21 +39,15 @@ export async function analyzePortfolio(userId: string): Promise<{
 }> {
   const supabase = await createServerClient()
 
-  // Fetch portfolio and sections
-  const { data: portfolios } = await (supabase.from('portfolios') as any)
-    .select('id')
-    .eq('user_id', userId)
-    .limit(1)
-    .single()
+  // Fetch portfolio and sections using typed queries
+  const { data: portfoliosResult } = await queries.portfolios.list(supabase, { limit: 1 })
+  const portfolio = portfoliosResult?.[0]
 
-  if (!portfolios) {
+  if (!portfolio) {
     throw new Error('No portfolio found for user')
   }
 
-  const { data: sections } = await (supabase.from('portfolio_sections') as any)
-    .select('*')
-    .eq('portfolio_id', portfolios.id)
-    .order('display_order', { ascending: true })
+  const { data: sections } = await queries.sections.listByPortfolio(supabase, portfolio.id)
 
   if (!sections || sections.length === 0) {
     throw new Error('No sections found in portfolio')

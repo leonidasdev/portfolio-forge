@@ -40,12 +40,14 @@
 import { createBrowserClient as createSupabaseBrowserClient } from '@supabase/ssr'
 import { Database } from './types'
 
+import type { TypedSupabaseClient } from './types'
+
 /**
  * Creates a Supabase client for browser/client-side use
  * Automatically reads cookies and includes auth session
  * This client is safe to use in Client Components
  */
-export function createBrowserClient() {
+export function createBrowserClient(): TypedSupabaseClient {
   return createSupabaseBrowserClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!

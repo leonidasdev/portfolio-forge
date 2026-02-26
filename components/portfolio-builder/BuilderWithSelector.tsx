@@ -10,12 +10,13 @@
 
 'use client'
 
-import { useState } from 'react'
+import { DownloadExportButton, GitHubExportButton } from '@/components/export'
 import { Builder } from '@/components/portfolio-builder/Builder'
+import { PortfolioRenderer } from '@/components/portfolio-renderer/PortfolioRenderer'
 import { TemplateSelector } from '@/components/portfolio-templates/TemplateSelector'
 import { ThemeSelector } from '@/components/portfolio-themes/ThemeSelector'
-import { PortfolioRenderer } from '@/components/portfolio-renderer/PortfolioRenderer'
 import type { Database } from '@/lib/supabase/types'
+import { useState } from 'react'
 
 type Portfolio = Database['public']['Tables']['portfolios']['Row']
 type Section = Database['public']['Tables']['portfolio_sections']['Row']
@@ -70,21 +71,25 @@ export function BuilderWithSelector({
           <p style={{ marginTop: '0.5rem', color: '#6b7280' }}>{portfolio.title}</p>
         </div>
 
-        <button
-          onClick={() => setShowPreview(!showPreview)}
-          style={{
-            padding: '0.5rem 1rem',
-            background: showPreview ? '#9ca3af' : '#3b82f6',
-            color: 'white',
-            border: 'none',
-            borderRadius: '0.375rem',
-            cursor: 'pointer',
-            fontWeight: '500',
-            fontSize: '0.875rem',
-          }}
-        >
-          {showPreview ? 'Hide Preview' : 'Show Preview'}
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <DownloadExportButton portfolioId={portfolio.id} portfolioTitle={portfolio.title} />
+          <GitHubExportButton portfolioId={portfolio.id} portfolioTitle={portfolio.title} />
+          <button
+            onClick={() => setShowPreview(!showPreview)}
+            style={{
+              padding: '0.5rem 1rem',
+              background: showPreview ? '#9ca3af' : '#3b82f6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.375rem',
+              cursor: 'pointer',
+              fontWeight: '500',
+              fontSize: '0.875rem',
+            }}
+          >
+            {showPreview ? 'Hide Preview' : 'Show Preview'}
+          </button>
+        </div>
       </div>
 
       {/* Main Layout */}

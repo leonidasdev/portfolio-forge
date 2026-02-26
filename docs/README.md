@@ -4,52 +4,58 @@ Welcome to the Portfolio Forge documentation. This directory contains comprehens
 
 ## Documentation Structure
 
-```
+```text
 docs/
-├── README.md                    # This file - Documentation index
-├── TODO.md                      # Project TODO list and progress tracker
-├── DEPLOYMENT.md                # Deployment guide (Vercel, Docker, PM2)
-├── DEVELOPMENT.md               # Local development setup guide
-├── RATE_LIMITING.md             # Rate limiting configuration guide
-├── architecture/                # Architecture & design documents
-│   ├── ARCHITECTURE.md          # Architecture overview and patterns
-│   └── DIAGRAMS.md              # Visual architecture diagrams (Mermaid)
-├── api/                         # API documentation
-│   ├── api-versioning.md        # API versioning strategy
-│   └── API_REFERENCE.md         # Complete API reference guide
-└── features/                    # Feature-specific documentation
-    ├── authentication.md        # Auth flow, utilities, and patterns
-    ├── supabase-client.md       # Supabase client usage guide
+├── README.md                        # This file - Documentation index
+├── TODO.md                          # Project TODO list and progress tracker
+├── CLAUDE.md                        # AI assistant context file
+├── deployment-guide.md              # Deployment guide (Vercel, Docker, PM2)
+├── development-guide.md             # Local development setup guide
+├── rate-limiting.md                 # Rate limiting configuration guide
+├── pull-request-template.md         # PR template for contributors
+├── architecture/                    # Architecture and design documents
+│   ├── architecture.md              # Architecture overview and patterns
+│   └── diagrams.md                  # Visual architecture diagrams (Mermaid)
+├── api/                             # API documentation
+│   ├── api-versioning.md            # API versioning strategy
+│   └── api-reference.md             # Complete API reference guide
+└── features/                        # Feature-specific documentation
+    ├── authentication.md            # Auth flow, utilities, and patterns
+    ├── supabase-client.md           # Supabase client usage guide
     ├── certification-file-upload.md # File upload feature
-    └── middleware.md            # Middleware documentation
+    └── middleware.md                # Middleware documentation
 ```
 
 ## Quick Links
 
 ### For New Developers
+
 - [Project README](../README.md) - Getting started guide
-- [CLAUDE.md](../.github/CLAUDE.md) - AI assistant context (great for quick project overview)
-- [Development Guide](DEVELOPMENT.md) - Local development setup
-- [Architecture Overview](architecture/ARCHITECTURE.md) - Understand the codebase
-- [Architecture Diagrams](architecture/DIAGRAMS.md) - Visual system diagrams
+- [CLAUDE.md](CLAUDE.md) - AI assistant context (project overview)
+- [Development Guide](development-guide.md) - Local development setup
+- [Architecture Overview](architecture/architecture.md) - Understand the codebase
+- [Architecture Diagrams](architecture/diagrams.md) - Visual system diagrams
 - [Authentication](features/authentication.md) - Auth flow and utilities
 - [Supabase Client](features/supabase-client.md) - Database client usage
 
 ### For Contributors
+
 - [TODO List](TODO.md) - Project tasks and progress
-- [Architecture Overview](architecture/ARCHITECTURE.md) - Code patterns & recommendations
-- [Architecture Diagrams](architecture/DIAGRAMS.md) - Visual system diagrams
+- [Pull Request Template](pull-request-template.md) - PR guidelines
+- [Architecture Overview](architecture/architecture.md) - Code patterns and recommendations
+- [Architecture Diagrams](architecture/diagrams.md) - Visual system diagrams
 - [API Versioning](api/api-versioning.md) - API design guidelines
 - [Middleware](features/middleware.md) - Request handling
 
 ### For DevOps
-- [Deployment Guide](DEPLOYMENT.md) - Production deployment instructions (Vercel, Docker, PM2)
-- [Rate Limiting](RATE_LIMITING.md) - Rate limiting configuration
+
+- [Deployment Guide](deployment-guide.md) - Production deployment instructions (Vercel, Docker, PM2)
+- [Rate Limiting](rate-limiting.md) - Rate limiting configuration
 
 ### API Documentation
-- [API Reference](api/API_REFERENCE.md) - Complete REST API documentation
-- [API Versioning Strategy](api/api-versioning.md)
-- [Health Check Endpoint](/api/health) - System health monitoring
+
+- [API Reference](api/api-reference.md) - Complete REST API documentation
+- [API Versioning Strategy](api/api-versioning.md) - Versioning guidelines
 
 ## Documentation Guidelines
 
@@ -59,9 +65,7 @@ When adding new documentation:
    - `architecture/` - Design decisions, patterns, reviews
    - `api/` - API specs, endpoints, versioning
    - `features/` - Feature-specific guides
-   - Include dates on reviews/assessments
 
-## Related Resources
+2. **Use kebab-case for file names** (e.g., `deployment-guide.md`)
 
-- [Supabase Client README](../lib/supabase/README.md) - Supabase integration
-- [Auth Library README](../lib/auth/README.md) - Authentication utilities
+3. **Follow professional tone** - No emojis, clear technical language

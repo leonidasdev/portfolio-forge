@@ -6,6 +6,7 @@
 
 import { requireAuth } from '@/lib/api/auth-middleware'
 import { ApiError, withApiHandler } from '@/lib/api/route-handler'
+import { queries } from '@/lib/supabase/queries'
 import { validateBody } from '@/lib/validation/helpers'
 import { createSectionSchema } from '@/lib/validation/schemas'
 import { NextRequest, NextResponse } from 'next/server'
@@ -18,38 +19,36 @@ export const POST = withApiHandler(async (request: NextRequest) => {
   const body = await validateBody(request, createSectionSchema)
 
   // Verify portfolio exists and belongs to user (RLS enforces ownership)
-  const { data: portfolio, error: portfolioError } = await (supabase.from('portfolios') as any)
-    .select('id')
-    .eq('id', body.portfolio_id)
-    .single()
+  const { data: portfolio, error: portfolioError } = await queries.portfolios.getById(
+    supabase,
+    body.portfolio_id
+  )
 
   if (portfolioError || !portfolio) {
     throw new ApiError('Portfolio not found', 404)
   }
 
-  // Get the current max display_order for this portfolio
-  const { data: maxOrderSection } = await (supabase.from('portfolio_sections') as any)
-    .select('display_order')
-    .eq('portfolio_id', body.portfolio_id)
-    .order('display_order', { ascending: false })
-    .limit(1)
-    .single()
+  // Get existing sections to calculate next display_order
+  const { data: existingSections } = await queries.sections.listByPortfolio(
+    supabase,
+    body.portfolio_id
+  )
 
   // Calculate next display_order (max + 1, or 1 if no sections exist)
-  const nextOrder = maxOrderSection ? (maxOrderSection.display_order || 0) + 1 : 1
+  const maxOrder = existingSections?.reduce((max, s) => Math.max(max, s.display_order || 0), 0) ?? 0
+  const nextOrder = maxOrder + 1
 
-  // Create the section
-  const { data: section, error } = await (supabase.from('portfolio_sections') as any)
-    .insert({
-      portfolio_id: body.portfolio_id,
-      section_type: body.section_type,
-      title: body.title || null,
-      custom_content: body.content || null,
-      settings: body.settings || null,
-      display_order: nextOrder,
-    })
-    .select()
-    .single()
+  // Default title based on section type if not provided
+  const defaultTitle = body.section_type.charAt(0).toUpperCase() + body.section_type.slice(1)
+
+  // Create the section using typed query helper
+  const { data: section, error } = await queries.sections.create(supabase, {
+    portfolio_id: body.portfolio_id,
+    section_type: body.section_type,
+    title: body.title || defaultTitle,
+    custom_content: body.content || null,
+    display_order: nextOrder,
+  })
 
   if (error) {
     throw new ApiError('Failed to create portfolio section', 500)

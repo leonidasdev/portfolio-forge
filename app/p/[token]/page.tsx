@@ -21,6 +21,7 @@
  */
 
 import { PortfolioRenderer } from '@/components/portfolio-renderer/PortfolioRenderer'
+import { queries } from '@/lib/supabase/queries'
 import { createServerClient } from '@/lib/supabase/server'
 import type { Database } from '@/lib/supabase/types'
 
@@ -35,12 +36,11 @@ export default async function PublicPortfolioPage({
   const { token } = await params
   const supabase = await createServerClient()
 
-  // Step 1: Validate token and fetch portfolio using public_link_token
-  const { data: portfolio, error: portfolioError } = await (supabase.from('portfolios') as any)
-    .select('*')
-    .eq('public_link_token', token)
-    .eq('is_deleted', false)
-    .single()
+  // Step 1: Validate token and fetch portfolio using typed query helper
+  const { data: portfolio, error: portfolioError } = await queries.portfolios.getByPublicToken(
+    supabase,
+    token
+  )
 
   if (portfolioError || !portfolio) {
     return (
@@ -65,13 +65,11 @@ export default async function PublicPortfolioPage({
     )
   }
 
-  // Step 3: Fetch all sections ordered by display_order
-  const { data: sections, error: sectionsError } = await (
-    supabase.from('portfolio_sections') as any
+  // Step 3: Fetch all sections ordered by display_order using typed query helper
+  const { data: sections, error: sectionsError } = await queries.sections.listByPortfolio(
+    supabase,
+    portfolio.id
   )
-    .select('*')
-    .eq('portfolio_id', portfolio.id)
-    .order('display_order', { ascending: true })
 
   if (sectionsError) {
     console.error('Failed to fetch portfolio sections:', sectionsError)
@@ -184,12 +182,12 @@ async function filterCertificationSection(
     return null
   }
 
-  // Fetch certifications and filter for public ones
-  const { data: certifications } = await (supabase.from('certifications') as any)
-    .select('id, is_public')
-    .eq('user_id', userId)
-    .in('id', certificationIds)
-    .eq('is_deleted', false)
+  // Fetch certifications and filter for public ones using typed query helper
+  const { data: certifications } = await queries.certifications.getPublicByIds(
+    supabase,
+    userId,
+    certificationIds
+  )
 
   if (!certifications || certifications.length === 0) {
     return null
@@ -197,8 +195,8 @@ async function filterCertificationSection(
 
   // Filter to only public certifications
   const publicCertificationIds = certifications
-    .filter((cert: any) => cert.is_public)
-    .map((cert: any) => cert.id)
+    .filter((cert) => cert.is_public)
+    .map((cert) => cert.id)
 
   if (publicCertificationIds.length === 0) {
     // No public certifications, hide section
@@ -224,12 +222,8 @@ export async function generateMetadata({ params }: { params: Promise<{ token: st
   const { token } = await params
   const supabase = await createServerClient()
 
-  const { data: portfolio } = await (supabase.from('portfolios') as any)
-    .select('title, description')
-    .eq('public_link_token', token)
-    .eq('is_public', true)
-    .eq('is_deleted', false)
-    .single()
+  // Use typed query helper for fetching portfolio metadata
+  const { data: portfolio } = await queries.portfolios.getMetadataByPublicToken(supabase, token)
 
   return {
     title: portfolio?.title || 'Portfolio Not Found',

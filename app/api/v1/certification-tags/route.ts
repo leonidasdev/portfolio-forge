@@ -7,6 +7,7 @@
  * Note: This is a junction table endpoint for managing many-to-many relationships.
  */
 
+import { queries } from '@/lib/supabase/queries'
 import { createServerClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -37,45 +38,37 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verify certification belongs to user
-    const { data: certification, error: certError } = await (supabase.from('certifications') as any)
-      .select('id')
-      .eq('id', certification_id)
-      .eq('user_id', user.id)
-      .single()
+    // Verify certification belongs to user using typed query helper
+    const { data: certification, error: certError } = await queries.certifications.getById(
+      supabase,
+      certification_id
+    )
 
     if (certError || !certification) {
       return NextResponse.json({ error: 'Certification not found' }, { status: 404 })
     }
 
-    // Verify tag belongs to user
-    const { data: tag, error: tagError } = await (supabase.from('tags') as any)
-      .select('id')
-      .eq('id', tag_id)
-      .eq('user_id', user.id)
-      .single()
+    // Verify tag belongs to user using typed query helper
+    const { data: tag, error: tagError } = await queries.tags.getById(supabase, tag_id)
 
     if (tagError || !tag) {
       return NextResponse.json({ error: 'Tag not found' }, { status: 404 })
     }
 
-    // Check if assignment already exists
-    const { data: existing } = await (supabase.from('certification_tags') as any)
-      .select('id')
-      .eq('certification_id', certification_id)
-      .eq('tag_id', tag_id)
-      .single()
+    // Check if assignment already exists using typed query helper
+    const { data: existing } = await queries.certificationTags.get(
+      supabase,
+      certification_id,
+      tag_id
+    )
 
     if (existing) {
       // Already assigned, return success (idempotent)
       return NextResponse.json({ success: true }, { status: 200 })
     }
 
-    // Create the assignment
-    const { error } = await (supabase.from('certification_tags') as any).insert({
-      certification_id,
-      tag_id,
-    })
+    // Create the assignment using typed query helper
+    const { error } = await queries.certificationTags.create(supabase, certification_id, tag_id)
 
     if (error) {
       console.error('Failed to assign tag:', error)
@@ -116,22 +109,18 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    // Verify certification belongs to user
-    const { data: certification, error: certError } = await (supabase.from('certifications') as any)
-      .select('id')
-      .eq('id', certification_id)
-      .eq('user_id', user.id)
-      .single()
+    // Verify certification belongs to user using typed query helper
+    const { data: certification, error: certError } = await queries.certifications.getById(
+      supabase,
+      certification_id
+    )
 
     if (certError || !certification) {
       return NextResponse.json({ error: 'Certification not found' }, { status: 404 })
     }
 
-    // Delete the assignment
-    const { error } = await (supabase.from('certification_tags') as any)
-      .delete()
-      .eq('certification_id', certification_id)
-      .eq('tag_id', tag_id)
+    // Delete the assignment using typed query helper
+    const { error } = await queries.certificationTags.delete(supabase, certification_id, tag_id)
 
     if (error) {
       console.error('Failed to remove tag:', error)

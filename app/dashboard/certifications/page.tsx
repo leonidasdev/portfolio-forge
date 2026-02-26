@@ -9,36 +9,23 @@
 
 import { CertificationList } from '@/components/certifications/CertificationList'
 import { requireUserId } from '@/lib/auth/requireSession'
+import { queries, type Tag } from '@/lib/supabase/queries'
 import { createServerClient } from '@/lib/supabase/server'
-import type { Database } from '@/lib/supabase/types'
-
-type Certification = Database['public']['Tables']['certifications']['Row']
-type Tag = Database['public']['Tables']['tags']['Row']
 
 // Extended type with tags for client component
-export type CertificationWithTags = Certification & {
-  tags: Tag[]
-}
+export type CertificationWithTags = Awaited<
+  ReturnType<typeof queries.certifications.listWithTags>
+>['data'] extends (infer T)[] | null
+  ? T & { tags: Tag[] }
+  : never
 
 export default async function CertificationsPage() {
   // Enforce authentication and get user ID
-  const userId = await requireUserId()
+  await requireUserId()
 
-  // Fetch certifications with tags
+  // Fetch certifications with tags using typed query helpers
   const supabase = await createServerClient()
-
-  const { data: certifications, error } = await (supabase.from('certifications') as any)
-    .select(
-      `
-      *,
-      certification_tags!inner(
-        tags(*)
-      )
-    `
-    )
-    .eq('user_id', userId)
-    .eq('is_deleted', false)
-    .order('created_at', { ascending: false })
+  const { data: certifications, error } = await queries.certifications.listWithTags(supabase)
 
   // Handle errors gracefully
   if (error) {
@@ -53,12 +40,11 @@ export default async function CertificationsPage() {
   }
 
   // Transform data to include tags array
-  const certificationsWithTags: CertificationWithTags[] = (certifications || []).map(
-    (cert: any) => ({
-      ...cert,
-      tags: cert.certification_tags?.map((ct: { tags: Tag }) => ct.tags).filter(Boolean) || [],
-    })
-  )
+  const certificationsWithTags = (certifications || []).map((cert) => ({
+    ...cert,
+    tags:
+      cert.certification_tags?.map((ct) => ct.tags).filter((tag): tag is Tag => tag !== null) || [],
+  }))
 
   return (
     <div className="container mx-auto px-4 py-8">

@@ -1,6 +1,6 @@
 ﻿# Portfolio Forge - Comprehensive TODO List
 
-**Analysis Date:** January 31, 2026
+**Analysis Date:** February 26, 2026
 **Analyst:** GitHub Copilot
 **Project Version:** 0.1.0
 
@@ -12,16 +12,16 @@ Portfolio Forge is a **well-architected Next.js 15+ application** with solid fun
 
 ### Overall Assessment Scores
 
-| Category | Score | Status |
-|----------|-------|--------|
-| **Architecture** | 8.5/10 | ✅ Strong |
-| **Code Quality** | 9/10 | ✅ Excellent (errors, constants, logger, hooks, UI lib, refactored components) |
-| **Documentation** | 9.5/10 | ✅ Excellent (SECURITY, CHANGELOG, DEPLOYMENT, RATE_LIMITING, API Reference) |
-| **Testing** | 9.5/10 | ✅ Excellent (356+ tests passing including accessibility) |
-| **Linting/Formatting** | 9.5/10 | ✅ Excellent (~10 Supabase `any` warnings documented as tech debt, pre-commit hooks) |
-| **CI/CD** | 8.5/10 | ✅ Configured (CI + pre-commit/pre-push hooks) |
-| **Security** | 8/10 | ✅ Good (SECURITY.md, error boundaries) |
-| **Production Readiness** | 8.5/10 | ✅ Good (error handling, loading states, docs) |
+| Category               | Score    | Status                                                                          |
+| ---------------------- | -------- | ------------------------------------------------------------------------------- |
+| **Architecture**       | 8.5/10   | Strong                                                                          |
+| **Code Quality**       | 9/10     | Excellent (errors, constants, logger, hooks, UI lib, refactored components)     |
+| **Documentation**      | 9.5/10   | Excellent (SECURITY, CHANGELOG, DEPLOYMENT, RATE_LIMITING, API Reference)       |
+| **Testing**            | 9.5/10   | Excellent (388+ tests passing including accessibility)                          |
+| **Linting/Formatting** | 9.5/10   | Excellent (~10 Supabase `any` warnings documented as tech debt, pre-commit hooks)|
+| **CI/CD**              | 8.5/10   | Configured (CI + pre-commit/pre-push hooks)                                     |
+| **Security**           | 8/10     | Good (SECURITY.md, error boundaries)                                            |
+| **Production Readiness**| 8.5/10  | Good (error handling, loading states, docs)                                     |
 
 ---
 
@@ -42,12 +42,15 @@ Portfolio Forge is a **well-architected Next.js 15+ application** with solid fun
 
 ### 1.1 Parsing Errors in API Routes
 
-**Status:** âœ… COMPLETED
+**Status:** COMPLETED
+
 **Files Affected:**
+
 - `app/api/v1/ai/suggest-tags/route.ts` - Fixed
 - `app/api/v1/portfolio-sections/[id]/route.ts` - Fixed
 
 **Action Items:**
+
 - [x] Fix syntax error in `suggest-tags/route.ts`
 - [x] Fix syntax error in `portfolio-sections/[id]/route.ts`
 - [x] Run `npm run build` to verify compilation
@@ -56,14 +59,17 @@ Portfolio Forge is a **well-architected Next.js 15+ application** with solid fun
 
 ### 1.2 Missing CI/CD Pipeline
 
-**Status:** âœ… COMPLETED
+**Status:** COMPLETED
+
 **Files Created:**
+
 - `.github/workflows/ci.yml` - Lint, typecheck, test, build pipeline
 - `.github/pull_request_template.md` - PR template
 - `.github/ISSUE_TEMPLATE/bug_report.md` - Bug report template
 - `.github/ISSUE_TEMPLATE/feature_request.md` - Feature request template
 
 **Action Items:**
+
 - [x] Create `.github/workflows/ci.yml` for automated testing
 - [x] Create PR template
 - [x] Create issue templates
@@ -74,12 +80,15 @@ Portfolio Forge is a **well-architected Next.js 15+ application** with solid fun
 
 ### 1.3 Missing Essential Project Files
 
-**Status:** âœ… COMPLETED
+**Status:** COMPLETED
+
 **Files Created:**
+
 - `LICENSE` - Apache License 2.0
 - `CONTRIBUTING.md` - Comprehensive contribution guidelines
 
 **Action Items:**
+
 - [x] Create `CONTRIBUTING.md` with contribution guidelines
 - [x] Create `LICENSE` file (Apache 2.0)
 - [x] Verify `.env.example` contains all required variables
@@ -88,14 +97,17 @@ Portfolio Forge is a **well-architected Next.js 15+ application** with solid fun
 
 ### 1.4 ESLint Configuration Issues
 
-**Status:** âœ… COMPLETED
+**Status:** COMPLETED
+
 **Files Created/Updated:**
+
 - `.eslintrc.json` - Comprehensive ESLint configuration
 - `.prettierrc` - Prettier configuration
 - `.prettierignore` - Prettier ignore patterns
 - `package.json` - Added lint:fix, format, typecheck, validate scripts
 
 **Action Items:**
+
 - [x] Migrate from `next lint` to ESLint CLI (gradual migration configured)
 - [x] Create comprehensive `.eslintrc.json` configuration
 - [x] Create `.prettierrc` for consistent formatting
@@ -105,7 +117,7 @@ Portfolio Forge is a **well-architected Next.js 15+ application** with solid fun
 - [x] Fix `prefer-const` errors (4 files)
 - [x] Fix rate-limit test async/await issues (7 tests fixed)
 - [x] Reduce `@typescript-eslint/no-explicit-any` warnings (from 98 to 49)
-- [x] **COMPLETED** Fix all remaining `any` types (49 → 0 warnings)
+- [x] **COMPLETED** Fix all remaining `any` types (49 to 0 warnings)
 
 ---
 
@@ -113,8 +125,8 @@ Portfolio Forge is a **well-architected Next.js 15+ application** with solid fun
 
 ### 2.1 Type Safety Improvements
 
-**Status:** ✅ COMPLETED
-**Progress:** Reduced from 98 to 0 `any` types (100% fixed!)
+**Status:** COMPLETED
+**Progress:** Reduced from 98 to 0 `any` types (100% fixed)
 
 **Files Fixed:**
 - `lib/api/route-handler.ts` - Defined LogData interface
@@ -210,7 +222,7 @@ Portfolio Forge is a **well-architected Next.js 15+ application** with solid fun
 
 **Status:** âœ… COMPLETED
 **Documentation Created:**
-- `docs/RATE_LIMITING.md` - Comprehensive rate limiting guide
+- `docs/rate-limiting.md` - Comprehensive rate limiting guide
 
 **Contents:**
 - Architecture overview
@@ -293,11 +305,158 @@ Portfolio Forge is a **well-architected Next.js 15+ application** with solid fun
 
 ---
 
+### 2.7 GitHub Pages Portfolio Export
+
+**Status:** � IN PROGRESS (Phase 1-3 & 5 Complete)
+**Priority:** HIGH - Key feature for developer portfolio hosting
+
+**Overview:**
+Enable users to export their portfolio as a static site and deploy it directly to GitHub Pages. This provides developers with:
+- Portfolio hosted at `username.github.io/portfolio` or custom domain
+- Free, reliable hosting on GitHub's infrastructure
+- Portfolio visible on their GitHub profile
+- Version-controlled portfolio with git history
+
+**Architecture:**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Portfolio Forge App                       │
+├─────────────────────────────────────────────────────────────┤
+│  1. User clicks "Export to GitHub Pages"                    │
+│  2. Static HTML/CSS/JS generated from portfolio data        │
+│  3. GitHub OAuth authorizes repo access                     │
+│  4. Creates/updates repo: username/portfolio (or custom)    │
+│  5. Pushes static files + GitHub Actions workflow           │
+│  6. GitHub Pages automatically deploys                      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Phase 1: Static Export Engine** [COMPLETED]
+- [x] Create `lib/export/static-generator.ts` - Core export logic
+- [x] Create `lib/export/html-renderer.ts` - Render portfolio to HTML
+- [x] Create `lib/export/types.ts` - Type definitions
+- [x] Support all templates (single-column, two-column, grid, timeline)
+- [x] Support all themes via CSS variables
+- [x] Generate optimized output with meta tags for SEO (og:image, description, etc.)
+- [x] Generate 404.html, robots.txt, sitemap.xml, CNAME
+- [x] Generate GitHub Actions workflow for auto-deployment
+
+**Phase 2: GitHub Integration** [COMPLETED]
+- [x] Create `lib/github/client.ts` - GitHub API client
+- [x] Create repository management functions
+- [x] Create commit/push functionality via GitHub API
+- [x] Create GitHub Pages deployment function
+- [ ] Add GitHub OAuth provider to Supabase Auth (requires Supabase config)
+- [ ] Store GitHub access tokens securely (requires database migration)
+
+**Phase 3: Export API Routes** [COMPLETED]
+- [x] `POST /api/v1/export/github` - Trigger GitHub Pages export
+- [x] `POST /api/v1/export/download` - Download as ZIP
+- [ ] `GET /api/v1/export/status/[id]` - Check export status (deferred)
+- [ ] Add rate limiting for export endpoints (expensive operation)
+
+**Phase 4: GitHub Pages Deployment** [PARTIAL]
+- [x] Generate `.github/workflows/deploy.yml` for automatic deployment
+- [x] Support custom domains via CNAME file
+- [x] Handle repository naming (username/portfolio-name)
+- [ ] Support username.github.io (user site) deployment
+
+**Phase 5: Dashboard UI** [COMPLETED]
+- [x] Create `components/export/GitHubExportButton.tsx`
+- [x] Create `components/export/DownloadExportButton.tsx`
+- [x] Config modal for repo settings
+- [x] Success/error modals
+- [ ] Add export section to portfolio dashboard page
+- [ ] Show deployment URL after successful export
+- [ ] Add "Re-deploy" button for updates
+
+**Phase 6: Sync & Updates** [NOT STARTED]
+- [ ] Detect portfolio changes since last export
+- [ ] One-click re-deploy when portfolio is updated
+- [ ] Optional: Webhook to auto-deploy on portfolio save
+- [ ] Show last deployed date and commit hash
+
+**Files Created:**
+```
+lib/
+├── export/
+│   ├── types.ts               [DONE] Export types and interfaces
+│   ├── static-generator.ts    [DONE] Main export orchestrator
+│   ├── html-renderer.ts       [DONE] Portfolio → HTML conversion
+│   └── index.ts               [DONE] Barrel exports
+├── github/
+│   ├── client.ts              [DONE] GitHub API client
+│   └── index.ts               [DONE] Barrel exports
+
+app/api/v1/
+├── export/
+│   ├── github/
+│   │   └── route.ts           [DONE] POST - trigger export
+│   └── download/
+│       └── route.ts           [DONE] POST - download ZIP
+
+components/export/
+├── GitHubExportButton.tsx     [DONE]
+├── DownloadExportButton.tsx   [DONE]
+└── index.ts                   [DONE]
+```
+
+**Database Changes:**
+```sql
+-- Add to schema.sql
+CREATE TABLE portfolio_exports (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  portfolio_id UUID NOT NULL REFERENCES portfolios(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  export_type TEXT NOT NULL DEFAULT 'github_pages', -- 'github_pages', 'zip', 'netlify', etc.
+  github_repo_url TEXT,
+  github_pages_url TEXT,
+  last_deployed_at TIMESTAMPTZ,
+  last_commit_sha TEXT,
+  status TEXT NOT NULL DEFAULT 'pending', -- 'pending', 'building', 'deployed', 'failed'
+  error_message TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- RLS policies
+ALTER TABLE portfolio_exports ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can manage their own exports"
+  ON portfolio_exports FOR ALL
+  USING (auth.uid() = user_id);
+```
+
+**Environment Variables:**
+```env
+# GitHub OAuth (for repo access)
+GITHUB_CLIENT_ID=your_github_oauth_client_id
+GITHUB_CLIENT_SECRET=your_github_oauth_client_secret
+```
+
+**Dependencies to Add:**
+- `octokit` - GitHub API client
+- `jszip` - ZIP file generation (for download option)
+- `html-minifier-terser` - HTML minification
+- `clean-css` - CSS minification
+
+**Action Items:**
+- [ ] Phase 1: Static Export Engine
+- [ ] Phase 2: GitHub Integration
+- [ ] Phase 3: Export API Routes
+- [ ] Phase 4: GitHub Pages Deployment
+- [ ] Phase 5: Dashboard UI
+- [ ] Phase 6: Sync & Updates
+- [ ] Add comprehensive tests for export functionality
+- [ ] Update documentation (deployment-guide.md, api-reference.md)
+
+---
+
 ## 3. Medium Priority (P2) - Next Sprint
 
 ### 3.1 Remove/Update Deprecated Code
 
-**Status:** ✅ COMPLETED
+**Status:** [COMPLETED]
 **Items:**
 - [x] Remove deprecated AI files (`lib/ai/agent.ts` → use `lib/ai/agents/*`)
 - [x] All API routes are in `/api/v1/` - No legacy routes found
@@ -399,7 +558,7 @@ Portfolio Forge is a **well-architected Next.js 15+ application** with solid fun
 
 ### 4.1 Testing Improvements
 
-**Status:** ✅ EXCELLENT (356+ unit tests, 15+ E2E tests)
+**Status:** [EXCELLENT] (356+ unit tests, 15+ E2E tests)
 **Current State:**
 - 19 test files, 356 tests passing (1 skipped)
 - Tests cover: lib/api/, lib/validation/, lib/__tests__/, components/ui/, components/tags/, components/portfolio-builder/, app/api/v1/
@@ -420,9 +579,9 @@ Portfolio Forge is a **well-architected Next.js 15+ application** with solid fun
 
 ### 4.2 API Documentation
 
-**Status:** ✅ COMPLETED
+**Status:** [COMPLETED]
 **Files Created:**
-- `docs/api/API_REFERENCE.md` - Complete REST API documentation
+- `docs/api/api-reference.md` - Complete REST API documentation
 
 **Action Items:**
 - [x] Generate OpenAPI/Swagger documentation (Created comprehensive Markdown reference)
@@ -435,7 +594,7 @@ Portfolio Forge is a **well-architected Next.js 15+ application** with solid fun
 
 ### 4.3 Accessibility Improvements
 
-**Status:** ✅ PARTIALLY COMPLETED
+**Status:** [PARTIALLY COMPLETED]
 **Files Created:**
 - `components/ui/__tests__/accessibility.test.tsx` - jest-axe tests for UI components (23 tests)
 
@@ -569,16 +728,16 @@ Supabase's query builder loses type inference when:
 - [x] `LICENSE` - Apache License 2.0 file
 - [x] `SECURITY.md` - Security policy and vulnerability reporting
 - [x] `CHANGELOG.md` - Version history
-- [x] `docs/DEPLOYMENT.md` - Deployment guide
-- [x] `docs/DEVELOPMENT.md` - Local development setup details
+- [x] `docs/deployment-guide.md` - Deployment guide
+- [x] `docs/development-guide.md` - Local development setup details
 
 ### 5.2 Documentation Improvements
 
-- [x] Add architecture diagrams (Mermaid) - `docs/architecture/DIAGRAMS.md`
+- [x] Add architecture diagrams (Mermaid) - `docs/architecture/diagrams.md`
 - [ ] Create API reference with examples
 - [ ] Add troubleshooting guide
 - [ ] Document environment variables completely
-- [ ] Add database schema diagram (included in DIAGRAMS.md)
+- [ ] Add database schema diagram (included in diagrams.md)
 
 ### 5.3 Code Documentation
 
@@ -726,6 +885,362 @@ Supabase's query builder loses type inference when:
 - [x] UI/UX improvements (Modal system, Toast notifications)
 - [ ] API documentation
 
+### Phase 6: GitHub Pages Export (NEW) - NOT STARTED
+- [ ] Create static export engine (`lib/export/`)
+- [ ] Add GitHub OAuth and API integration (`lib/github/`)
+- [ ] Create export API routes (`/api/v1/export/*`)
+- [ ] Implement GitHub Pages deployment workflow
+- [ ] Build export UI components
+- [ ] Add portfolio sync/re-deploy functionality
+- [ ] Update database schema for export tracking
+- [ ] Write tests for export functionality
+
+---
+
+## 3. Code Standards & Conventions Review
+
+**Priority:** HIGH
+**Status:** IN PROGRESS
+**Estimated:** 4-6 hours
+
+A comprehensive audit of coding standards, conventions, and best practices.
+
+### 3.1 Critical Issues (Must Fix)
+
+#### 3.1.1 Excessive `as any` Type Casts (~30+ occurrences)
+**Severity:** HIGH | **Effort:** MEDIUM
+
+The codebase has widespread `as any` casts, particularly around Supabase queries. This undermines TypeScript's type safety.
+
+**Locations:**
+- `app/dashboard/page.tsx` - 6 occurrences
+- `lib/ai/agents/*.ts` - 10+ occurrences
+- `components/examples/*.tsx` - 4 occurrences
+- `app/dashboard/overview/page.tsx` - Multiple
+
+**Root Cause:** Supabase client types aren't properly inferred from `Database` type.
+
+**Solution:**
+- [ ] Create typed query helpers in `lib/supabase/queries.ts`
+- [ ] Define explicit return types for all Supabase queries
+- [ ] Use generics: `supabase.from<Portfolio>('portfolios')` pattern
+- [ ] Consider `@supabase/supabase-js` type augmentation
+
+```typescript
+// BAD - Current pattern
+const { data } = await (supabase.from('portfolios') as any).select('*')
+
+// GOOD - Proposed pattern
+const { data } = await supabase
+  .from('portfolios')
+  .select('*')
+  .returns<Portfolio[]>()
+```
+
+#### 3.1.2 Inconsistent Folder Naming in `lib/`
+**Severity:** MEDIUM | **Effort:** LOW
+
+Mixed naming conventions in lib folder:
+- `templates-themes/` (kebab-case)
+- `github/` (single word)
+- `export/` (single word)
+
+API routes also inconsistent:
+- `certification-tags/` (kebab-case)
+- `portfolio-sections/` (kebab-case)
+- `portfolios/` (simple plural)
+
+**Solution:**
+- [ ] Standardize on kebab-case for multi-word folders
+- [ ] Rename `github` → `github` (acceptable as single word)
+- [ ] Document naming convention in CONTRIBUTING.md
+
+#### 3.1.3 Missing Return Type Annotations
+**Severity:** MEDIUM | **Effort:** MEDIUM
+
+Many exported functions lack explicit return types, relying on inference:
+
+```typescript
+// BAD - Current (some files)
+export function formatRelativeTime(date: Date | string) { ... }
+
+// GOOD - Should be
+export function formatRelativeTime(date: Date | string): string { ... }
+```
+
+**Solution:**
+- [ ] Add ESLint rule: `@typescript-eslint/explicit-function-return-type`
+- [ ] Audit and fix all exported functions
+
+### 3.2 Code Style Issues
+
+#### 3.2.1 Inconsistent Comment Headers
+**Severity:** LOW | **Effort:** LOW
+
+Most files use the JSDoc block header style (good), but some are missing:
+
+**Good pattern (consistently used in lib/):**
+```typescript
+/**
+ * Module Name
+ *
+ * Brief description of what this module does.
+ * Additional context if needed.
+ */
+```
+
+**Files missing headers:**
+- Some test files
+- Some utility files
+
+**Solution:**
+- [ ] Create file header template in CONTRIBUTING.md
+- [ ] Add header enforcement (consider ESLint plugin)
+
+#### 3.2.2 Inline Function Documentation Inconsistency
+**Severity:** LOW | **Effort:** MEDIUM
+
+Some functions have JSDoc, others don't:
+
+```typescript
+// GOOD - Well documented (lib/utils.ts)
+/**
+ * Merge Tailwind CSS classes with proper conflict resolution
+ * @example cn('px-2 py-1', 'px-4') // => 'py-1 px-4'
+ */
+export function cn(...inputs: ClassValue[]) { ... }
+
+// BAD - Missing docs (some components)
+export function SectionCard({ section, onEdit, onDelete }: Props) { ... }
+```
+
+**Solution:**
+- [ ] Define documentation requirements by file type
+- [ ] Components: Props interface with JSDoc
+- [ ] Hooks: Usage examples required
+- [ ] Utils: @param, @returns, @example
+
+#### 3.2.3 Magic Strings in Components
+**Severity:** MEDIUM | **Effort:** MEDIUM
+
+Some components have hardcoded strings that should be constants:
+
+```typescript
+// BAD - In SectionCard.tsx
+case 'summary':
+  return 'Summary'
+case 'skills':
+  return 'Skills'
+
+// GOOD - Should use constants
+import { SECTION_TYPE_LABELS } from '@/lib/constants'
+return SECTION_TYPE_LABELS[section.section_type]
+```
+
+**Solution:**
+- [ ] Audit for hardcoded strings
+- [ ] Move labels to constants.ts
+- [ ] Consider i18n readiness
+
+### 3.3 React/Next.js Conventions
+
+#### 3.3.1 `'use client'` Placement
+**Severity:** LOW | **Effort:** LOW
+
+Some files have `'use client'` after JSDoc comments (technically works but inconsistent):
+
+```typescript
+// GOOD - Correct order
+'use client'
+
+/**
+ * Component documentation
+ */
+
+// BAD - Some files have
+/**
+ * Component documentation
+ */
+'use client'
+```
+
+**Status:** Currently consistent - `'use client'` is placed after JSDoc [OK]
+
+#### 3.3.2 Component Props Interface Naming
+**Severity:** LOW | **Effort:** LOW
+
+Mixed patterns for props interfaces:
+
+```typescript
+// Pattern 1: {ComponentName}Props (most common, good)
+interface ButtonProps extends React.ButtonHTMLAttributes<...> { }
+
+// Pattern 2: Inline definition (some places)
+export function MyComponent({ prop }: { prop: string }) { }
+```
+
+**Solution:**
+- [ ] Standardize on `{ComponentName}Props` pattern
+- [ ] Document in CONTRIBUTING.md
+
+### 3.4 API Route Conventions
+
+#### 3.4.1 Inconsistent Response Shapes
+**Severity:** MEDIUM | **Effort:** MEDIUM
+
+Most routes follow good patterns, but verify all routes return:
+
+```typescript
+// GOOD - Success responses
+{ portfolios: [...] }           // Collection
+{ portfolio: {...} }            // Single resource
+{ success: true, message: "" }  // Actions
+
+// GOOD - Error responses (via ApiError)
+{ error: "message", code: "ERROR_CODE" }
+```
+
+**Solution:**
+- [ ] Audit all API routes for response consistency
+- [ ] Document response shapes in api-reference.md
+
+#### 3.4.2 Rate Limiting Applied Inconsistently
+**Severity:** MEDIUM | **Effort:** LOW
+
+Some routes use `withRateLimit`, others don't:
+
+```typescript
+// GOOD - AI routes (correctly rate limited)
+export const POST = withRateLimit(withApiHandler(...), rateLimitConfigs.ai)
+
+// NEEDS REVIEW - Some CRUD routes may be missing rate limiting
+export const POST = withApiHandler(...)
+```
+
+**Solution:**
+- [ ] Audit all public/authenticated routes
+- [ ] Apply appropriate rate limits to each
+
+### 3.5 Documentation Issues
+
+#### 3.5.1 Markdown Linting Errors in TODO.md
+**Severity:** LOW | **Effort:** LOW
+
+Multiple markdown lint warnings:
+- Tables missing spacing around pipes
+- Lists not surrounded by blank lines
+- Fenced code blocks without language
+
+**Solution:**
+- [ ] Run `markdownlint --fix` on all .md files
+- [ ] Add markdownlint to lint-staged
+
+#### 3.5.2 Stale Documentation
+**Severity:** MEDIUM | **Effort:** LOW
+
+Some docs may reference old patterns. Audit:
+- [ ] README.md feature list accuracy
+- [ ] api-reference.md completeness
+- [ ] development-guide.md setup steps
+
+#### 3.5.3 Missing architecture.md Updates
+**Severity:** LOW | **Effort:** LOW
+
+New modules (export/, github/) should be added to architecture docs:
+- [ ] Add export system to architecture diagram
+- [ ] Document GitHub integration flow
+
+### 3.6 Naming Conventions Summary
+
+| Category | Convention | Status |
+| -------- | ---------- | ------ |
+| Components | PascalCase (`Button.tsx`) | Consistent |
+| Hooks | camelCase with 'use' (`useImproveText.ts`) | Consistent |
+| Utils | camelCase (`formatDate.ts`) | Consistent |
+| Constants | SCREAMING_SNAKE_CASE | Consistent |
+| Types | PascalCase | Consistent |
+| Interfaces | PascalCase (no I prefix) | Consistent |
+| API Routes | kebab-case folders | Mostly consistent |
+| Lib folders | kebab-case for multi-word | Needs review |
+| Test files | `*.test.ts` / `*.test.tsx` | Consistent |
+| CSS classes | Tailwind utilities | Consistent |
+
+### 3.7 Framework Best Practices Checklist
+
+#### Next.js 15 App Router
+- [x] Proper `'use client'` usage
+- [x] Server Components by default
+- [x] API routes in app/api/
+- [x] Proper loading.tsx usage
+- [x] Proper error.tsx boundaries
+- [ ] Metadata API usage (partial)
+- [ ] Route handlers typed correctly
+
+#### React 19
+- [x] Functional components only
+- [x] Proper hook usage
+- [x] forwardRef for ref-passing components
+- [ ] useTransition for expensive updates
+- [ ] Suspense boundaries (minimal)
+
+#### TypeScript 5.7
+- [x] Strict mode enabled
+- [x] Path aliases configured
+- [ ] No unused variables (warn → error)
+- [ ] Explicit return types (needs enforcement)
+- [ ] satisfies operator usage (underutilized)
+
+#### Tailwind CSS
+- [x] Proper utility-first approach
+- [x] cn() helper for class merging
+- [x] Consistent spacing scale
+- [ ] Custom color consistency audit
+- [ ] Dark mode support (not implemented)
+
+### 3.8 Action Items Summary
+
+**High Priority (Do First):**
+1. [x] Fix `as any` type casts in Supabase queries **[COMPLETED]**
+   - Created `lib/supabase/queries.ts` with typed query helpers (~1350 lines)
+   - Added `QueryError` class preserving Supabase error codes
+   - Converted all API routes, dashboard pages, AI agents, and components
+   - TypeScript compiles cleanly with no `as any` casts in production code
+2. [x] Add explicit return types to exported functions **[COMPLETED]**
+   - Added return types to `lib/utils.ts`, `lib/supabase/client.ts`, `lib/supabase/server.ts`
+   - Added return types to `lib/auth/getSession.ts`, `lib/auth/requireSession.ts`
+   - Fixed `TypedSupabaseClient` in types.ts for schema flexibility
+3. [x] Audit rate limiting coverage **[COMPLETED]**
+   - All 10 AI routes now have rate limiting applied
+   - 9 routes use `rateLimitConfigs.ai` (expensive LLM operations)
+   - 1 route uses `rateLimitConfigs.api` (suggest-tags - lighter operation)
+   - Refactored generate-portfolio-summary to use standard patterns
+
+**Medium Priority:**
+4. [x] Standardize folder naming conventions **[COMPLETED]**
+   - Documented naming conventions in CONTRIBUTING.md
+   - Verified existing folders follow consistent patterns
+5. [x] Create typed query helpers **[COMPLETED]** (see item 1)
+6. [ ] Update architecture documentation
+7. [x] Add magic strings to constants **[COMPLETED]**
+   - Added `SECTION_TYPE_LABELS` and `SECTION_TYPE_COLORS` to constants.ts
+   - Refactored SectionCard.tsx to use constants instead of switch statements
+
+**Low Priority:**
+
+8. [x] Fix markdown lint errors **[COMPLETED]**
+   - Fixed table formatting in TODO.md (spacing around pipes)
+   - Fixed list formatting (blank lines around lists)
+   - Fixed docs/README.md structure
+9. [x] Add file header template **[COMPLETED]**
+   - Added comprehensive File Headers section to CONTRIBUTING.md
+   - Templates for: library files, React components, API routes, hooks
+10. [x] Consistent props interface naming **[COMPLETED]**
+   - Verified all components use `{ComponentName}Props` pattern
+   - No inline prop type definitions found in production code
+11. [x] Component documentation audit **[COMPLETED]**
+   - All key components have proper JSDoc file headers
+   - Builder, SectionCard, SectionEditor, PortfolioRenderer, etc.
+
 ---
 
 ## Notes
@@ -748,16 +1263,21 @@ Supabase's query builder loses type inference when:
 6. Good existing documentation
 7. Comprehensive UI component library
 8. Full test coverage for critical paths
+9. Consistent JSDoc file headers
+10. Well-structured barrel exports
 
 ### Areas Needing Attention
-1. E2E testing (Playwright)
-2. API route integration tests
-3. Performance optimizations
-4. Accessibility audit
-5. API documentation (OpenAPI/Swagger)
+1. **Type Safety** - Eliminate `as any` casts
+2. **GitHub Pages Export** - Key feature for developer portfolios
+3. E2E testing (Playwright)
+4. API route integration tests
+5. Performance optimizations
+6. Accessibility audit
+7. API documentation (OpenAPI/Swagger)
+8. Dark mode support
 
 ---
 
 *This TODO list should be reviewed and updated as tasks are completed. Mark items with [x] when done.*
 
-**Last Updated:** January 31, 2026
+**Last Updated:** February 26, 2026

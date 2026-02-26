@@ -10,6 +10,7 @@
 
 import { requireAuth } from '@/lib/api/auth-middleware'
 import { ApiError, withApiHandler } from '@/lib/api/route-handler'
+import { queries, type Tag } from '@/lib/supabase/queries'
 import { validateBody } from '@/lib/validation/helpers'
 import { createCertificationSchema } from '@/lib/validation/schemas'
 import { NextRequest, NextResponse } from 'next/server'
@@ -28,52 +29,24 @@ export const GET = withApiHandler(async (request: NextRequest) => {
   const { searchParams } = new URL(request.url)
 
   // Optional filters
-  const isPublic = searchParams.get('is_public')
   const limit = searchParams.get('limit')
   const offset = searchParams.get('offset')
 
-  // Build query
-  let query = (supabase.from('certifications') as any)
-    .select(
-      `
-        *,
-        certification_tags (
-          tag_id,
-          tags (
-            id,
-            name,
-            color
-          )
-        )
-      `
-    )
-    .eq('is_deleted', false)
-    .order('date_issued', { ascending: false, nullsFirst: false })
-    .order('created_at', { ascending: false })
-
-  // Apply filters
-  if (isPublic !== null) {
-    query = query.eq('is_public', isPublic === 'true')
-  }
-
-  if (limit) {
-    query = query.limit(parseInt(limit))
-  }
-
-  if (offset) {
-    query = query.range(parseInt(offset), parseInt(offset) + (limit ? parseInt(limit) : 50) - 1)
-  }
-
-  const { data: certifications, error } = await query
+  // Use typed query helper
+  const { data: certifications, error } = await queries.certifications.listWithTags(supabase, {
+    limit: limit ? parseInt(limit) : undefined,
+    offset: offset ? parseInt(offset) : undefined,
+  })
 
   if (error) {
     throw new ApiError(error.message, 500)
   }
 
   // Transform tags structure for easier consumption
-  const transformedCertifications = certifications?.map((cert: any) => ({
+  const transformedCertifications = certifications?.map((cert) => ({
     ...cert,
-    tags: cert.certification_tags?.map((ct: { tags: unknown }) => ct.tags).filter(Boolean) || [],
+    tags:
+      cert.certification_tags?.map((ct) => ct.tags).filter((tag): tag is Tag => tag !== null) || [],
     certification_tags: undefined, // Remove junction table data
   }))
 
@@ -110,25 +83,22 @@ export const POST = withApiHandler(async (request: NextRequest) => {
   // Validate request body with Zod schema
   const body = await validateBody(request, createCertificationSchema)
 
-  // Create the certification
-  const { data: certification, error } = await (supabase.from('certifications') as any)
-    .insert({
-      user_id: user.id,
-      title: body.title,
-      issuing_organization: body.issuing_organization,
-      certification_type: body.certification_type,
-      date_issued: body.date_issued || null,
-      expiration_date: body.expiration_date || null,
-      credential_id: body.credential_id || null,
-      verification_url: body.verification_url || null,
-      file_path: body.file_path || null,
-      file_type: body.file_type || null,
-      external_url: body.external_url || null,
-      description: body.description || null,
-      is_public: body.is_public ?? false,
-    })
-    .select()
-    .single()
+  // Create the certification using typed query helper
+  const { data: certification, error } = await queries.certifications.create(supabase, {
+    user_id: user.id,
+    title: body.title,
+    issuing_organization: body.issuing_organization,
+    certification_type: body.certification_type,
+    date_issued: body.date_issued || null,
+    expiration_date: body.expiration_date || null,
+    credential_id: body.credential_id || null,
+    verification_url: body.verification_url || null,
+    file_path: body.file_path || null,
+    file_type: body.file_type || null,
+    external_url: body.external_url || null,
+    description: body.description || null,
+    is_public: body.is_public ?? false,
+  })
 
   if (error) {
     throw new ApiError(error.message, 500)

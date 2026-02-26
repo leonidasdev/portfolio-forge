@@ -6,29 +6,21 @@
  * (certifications, experience, skills stored in Supabase).
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase/server'
 import { generatePortfolioSummaryForUser } from '@/lib/ai/agents'
+import { requireAuth } from '@/lib/api/auth-middleware'
+import { rateLimitConfigs, withRateLimit } from '@/lib/api/rate-limit'
+import { withApiHandler } from '@/lib/api/route-handler'
+import { NextRequest, NextResponse } from 'next/server'
 
-export async function POST(_request: NextRequest) {
-  try {
+export const POST = withRateLimit(
+  withApiHandler(async (request: NextRequest) => {
     // Authenticate user
-    const supabase = await createServerClient()
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const { user } = await requireAuth(request)
 
     // Call agent to generate summary from user's data
     const result = await generatePortfolioSummaryForUser(user.id)
 
     return NextResponse.json({ summary: result.summary })
-  } catch (error) {
-    console.error('Error in generate-portfolio-summary API:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-  }
-}
+  }),
+  rateLimitConfigs.ai
+)

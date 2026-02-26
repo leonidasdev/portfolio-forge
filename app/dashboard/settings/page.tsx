@@ -13,6 +13,7 @@
 import { LogoutButton } from '@/app/(auth)/logout/LogoutButton'
 import { getAuthSession } from '@/lib/auth/getSession'
 import { requireUserId } from '@/lib/auth/requireSession'
+import { queries } from '@/lib/supabase/queries'
 import { createServerClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
@@ -42,26 +43,17 @@ export default async function SettingsPage() {
   const supabase = await createServerClient()
 
   // Fetch user profile
-  const { data: profile, error: profileError } = await (supabase.from('profiles') as any)
-    .select('*')
-    .eq('id', userId)
-    .single()
+  const { data: profile, error: profileError } = await queries.profiles.getByUserId(
+    supabase,
+    userId
+  )
 
-  // Fetch user statistics
-  const { count: portfolioCount } = await (supabase.from('portfolios') as any)
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', userId)
-    .eq('is_deleted', false)
-
-  const { count: certificationCount } = await (supabase.from('certifications') as any)
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', userId)
-    .eq('is_deleted', false)
-
-  const { count: projectCount } = await (supabase.from('projects') as any)
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', userId)
-    .eq('is_deleted', false)
+  // Fetch user statistics using typed count queries
+  const [portfolioCounts, certificationCounts, projectCounts] = await Promise.all([
+    queries.counts.portfolios(supabase, userId),
+    queries.counts.certifications(supabase, userId),
+    queries.counts.projects(supabase, userId),
+  ])
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -137,17 +129,17 @@ export default async function SettingsPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-blue-50 rounded-lg p-4">
-            <div className="text-3xl font-bold text-blue-600">{portfolioCount ?? 0}</div>
+            <div className="text-3xl font-bold text-blue-600">{portfolioCounts.count}</div>
             <div className="text-sm text-gray-600 mt-1">Portfolios</div>
           </div>
 
           <div className="bg-green-50 rounded-lg p-4">
-            <div className="text-3xl font-bold text-green-600">{certificationCount ?? 0}</div>
+            <div className="text-3xl font-bold text-green-600">{certificationCounts.count}</div>
             <div className="text-sm text-gray-600 mt-1">Certifications</div>
           </div>
 
           <div className="bg-purple-50 rounded-lg p-4">
-            <div className="text-3xl font-bold text-purple-600">{projectCount ?? 0}</div>
+            <div className="text-3xl font-bold text-purple-600">{projectCounts.count}</div>
             <div className="text-sm text-gray-600 mt-1">Projects</div>
           </div>
         </div>

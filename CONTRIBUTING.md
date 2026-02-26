@@ -193,6 +193,32 @@ components/
 │   └── index.ts                # Barrel export
 ```
 
+### Naming Conventions
+
+**Folders:**
+- Use `kebab-case` for multi-word folder names (e.g., `portfolio-builder/`, `templates-themes/`)
+- Use lowercase for single-word folder names (e.g., `api/`, `auth/`, `config/`)
+
+**Files:**
+- React components: `PascalCase.tsx` (e.g., `CertificationForm.tsx`)
+- Hooks: `camelCase.ts` starting with `use` (e.g., `useAIRequest.ts`)
+- Utilities/helpers: `camelCase.ts` (e.g., `logger.ts`, `utils.ts`)
+- Types: `camelCase.ts` or `PascalCase.types.ts` for component-specific types
+- Test files: `*.test.ts` or `*.test.tsx` in `__tests__/` folders
+
+**Component Props:**
+- Use `{ComponentName}Props` interface pattern:
+```typescript
+interface CertificationFormProps {
+  certificationId?: string
+  onSuccess?: () => void
+}
+
+export function CertificationForm({ certificationId, onSuccess }: CertificationFormProps) {
+  // ...
+}
+```
+
 ### Documentation
 
 - Add JSDoc comments to exported functions
@@ -215,13 +241,87 @@ export async function generatePublicLink(portfolioId: string) {
 }
 ```
 
+### File Headers
+
+Add a JSDoc header block to the top of each new file to provide context:
+
+**For library/utility files (`lib/**/*.ts`):**
+
+```typescript
+/**
+ * Brief description of what this module does.
+ *
+ * @module lib/module-name
+ * @description
+ * Detailed description of the module's purpose, main exports,
+ * and any important usage notes.
+ *
+ * @example
+ * import { mainFunction } from '@/lib/module-name'
+ * const result = mainFunction(input)
+ */
+```
+
+**For React components:**
+
+```typescript
+/**
+ * Brief description of the component.
+ *
+ * @component ComponentName
+ * @description
+ * Detailed description explaining the component's purpose,
+ * when to use it, and any important behavior notes.
+ *
+ * @example
+ * <ComponentName prop="value" onAction={handleAction} />
+ */
+'use client' // if needed
+
+interface ComponentNameProps {
+  // ...
+}
+```
+
+**For API routes:**
+
+```typescript
+/**
+ * Brief description of the endpoint.
+ *
+ * @route POST /api/v1/resource
+ * @auth Required
+ * @rateLimit ai (20 req/min)
+ *
+ * @description
+ * Detailed description of what this endpoint does.
+ */
+```
+
+**For hooks:**
+
+```typescript
+/**
+ * Brief description of the hook.
+ *
+ * @hook useHookName
+ * @description
+ * Detailed description of the hook's purpose and behavior.
+ *
+ * @returns {{ data, loading, error }} Hook state and methods
+ *
+ * @example
+ * const { data, loading } = useHookName(params)
+ */
+```
+
 ## Commit Guidelines
 
 We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ### Commit Message Format
 
-```
+```text
 <type>(<scope>): <description>
 
 [optional body]

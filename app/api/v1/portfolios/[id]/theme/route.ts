@@ -19,6 +19,7 @@
 
 import { requireAuth } from '@/lib/api/auth-middleware'
 import { ApiError, withApiHandler } from '@/lib/api/route-handler'
+import { queries } from '@/lib/supabase/queries'
 import { THEMES } from '@/lib/templates-themes/definitions'
 import { validateBody } from '@/lib/validation/helpers'
 import { updatePortfolioThemeSchema } from '@/lib/validation/schemas'
@@ -44,14 +45,9 @@ export const PATCH = withApiHandler(
       throw new ApiError('Invalid theme ID', 400)
     }
 
-    // Update portfolio theme
+    // Update portfolio theme using typed query helper
     // RLS will ensure only the owner can update
-    const { data: portfolio, error } = await (supabase.from('portfolios') as any)
-      .update({ theme })
-      .eq('id', id)
-      .eq('is_deleted', false)
-      .select()
-      .single()
+    const { data: portfolio, error } = await queries.portfolios.update(supabase, id, { theme })
 
     if (error) {
       throw new ApiError('Failed to update portfolio theme', error.code === 'PGRST116' ? 404 : 500)

@@ -12,6 +12,7 @@
 'use client'
 
 import { createBrowserClient, storage } from '@/lib/supabase/client'
+import { certificationQueries } from '@/lib/supabase/queries'
 import { useState } from 'react'
 
 interface UploadResult {
@@ -75,26 +76,23 @@ export default function CertificationUpload() {
 
       setProgress(50)
 
-      // Create certification record in database
+      // Create certification record in database using typed query helper
       const certificationType = file.type === 'application/pdf' ? 'pdf' : 'image'
 
-      const { data: certification, error: dbError } = await (supabase.from('certifications') as any)
-        .insert({
-          user_id: user.id,
-          title: file.name.replace(/\.[^/.]+$/, ''), // Remove file extension
-          issuing_organization: 'Unknown', // User can update this later
-          certification_type: certificationType,
-          file_path: uploadResult.path,
-          file_type: uploadResult.fileType,
-          is_public: false,
-        })
-        .select()
-        .single()
+      const { data: certification, error: dbError } = await certificationQueries.create(supabase, {
+        user_id: user.id,
+        title: file.name.replace(/\.[^/.]+$/, ''), // Remove file extension
+        issuing_organization: 'Unknown', // User can update this later
+        certification_type: certificationType,
+        file_path: uploadResult.path,
+        file_type: uploadResult.fileType,
+        is_public: false,
+      })
 
-      if (dbError) {
+      if (dbError || !certification) {
         // If database insert fails, clean up the uploaded file
         await storage.deleteCertification(uploadResult.path!)
-        throw new Error(dbError.message)
+        throw new Error(dbError?.message || 'Failed to create certification')
       }
 
       setProgress(100)

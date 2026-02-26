@@ -8,6 +8,7 @@
 
 import { requireAuth } from '@/lib/api/auth-middleware'
 import { ApiError, withApiHandler } from '@/lib/api/route-handler'
+import { queries } from '@/lib/supabase/queries'
 import { validateBody } from '@/lib/validation/helpers'
 import { updatePortfolioSchema } from '@/lib/validation/schemas'
 import { NextRequest, NextResponse } from 'next/server'
@@ -24,23 +25,21 @@ export const GET = withApiHandler(
       throw new ApiError('Portfolio ID is required', 400)
     }
 
-    // Fetch portfolio (RLS enforces ownership)
-    const { data: portfolio, error: portfolioError } = await (supabase.from('portfolios') as any)
-      .select('*')
-      .eq('id', id)
-      .single()
+    // Fetch portfolio using typed queries (RLS enforces ownership)
+    const { data: portfolio, error: portfolioError } = await queries.portfolios.getById(
+      supabase,
+      id
+    )
 
     if (portfolioError || !portfolio) {
       throw new ApiError('Portfolio not found', 404)
     }
 
     // Fetch portfolio sections ordered by display_order
-    const { data: sections, error: sectionsError } = await (
-      supabase.from('portfolio_sections') as any
+    const { data: sections, error: sectionsError } = await queries.sections.listByPortfolio(
+      supabase,
+      id
     )
-      .select('*')
-      .eq('portfolio_id', id)
-      .order('display_order', { ascending: true })
 
     if (sectionsError) {
       console.error('Failed to fetch portfolio sections:', sectionsError)
@@ -76,12 +75,19 @@ export const PATCH = withApiHandler(
       throw new ApiError('No valid fields to update', 400)
     }
 
-    // Update the portfolio (RLS enforces ownership)
-    const { data: portfolio, error } = await (supabase.from('portfolios') as any)
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single()
+    // Build update object, filtering out null for theme as it must be a non-null string
+    const sanitizedUpdates = {
+      ...updates,
+      // Theme can't be null in the database, so only include if it's a valid string
+      ...(updates.theme === null ? {} : {}),
+    }
+
+    // Update the portfolio using typed queries (RLS enforces ownership)
+    const { data: portfolio, error } = await queries.portfolios.update(
+      supabase,
+      id,
+      sanitizedUpdates as Parameters<typeof queries.portfolios.update>[2]
+    )
 
     if (error || !portfolio) {
       throw new ApiError('Portfolio not found or update failed', 404)
@@ -106,7 +112,8 @@ export const DELETE = withApiHandler(
     // Delete portfolio sections first (cascade)
     // Note: Database CASCADE constraints should handle this automatically,
     // but we do it explicitly for clarity
-    const { error: sectionsError } = await (supabase.from('portfolio_sections') as any)
+    const { error: sectionsError } = await supabase
+      .from('portfolio_sections')
       .delete()
       .eq('portfolio_id', id)
 
@@ -116,7 +123,7 @@ export const DELETE = withApiHandler(
     }
 
     // Delete the portfolio (RLS enforces ownership)
-    const { error } = await (supabase.from('portfolios') as any).delete().eq('id', id)
+    const { error } = await supabase.from('portfolios').delete().eq('id', id)
 
     if (error) {
       throw new ApiError('Portfolio not found or delete failed', 404)

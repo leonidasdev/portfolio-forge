@@ -7,6 +7,7 @@
  * at once, which is essential for drag-and-drop functionality.
  */
 
+import { queries } from '@/lib/supabase/queries'
 import { createServerClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -38,57 +39,48 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'section_ids must be a non-empty array' }, { status: 400 })
     }
 
-    // Verify portfolio exists and belongs to user
-    const { data: portfolio, error: portfolioError } = await (supabase.from('portfolios') as any)
-      .select('id')
-      .eq('id', portfolio_id)
-      .single()
+    // Verify portfolio exists and belongs to user using typed query helper
+    const { data: portfolio, error: portfolioError } = await queries.portfolios.getById(
+      supabase,
+      portfolio_id
+    )
 
     if (portfolioError || !portfolio) {
       return NextResponse.json({ error: 'Portfolio not found' }, { status: 404 })
     }
 
-    // Verify all sections exist and belong to this portfolio
-    const { data: sections, error: sectionsError } = await (
-      supabase.from('portfolio_sections') as any
+    // Verify all sections exist and belong to this portfolio using typed query helper
+    const { data: sections, error: sectionsError } = await queries.sections.listByPortfolio(
+      supabase,
+      portfolio_id
     )
-      .select('id')
-      .eq('portfolio_id', portfolio_id)
-      .in('id', section_ids)
 
-    if (sectionsError || !sections || sections.length !== section_ids.length) {
+    // Filter to only requested sections and validate count matches
+    const requestedSections = sections?.filter((s) => section_ids.includes(s.id))
+    if (sectionsError || !requestedSections || requestedSections.length !== section_ids.length) {
       return NextResponse.json(
         { error: 'One or more sections not found or do not belong to this portfolio' },
         { status: 400 }
       )
     }
 
-    // Update display_order for each section
-    // Note: Supabase doesn't support batch updates natively, so we do this in sequence
-    // In production, consider using a PostgreSQL function for better performance
-    const updatePromises = section_ids.map((sectionId, index) => {
-      return (supabase.from('portfolio_sections') as any)
-        .update({ display_order: index + 1 })
-        .eq('id', sectionId)
-        .eq('portfolio_id', portfolio_id)
-    })
+    // Use the typed reorder query helper for bulk update
+    const { error: reorderError } = await queries.sections.reorder(
+      supabase,
+      portfolio_id,
+      section_ids
+    )
 
-    const results = await Promise.all(updatePromises)
-
-    // Check if any updates failed
-    const failedUpdates = results.filter((result) => result.error)
-    if (failedUpdates.length > 0) {
-      console.error('Some section updates failed:', failedUpdates)
-      return NextResponse.json({ error: 'Failed to update some sections' }, { status: 500 })
+    if (reorderError) {
+      console.error('Section reorder failed:', reorderError)
+      return NextResponse.json({ error: 'Failed to update sections' }, { status: 500 })
     }
 
-    // Fetch the updated sections
-    const { data: updatedSections, error: fetchError } = await (
-      supabase.from('portfolio_sections') as any
+    // Fetch the updated sections using typed query helper
+    const { data: updatedSections, error: fetchError } = await queries.sections.listByPortfolio(
+      supabase,
+      portfolio_id
     )
-      .select('*')
-      .eq('portfolio_id', portfolio_id)
-      .order('display_order', { ascending: true })
 
     if (fetchError) {
       console.error('Failed to fetch updated sections:', fetchError)

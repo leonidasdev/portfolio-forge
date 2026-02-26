@@ -44,14 +44,15 @@
  */
 
 import { createServerClient as createSupabaseServerClient } from '@supabase/ssr'
+import type { Session, User } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
-import { Database } from './types'
+import type { Database, Tables, TypedSupabaseClient } from './types'
 
 /**
  * Creates a Supabase client for server-side use
  * Automatically reads cookies and includes auth session
  */
-export async function createServerClient() {
+export async function createServerClient(): Promise<TypedSupabaseClient> {
   const cookieStore = await cookies()
 
   // Type for cookie options
@@ -88,7 +89,7 @@ export async function createServerClient() {
  * Gets the current authenticated user from the session
  * Returns null if no user is authenticated
  */
-export async function getUser() {
+export async function getUser(): Promise<User | null> {
   const supabase = await createServerClient()
   const {
     data: { user },
@@ -106,7 +107,7 @@ export async function getUser() {
  * Gets the current session
  * Returns null if no session exists
  */
-export async function getSession() {
+export async function getSession(): Promise<Session | null> {
   const supabase = await createServerClient()
   const {
     data: { session },
@@ -124,7 +125,7 @@ export async function getSession() {
  * Gets the user's profile from the profiles table
  * Returns null if user is not authenticated or profile doesn't exist
  */
-export async function getUserProfile() {
+export async function getUserProfile(): Promise<Tables<'profiles'> | null> {
   const user = await getUser()
 
   if (!user) {
@@ -149,7 +150,7 @@ export async function getUserProfile() {
  * Checks if the current user is authenticated
  * Useful for protecting pages and actions
  */
-export async function isAuthenticated() {
+export async function isAuthenticated(): Promise<boolean> {
   const user = await getUser()
   return !!user
 }

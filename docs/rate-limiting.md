@@ -59,11 +59,11 @@ const store = new InMemoryRateLimitStore()
 ```
 
 ### Characteristics:
-- ✅ No external dependencies
-- ✅ Fast iteration during development
-- ⚠️ Resets on server restart
-- ⚠️ Not shared across instances
-- ❌ Not suitable for production
+- No external dependencies
+- Fast iteration during development
+- Resets on server restart
+- Not shared across instances
+- Not suitable for production
 
 ## Production Mode
 
@@ -155,7 +155,7 @@ try {
   if (error instanceof ApiError && error.status === 429) {
     // Show rate limit message
     showToast('Too many requests. Please wait a moment.')
-    
+
     // Optionally implement retry with backoff
     const retryAfter = error.data?.retryAfter || 60
     setTimeout(() => retry(), retryAfter * 1000)
@@ -203,7 +203,7 @@ import { checkRateLimitStatus } from '@/lib/api/rate-limit'
 
 export async function GET() {
   const status = await checkRateLimitStatus('health-check')
-  
+
   return Response.json({
     status: 'ok',
     rateLimiting: {

@@ -14,6 +14,7 @@
  * 6. We redirect to /dashboard (or original redirectTo URL)
  */
 
+import { queries } from '@/lib/supabase/queries'
 import { Database } from '@/lib/supabase/types'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
@@ -91,17 +92,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(`${requestUrl.origin}/auth/login?error=Failed to create session`)
     }
 
-    // Check if profile exists, create if not
-    const { data: existingProfile, error: profileCheckError } = await (
-      supabase.from('profiles') as any
+    // Check if profile exists, create if not using typed query helper
+    const { data: existingProfile, error: profileCheckError } = await queries.profiles.getByUserId(
+      supabase,
+      session.user.id
     )
-      .select('id')
-      .eq('id', session.user.id)
-      .single()
 
     // Create profile if it doesn't exist
-    if (!existingProfile && profileCheckError?.code === 'PGRST116') {
-      const { error: profileCreateError } = await (supabase.from('profiles') as any).insert({
+    if (!existingProfile && profileCheckError?.message?.includes('No rows')) {
+      const { error: profileCreateError } = await queries.profiles.create(supabase, {
         id: session.user.id,
         email: session.user.email!,
         full_name: session.user.user_metadata.full_name || session.user.user_metadata.name || null,

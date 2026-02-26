@@ -78,14 +78,18 @@ Create a new API version (v2) when:
 ### Backward Compatibility Rules
 
 Within the same version:
-- [OK] Add new optional fields
-- [OK] Add new endpoints
-- [OK] Add new query parameters (optional)
-- [OK] Make required fields optional
-- [NO] Remove fields
-- [NO] Change field types
-- [NO] Rename fields
-- [NO] Make optional fields required
+
+**Allowed changes:**
+- Add new optional fields
+- Add new endpoints
+- Add new query parameters (optional)
+- Make required fields optional
+
+**Breaking changes (require new version):**
+- Remove fields
+- Change field types
+- Rename fields
+- Make optional fields required
 
 ### Version Support Policy
 

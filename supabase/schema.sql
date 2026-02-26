@@ -178,33 +178,33 @@ CREATE TABLE certifications (
   title TEXT NOT NULL,
   issuing_organization TEXT NOT NULL,
   certification_type certification_type NOT NULL,
-  
+
   -- Dates
   date_issued DATE,
   expiration_date DATE,
-  
+
   -- Credential info
   credential_id TEXT,
   verification_url TEXT,
-  
+
   -- File storage (for PDF/image uploads)
   file_path TEXT, -- Path in Supabase Storage
   file_type TEXT, -- MIME type
-  
+
   -- External link (for Credly, IBM, etc.)
   external_url TEXT,
-  
+
   -- Description
   description TEXT,
-  
+
   -- Visibility
   is_public BOOLEAN NOT NULL DEFAULT false,
   is_deleted BOOLEAN NOT NULL DEFAULT false,
-  
+
   -- Timestamps
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  
+
   -- Constraints
   CONSTRAINT valid_file_or_link CHECK (
     (certification_type IN ('pdf', 'image') AND file_path IS NOT NULL) OR
@@ -887,6 +887,53 @@ CREATE POLICY "Public portfolio items viewable via public_links"
     )
   );
 
+-- -----------------------------------------------------
+-- PORTFOLIO_EXPORTS (GitHub Pages and other exports)
+-- -----------------------------------------------------
+CREATE TYPE export_type AS ENUM ('github_pages', 'zip', 'netlify');
+CREATE TYPE export_status AS ENUM ('pending', 'building', 'deployed', 'failed');
+
+CREATE TABLE portfolio_exports (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  portfolio_id UUID NOT NULL REFERENCES portfolios(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  export_type export_type NOT NULL DEFAULT 'github_pages',
+  github_repo_url TEXT,
+  github_pages_url TEXT,
+  last_deployed_at TIMESTAMPTZ,
+  last_commit_sha TEXT,
+  status export_status NOT NULL DEFAULT 'pending',
+  error_message TEXT,
+  config JSONB, -- Store export-specific configuration
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Enable RLS
+ALTER TABLE portfolio_exports ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for portfolio_exports
+CREATE POLICY "Users can view their own exports"
+  ON portfolio_exports FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create their own exports"
+  ON portfolio_exports FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own exports"
+  ON portfolio_exports FOR UPDATE
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own exports"
+  ON portfolio_exports FOR DELETE
+  USING (auth.uid() = user_id);
+
+-- Indexes
+CREATE INDEX idx_portfolio_exports_portfolio_id ON portfolio_exports(portfolio_id);
+CREATE INDEX idx_portfolio_exports_user_id ON portfolio_exports(user_id);
+CREATE INDEX idx_portfolio_exports_status ON portfolio_exports(status);
+
 -- =====================================================
 -- TRIGGERS
 -- =====================================================
@@ -929,6 +976,9 @@ CREATE TRIGGER update_portfolio_items_updated_at BEFORE UPDATE ON portfolio_item
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_public_links_updated_at BEFORE UPDATE ON public_links
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_portfolio_exports_updated_at BEFORE UPDATE ON portfolio_exports
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_templates_updated_at BEFORE UPDATE ON templates

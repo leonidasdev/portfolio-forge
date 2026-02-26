@@ -14,13 +14,28 @@
 
 import { ConfirmModal } from '@/components/ui/Modal'
 import { createBrowserClient } from '@/lib/supabase/client'
+import { portfolioQueries } from '@/lib/supabase/queries'
 import { Database } from '@/lib/supabase/types'
 import { useEffect, useState } from 'react'
 
 type Portfolio = Database['public']['Tables']['portfolios']['Row']
 
+// Subset of portfolio fields for list display
+type PortfolioListItem = Pick<
+  Portfolio,
+  | 'id'
+  | 'title'
+  | 'slug'
+  | 'description'
+  | 'theme'
+  | 'is_public'
+  | 'is_deleted'
+  | 'created_at'
+  | 'updated_at'
+>
+
 export default function PortfolioList() {
-  const [portfolios, setPortfolios] = useState<Portfolio[]>([])
+  const [portfolios, setPortfolios] = useState<PortfolioListItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
@@ -93,10 +108,10 @@ export default function PortfolioList() {
           console.log('Portfolio change detected:', payload)
 
           if (payload.eventType === 'INSERT') {
-            setPortfolios((prev) => [payload.new as Portfolio, ...prev])
+            setPortfolios((prev) => [payload.new as PortfolioListItem, ...prev])
           } else if (payload.eventType === 'UPDATE') {
             setPortfolios((prev) =>
-              prev.map((p) => (p.id === payload.new.id ? (payload.new as Portfolio) : p))
+              prev.map((p) => (p.id === payload.new.id ? (payload.new as PortfolioListItem) : p))
             )
           } else if (payload.eventType === 'DELETE') {
             setPortfolios((prev) => prev.filter((p) => p.id !== payload.old.id))
@@ -131,17 +146,14 @@ export default function PortfolioList() {
       const timestamp = Date.now()
       const slug = `portfolio-${timestamp}`
 
-      const { data, error: insertError } = await (supabase.from('portfolios') as any)
-        .insert({
-          user_id: user.id,
-          title: `New Portfolio ${timestamp}`,
-          slug,
-          description: 'A new portfolio',
-          theme: 'default',
-          is_public: false,
-        })
-        .select()
-        .single()
+      const { data, error: insertError } = await portfolioQueries.create(supabase, {
+        user_id: user.id,
+        title: `New Portfolio ${timestamp}`,
+        slug,
+        description: 'A new portfolio',
+        theme: 'default',
+        is_public: false,
+      })
 
       if (insertError) {
         throw new Error(insertError.message)
@@ -160,9 +172,9 @@ export default function PortfolioList() {
     try {
       const supabase = createBrowserClient()
 
-      const { error: updateError } = await (supabase.from('portfolios') as any)
-        .update({ is_public: !currentState })
-        .eq('id', portfolioId)
+      const { error: updateError } = await portfolioQueries.update(supabase, portfolioId, {
+        is_public: !currentState,
+      })
 
       if (updateError) {
         throw new Error(updateError.message)
@@ -187,10 +199,10 @@ export default function PortfolioList() {
     try {
       const supabase = createBrowserClient()
 
-      // Soft delete
-      const { error: deleteError } = await (supabase.from('portfolios') as any)
-        .update({ is_deleted: true })
-        .eq('id', portfolioId)
+      // Soft delete using typed query helper
+      const { error: deleteError } = await portfolioQueries.update(supabase, portfolioId, {
+        is_deleted: true,
+      })
 
       if (deleteError) {
         throw new Error(deleteError.message)

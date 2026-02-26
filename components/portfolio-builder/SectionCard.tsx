@@ -11,6 +11,7 @@
 'use client'
 
 import { SectionRenderer } from '@/components/portfolio-sections/SectionRenderer'
+import { SECTION_TYPE_COLORS, SECTION_TYPE_LABELS } from '@/lib/constants'
 import type { Database } from '@/lib/supabase/types'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
@@ -35,44 +36,14 @@ export function SectionCard({ section, onEdit, onDelete, disabled: _disabled }: 
     opacity: isDragging ? 0.5 : 1,
   }
 
-  // Get section type label
-  function getTypeLabel(type: string): string {
-    switch (type) {
-      case 'summary':
-        return 'Summary'
-      case 'skills':
-        return 'Skills'
-      case 'work_experience':
-        return 'Work Experience'
-      case 'projects':
-        return 'Projects'
-      case 'certifications':
-        return 'Certifications'
-      case 'custom':
-        return 'Custom'
-      default:
-        return type
-    }
+  // Get section type label from constants
+  const getTypeLabel = (type: string): string => {
+    return SECTION_TYPE_LABELS[type] || type
   }
 
-  // Get section type color
-  function getTypeColor(type: string): string {
-    switch (type) {
-      case 'summary':
-        return 'bg-blue-100 text-blue-800'
-      case 'skills':
-        return 'bg-green-100 text-green-800'
-      case 'work_experience':
-        return 'bg-purple-100 text-purple-800'
-      case 'projects':
-        return 'bg-orange-100 text-orange-800'
-      case 'certifications':
-        return 'bg-pink-100 text-pink-800'
-      case 'custom':
-        return 'bg-gray-100 text-gray-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
-    }
+  // Get section type color from constants
+  const getTypeColor = (type: string): string => {
+    return SECTION_TYPE_COLORS[type] || 'bg-gray-100 text-gray-800'
   }
 
   return (

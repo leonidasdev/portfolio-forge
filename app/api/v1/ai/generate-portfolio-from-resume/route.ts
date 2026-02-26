@@ -1,9 +1,10 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
+﻿import { generatePortfolioFromResume } from '@/lib/ai/agents'
 import { requireAuth } from '@/lib/api/auth-middleware'
+import { rateLimitConfigs, withRateLimit } from '@/lib/api/rate-limit'
 import { withApiHandler } from '@/lib/api/route-handler'
-import { generatePortfolioFromResume } from '@/lib/ai/agents'
 import { validateBody } from '@/lib/validation/helpers'
 import { generateFromResumeSchema } from '@/lib/validation/schemas'
+import { NextRequest, NextResponse } from 'next/server'
 
 /**
  * POST /api/v1/ai/generate-portfolio-from-resume
@@ -19,15 +20,18 @@ import { generateFromResumeSchema } from '@/lib/validation/schemas'
  * - suggestedTemplate: Recommended template name
  * - suggestedTheme: Recommended theme name
  */
-export const POST = withApiHandler(async (request: NextRequest) => {
-  // Get authenticated user
-  const { user } = await requireAuth(request)
+export const POST = withRateLimit(
+  withApiHandler(async (request: NextRequest) => {
+    // Get authenticated user
+    const { user } = await requireAuth(request)
 
-  // Validate request body
-  const body = await validateBody(request, generateFromResumeSchema)
+    // Validate request body
+    const body = await validateBody(request, generateFromResumeSchema)
 
-  // Generate portfolio from resume
-  const result = await generatePortfolioFromResume(user.id, body.resumeText)
+    // Generate portfolio from resume
+    const result = await generatePortfolioFromResume(user.id, body.resumeText)
 
-  return NextResponse.json(result, { status: 200 })
-})
+    return NextResponse.json(result, { status: 200 })
+  }),
+  rateLimitConfigs.ai
+)

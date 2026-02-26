@@ -148,6 +148,7 @@ const createMockPortfolio = (overrides: Partial<Portfolio> = {}): Portfolio => (
   description: 'A test portfolio',
   is_public: false,
   is_deleted: false,
+  public_link_token: null,
   template: 'single-column',
   theme: 'default',
   created_at: '2026-01-01T00:00:00Z',

@@ -5,6 +5,7 @@
  * with a specified tone while maintaining factual accuracy.
  */
 
+import { queries } from '@/lib/supabase/queries'
 import { createServerClient } from '@/lib/supabase/server'
 import { improveText, type Tone } from '../abilities/improveText'
 
@@ -30,25 +31,19 @@ export async function rewriteEntirePortfolio(
 ): Promise<{ sections: RewrittenSection[] }> {
   const supabase = await createServerClient()
 
-  // Fetch all portfolio sections for the user
-  // First get the user's portfolios
-  const { data: portfolios } = await (supabase.from('portfolios') as any)
-    .select('id')
-    .eq('user_id', userId)
+  // Fetch all portfolio sections for the user using typed queries
+  const { data: portfoliosResult } = await queries.portfolios.list(supabase, { limit: 1 })
 
-  if (!portfolios || portfolios.length === 0) {
+  if (!portfoliosResult || portfoliosResult.length === 0) {
     return { sections: [] }
   }
 
   // For simplicity, use the first portfolio
   // In production, you might want to specify which portfolio to rewrite
-  const portfolioId = portfolios[0].id
+  const portfolioId = portfoliosResult[0].id
 
-  // Fetch all sections for this portfolio
-  const { data: sections } = await (supabase.from('portfolio_sections') as any)
-    .select('id, section_type, custom_content, description')
-    .eq('portfolio_id', portfolioId)
-    .in('section_type', ['about', 'skills', 'experience', 'custom'])
+  // Fetch all sections for this portfolio using typed queries
+  const { data: sections } = await queries.sections.listByPortfolio(supabase, portfolioId)
 
   if (!sections || sections.length === 0) {
     return { sections: [] }

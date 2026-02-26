@@ -1,7 +1,8 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
+﻿import { analyzePortfolio } from '@/lib/ai/agents'
 import { requireAuth } from '@/lib/api/auth-middleware'
-import { withApiHandler, ApiError } from '@/lib/api/route-handler'
-import { analyzePortfolio } from '@/lib/ai/agents'
+import { rateLimitConfigs, withRateLimit } from '@/lib/api/rate-limit'
+import { ApiError, withApiHandler } from '@/lib/api/route-handler'
+import { NextRequest, NextResponse } from 'next/server'
 
 /**
  * POST /api/v1/ai/analyze-portfolio
@@ -19,27 +20,30 @@ import { analyzePortfolio } from '@/lib/ai/agents'
  * - subscores: Object with clarity, technicalDepth, seniority, atsAlignment, completeness, toneConsistency
  * - recommendations: Array of recommendation objects with title, description, and optional suggestedRewrite
  */
-export const POST = withApiHandler(async (request: NextRequest) => {
-  // Get authenticated user
-  const { user } = await requireAuth(request)
+export const POST = withRateLimit(
+  withApiHandler(async (request: NextRequest) => {
+    // Get authenticated user
+    const { user } = await requireAuth(request)
 
-  try {
-    // Analyze portfolio
-    const analysis = await analyzePortfolio(user.id)
-    return NextResponse.json(analysis, { status: 200 })
-  } catch (error) {
-    // Check for specific error messages
-    if (error instanceof Error) {
-      if (error.message.includes('No portfolio found')) {
-        throw new ApiError('No portfolio found. Please create a portfolio first.', 404)
+    try {
+      // Analyze portfolio
+      const analysis = await analyzePortfolio(user.id)
+      return NextResponse.json(analysis, { status: 200 })
+    } catch (error) {
+      // Check for specific error messages
+      if (error instanceof Error) {
+        if (error.message.includes('No portfolio found')) {
+          throw new ApiError('No portfolio found. Please create a portfolio first.', 404)
+        }
+        if (error.message.includes('No sections found')) {
+          throw new ApiError(
+            'No sections found. Please add some content to your portfolio first.',
+            400
+          )
+        }
       }
-      if (error.message.includes('No sections found')) {
-        throw new ApiError(
-          'No sections found. Please add some content to your portfolio first.',
-          400
-        )
-      }
+      throw error
     }
-    throw error
-  }
-})
+  }),
+  rateLimitConfigs.ai
+)

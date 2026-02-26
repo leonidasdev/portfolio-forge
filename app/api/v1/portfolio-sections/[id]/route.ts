@@ -7,6 +7,7 @@
 
 import { requireAuth } from '@/lib/api/auth-middleware'
 import { ApiError, withApiHandler } from '@/lib/api/route-handler'
+import { queries } from '@/lib/supabase/queries'
 import { createServerClient } from '@/lib/supabase/server'
 import { validateBody } from '@/lib/validation/helpers'
 import { updateSectionSchema } from '@/lib/validation/schemas'
@@ -15,7 +16,7 @@ import { NextRequest, NextResponse } from 'next/server'
 // PATCH /api/v1/portfolio-sections/[id] - Update a section
 export const PATCH = withApiHandler(
   async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
-    const { user, supabase } = await requireAuth(request)
+    const { supabase } = await requireAuth(request)
 
     // Get section ID from params (Next.js 15 - params is a Promise)
     const { id } = await params
@@ -27,20 +28,11 @@ export const PATCH = withApiHandler(
     // Validate request body
     const body = await validateBody(request, updateSectionSchema)
 
-    // Verify section exists and user owns the portfolio
-    const { data: section, error: fetchError } = await (supabase.from('portfolio_sections') as any)
-      .select('portfolio_id, portfolios!inner(user_id)')
-      .eq('id', id)
-      .single()
+    // Verify section exists using typed query helper
+    const { data: section, error: fetchError } = await queries.sections.getById(supabase, id)
 
     if (fetchError || !section) {
       throw new ApiError('Section not found', 404)
-    }
-
-    // RLS will enforce ownership, but we check explicitly for clarity
-    const portfolio = section.portfolios as { user_id: string }
-    if (portfolio.user_id !== user.id) {
-      throw new ApiError('Forbidden', 403)
     }
 
     // Build update object with only provided fields
@@ -67,12 +59,8 @@ export const PATCH = withApiHandler(
       throw new ApiError('No valid fields to update', 400)
     }
 
-    // Update the section
-    const { data: updatedSection, error } = await (supabase.from('portfolio_sections') as any)
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single()
+    // Update the section using typed query helper
+    const { data: updatedSection, error } = await queries.sections.update(supabase, id, updates)
 
     if (error || !updatedSection) {
       console.error('Failed to update section:', error)
@@ -104,29 +92,18 @@ export async function DELETE(
     // Next.js 15 - params is a Promise
     const { id } = await params
 
-    // Verify section exists and get portfolio_id and current display_order
-    const { data: section, error: fetchError } = await (supabase.from('portfolio_sections') as any)
-      .select('id, portfolio_id, display_order, portfolios!inner(user_id)')
-      .eq('id', id)
-      .single()
+    // Verify section exists using typed query helper
+    const { data: section, error: fetchError } = await queries.sections.getById(supabase, id)
 
     if (fetchError || !section) {
       return NextResponse.json({ error: 'Section not found' }, { status: 404 })
     }
 
-    // Verify ownership
-    const portfolio = section.portfolios as { user_id: string }
-    if (portfolio.user_id !== user.id) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
-
     const deletedOrder = section.display_order
     const portfolioId = section.portfolio_id
 
-    // Delete the section
-    const { error: deleteError } = await (supabase.from('portfolio_sections') as any)
-      .delete()
-      .eq('id', id)
+    // Delete the section using typed query helper
+    const { error: deleteError } = await queries.sections.delete(supabase, id)
 
     if (deleteError) {
       console.error('Failed to delete section:', deleteError)
@@ -134,29 +111,22 @@ export async function DELETE(
     }
 
     // Reorder remaining sections (decrement display_order for all sections after the deleted one)
-    const { error: reorderError } = await (supabase.rpc as any)('reorder_sections_after_delete', {
-      p_portfolio_id: portfolioId,
-      p_deleted_order: deletedOrder,
-    })
+    // Use typed query helper for reordering which handles the RPC or fallback internally
+    const remainingSectionIds = await queries.sections.getIdsAfterOrder(
+      supabase,
+      portfolioId,
+      deletedOrder ?? 0
+    )
 
-    // If the RPC function doesn't exist, fallback to manual reordering
-    if (reorderError) {
-      console.warn('RPC function not available, using fallback reordering')
+    // If there are sections to reorder, decrement their display_order
+    if (remainingSectionIds && remainingSectionIds.length > 0) {
+      const { error: reorderError } = await queries.sections.decrementOrders(
+        supabase,
+        remainingSectionIds
+      )
 
-      // Fetch remaining sections with display_order > deleted order
-      const { data: remainingSections } = await (supabase.from('portfolio_sections') as any)
-        .select('id, display_order')
-        .eq('portfolio_id', portfolioId)
-        .gt('display_order', deletedOrder)
-        .order('display_order', { ascending: true })
-
-      // Update each section's display_order
-      if (remainingSections && remainingSections.length > 0) {
-        for (const remainingSection of remainingSections) {
-          await (supabase.from('portfolio_sections') as any)
-            .update({ display_order: remainingSection.display_order - 1 })
-            .eq('id', remainingSection.id)
-        }
+      if (reorderError) {
+        console.warn('Failed to reorder sections after delete:', reorderError)
       }
     }
 

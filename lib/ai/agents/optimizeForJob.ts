@@ -5,6 +5,7 @@
  * to emphasize relevant skills and experience.
  */
 
+import { queries } from '@/lib/supabase/queries'
 import { createServerClient } from '@/lib/supabase/server'
 import { improveText, type Tone } from '../abilities/improveText'
 import { aiComplete } from '../router'
@@ -120,12 +121,10 @@ export async function optimizePortfolioForJob(
     tone = 'technical'
   }
 
-  // Fetch user's portfolios
-  const { data: portfolios } = await (supabase.from('portfolios') as any)
-    .select('id')
-    .eq('user_id', userId)
+  // Fetch user's portfolios using typed queries
+  const { data: portfoliosResult } = await queries.portfolios.list(supabase, { limit: 1 })
 
-  if (!portfolios || portfolios.length === 0) {
+  if (!portfoliosResult || portfoliosResult.length === 0) {
     return {
       updatedSections: [],
       suggestedSkills: jobInsights.requiredSkills,
@@ -133,13 +132,10 @@ export async function optimizePortfolioForJob(
     }
   }
 
-  const portfolioId = portfolios[0].id
+  const portfolioId = portfoliosResult[0].id
 
-  // Fetch all sections
-  const { data: sections } = await (supabase.from('portfolio_sections') as any)
-    .select('id, section_type, custom_content, description')
-    .eq('portfolio_id', portfolioId)
-    .in('section_type', ['about', 'skills', 'experience', 'custom'])
+  // Fetch all sections using typed queries
+  const { data: sections } = await queries.sections.listByPortfolio(supabase, portfolioId)
 
   if (!sections || sections.length === 0) {
     return {

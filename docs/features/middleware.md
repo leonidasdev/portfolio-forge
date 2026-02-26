@@ -1,10 +1,6 @@
-/**
- * Middleware Configuration Documentation
- * 
- * This document explains how the middleware works and how to customize it.
- */
-
 # Next.js Middleware for Supabase Authentication
+
+This document explains how the middleware works and how to customize it.
 
 ## Overview
 
@@ -163,7 +159,7 @@ export const runtime = 'edge' // Add this to middleware.ts
 
 **Cause**: Session not being read correctly or cookies not being set.
 
-**Solution**: 
+**Solution**:
 1. Check that cookies are allowed in your browser
 2. Verify `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are set
 3. Check that the Supabase client configuration matches in both middleware and application code

@@ -9,9 +9,7 @@ import { NextRequest } from 'next/server'
 
 // Mock the auth middleware
 const mockUser = { id: 'user-123', email: 'test@example.com' }
-const mockSupabase = {
-  from: jest.fn(),
-}
+const mockSupabase = {}
 
 jest.mock('@/lib/api/auth-middleware', () => ({
   requireAuth: jest.fn().mockResolvedValue({
@@ -26,6 +24,18 @@ jest.mock('@/lib/api/auth-middleware', () => ({
       super(message)
       this.name = 'AuthError'
     }
+  },
+}))
+
+// Mock the queries module
+const mockTagQueries = {
+  list: jest.fn(),
+  create: jest.fn(),
+}
+
+jest.mock('@/lib/supabase/queries', () => ({
+  queries: {
+    tags: mockTagQueries,
   },
 }))
 
@@ -49,30 +59,19 @@ describe('Tags API Routes', () => {
         { id: 'tag-2', name: 'React', user_id: mockUser.id },
       ]
 
-      mockSupabase.from.mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            order: jest.fn().mockResolvedValue({ data: mockTags, error: null }),
-          }),
-        }),
-      })
+      mockTagQueries.list.mockResolvedValue({ data: mockTags, error: null })
 
       const response = await GET(createRequest())
       const data = await response.json()
 
       expect(response.status).toBe(200)
       expect(data.tags).toEqual(mockTags)
-      expect(mockSupabase.from).toHaveBeenCalledWith('tags')
+      // queries.tags.list only takes supabase - RLS handles user filtering
+      expect(mockTagQueries.list).toHaveBeenCalledWith(mockSupabase)
     })
 
     it('should return empty array when no tags exist', async () => {
-      mockSupabase.from.mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            order: jest.fn().mockResolvedValue({ data: [], error: null }),
-          }),
-        }),
-      })
+      mockTagQueries.list.mockResolvedValue({ data: [], error: null })
 
       const response = await GET(createRequest())
       const data = await response.json()
@@ -82,15 +81,9 @@ describe('Tags API Routes', () => {
     })
 
     it('should return 500 on database error', async () => {
-      mockSupabase.from.mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            order: jest.fn().mockResolvedValue({
-              data: null,
-              error: { message: 'Database error' },
-            }),
-          }),
-        }),
+      mockTagQueries.list.mockResolvedValue({
+        data: null,
+        error: { message: 'Database error' },
       })
 
       const response = await GET(createRequest())
@@ -121,25 +114,11 @@ describe('Tags API Routes', () => {
     it('should create a new tag', async () => {
       const newTag = { id: 'tag-new', name: 'TypeScript', user_id: mockUser.id }
 
-      // Mock no existing tag
-      mockSupabase.from.mockReturnValueOnce({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              single: jest.fn().mockResolvedValue({ data: null, error: null }),
-            }),
-          }),
-        }),
-      })
+      // Mock no existing tags with the same name (list returns empty or tags without 'TypeScript')
+      mockTagQueries.list.mockResolvedValue({ data: [], error: null })
 
-      // Mock insert
-      mockSupabase.from.mockReturnValueOnce({
-        insert: jest.fn().mockReturnValue({
-          select: jest.fn().mockReturnValue({
-            single: jest.fn().mockResolvedValue({ data: newTag, error: null }),
-          }),
-        }),
-      })
+      // Mock create
+      mockTagQueries.create.mockResolvedValue({ data: newTag, error: null })
 
       const response = await POST(createRequest({ name: 'TypeScript' }))
       const data = await response.json()
@@ -149,18 +128,10 @@ describe('Tags API Routes', () => {
     })
 
     it('should return 409 when tag name already exists', async () => {
-      // Mock existing tag found
-      mockSupabase.from.mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              single: jest.fn().mockResolvedValue({
-                data: { id: 'existing-tag' },
-                error: null,
-              }),
-            }),
-          }),
-        }),
+      // Mock existing tag found - list returns a tag with matching name
+      mockTagQueries.list.mockResolvedValue({
+        data: [{ id: 'existing-tag', name: 'Existing', user_id: mockUser.id }],
+        error: null,
       })
 
       const response = await POST(createRequest({ name: 'Existing' }))
@@ -194,25 +165,11 @@ describe('Tags API Routes', () => {
         user_id: mockUser.id,
       }
 
-      // Mock no existing tag
-      mockSupabase.from.mockReturnValueOnce({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              single: jest.fn().mockResolvedValue({ data: null, error: null }),
-            }),
-          }),
-        }),
-      })
+      // Mock no existing tags with 'Colored' name
+      mockTagQueries.list.mockResolvedValue({ data: [], error: null })
 
-      // Mock insert
-      mockSupabase.from.mockReturnValueOnce({
-        insert: jest.fn().mockReturnValue({
-          select: jest.fn().mockReturnValue({
-            single: jest.fn().mockResolvedValue({ data: newTag, error: null }),
-          }),
-        }),
-      })
+      // Mock create
+      mockTagQueries.create.mockResolvedValue({ data: newTag, error: null })
 
       const response = await POST(createRequest({ name: 'Colored', color: '#ff0000' }))
       const data = await response.json()
@@ -222,27 +179,13 @@ describe('Tags API Routes', () => {
     })
 
     it('should return 500 on database insert error', async () => {
-      // Mock no existing tag
-      mockSupabase.from.mockReturnValueOnce({
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              single: jest.fn().mockResolvedValue({ data: null, error: null }),
-            }),
-          }),
-        }),
-      })
+      // Mock no existing tags
+      mockTagQueries.list.mockResolvedValue({ data: [], error: null })
 
       // Mock insert failure
-      mockSupabase.from.mockReturnValueOnce({
-        insert: jest.fn().mockReturnValue({
-          select: jest.fn().mockReturnValue({
-            single: jest.fn().mockResolvedValue({
-              data: null,
-              error: { message: 'Insert failed' },
-            }),
-          }),
-        }),
+      mockTagQueries.create.mockResolvedValue({
+        data: null,
+        error: { message: 'Insert failed' },
       })
 
       const response = await POST(createRequest({ name: 'Failed' }))

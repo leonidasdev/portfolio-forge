@@ -5,12 +5,9 @@
  * Server Actions are functions that run on the server and can be called from client components
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// Note: Supabase type inference issues require type assertions
-// TODO: Fix when @supabase/ssr updates type inference
-
 'use server'
 
+import { queries } from '@/lib/supabase/queries'
 import { createServerClient, getUser } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
@@ -37,17 +34,15 @@ export async function createPortfolio(formData: FormData) {
 
     const supabase = await createServerClient()
 
-    const { data, error } = await (supabase.from('portfolios') as any)
-      .insert({
-        user_id: user.id,
-        title,
-        slug,
-        description,
-        theme,
-        is_public: isPublic,
-      })
-      .select()
-      .single()
+    // Use typed query helper
+    const { data, error } = await queries.portfolios.create(supabase, {
+      user_id: user.id,
+      title,
+      slug,
+      description,
+      theme,
+      is_public: isPublic,
+    })
 
     if (error) {
       return { error: error.message }
@@ -80,17 +75,13 @@ export async function updatePortfolio(portfolioId: string, formData: FormData) {
 
     const supabase = await createServerClient()
 
-    // RLS will ensure the user can only update their own portfolio
-    const { data, error } = await (supabase.from('portfolios') as any)
-      .update({
-        title,
-        description,
-        theme,
-        is_public: isPublic,
-      })
-      .eq('id', portfolioId)
-      .select()
-      .single()
+    // Use typed query helper (RLS will ensure the user can only update their own portfolio)
+    const { data, error } = await queries.portfolios.update(supabase, portfolioId, {
+      title,
+      description,
+      theme,
+      is_public: isPublic,
+    })
 
     if (error) {
       return { error: error.message }
@@ -118,10 +109,8 @@ export async function deletePortfolio(portfolioId: string) {
 
     const supabase = await createServerClient()
 
-    // RLS will ensure the user can only delete their own portfolio
-    const { error } = await (supabase.from('portfolios') as any)
-      .update({ is_deleted: true })
-      .eq('id', portfolioId)
+    // Use typed query helper (RLS will ensure the user can only delete their own portfolio)
+    const { error } = await queries.portfolios.softDelete(supabase, portfolioId)
 
     if (error) {
       return { error: error.message }
@@ -148,12 +137,11 @@ export async function createPublicLink(portfolioId: string) {
 
     const supabase = await createServerClient()
 
-    // First verify the portfolio belongs to the user
-    const { data: portfolio, error: portfolioError } = await supabase
-      .from('portfolios')
-      .select('id')
-      .eq('id', portfolioId)
-      .single()
+    // First verify the portfolio belongs to the user using typed query helper
+    const { data: portfolio, error: portfolioError } = await queries.portfolios.getById(
+      supabase,
+      portfolioId
+    )
 
     if (portfolioError || !portfolio) {
       return { error: 'Portfolio not found' }
@@ -166,15 +154,12 @@ export async function createPublicLink(portfolioId: string) {
       return { error: 'Failed to generate token' }
     }
 
-    // Create the public link
-    const { data, error } = await (supabase.from('public_links') as any)
-      .insert({
-        portfolio_id: portfolioId,
-        token: tokenData,
-        is_active: true,
-      })
-      .select()
-      .single()
+    // Create the public link using typed query helper
+    const { data, error } = await queries.publicLinks.create(supabase, {
+      portfolio_id: portfolioId,
+      token: tokenData,
+      is_active: true,
+    })
 
     if (error) {
       return { error: error.message }
@@ -201,10 +186,8 @@ export async function deactivatePublicLink(linkId: string) {
 
     const supabase = await createServerClient()
 
-    // RLS will ensure the user can only deactivate their own links
-    const { error } = await (supabase.from('public_links') as any)
-      .update({ is_active: false })
-      .eq('id', linkId)
+    // Use typed query helper (RLS will ensure the user can only deactivate their own links)
+    const { error } = await queries.publicLinks.update(supabase, linkId, { is_active: false })
 
     if (error) {
       return { error: error.message }

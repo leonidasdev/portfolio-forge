@@ -11,6 +11,7 @@
 
 import { requireAuth } from '@/lib/api/auth-middleware'
 import { ApiError, withApiHandler } from '@/lib/api/route-handler'
+import { queries, type Tag } from '@/lib/supabase/queries'
 import { validateBody } from '@/lib/validation/helpers'
 import { updateCertificationSchema } from '@/lib/validation/schemas'
 import { NextRequest, NextResponse } from 'next/server'
@@ -32,38 +33,30 @@ export const GET = withApiHandler(
       throw new ApiError('Certification ID is required', 400)
     }
 
-    // Fetch certification with tags
-    const { data: certification, error } = await (supabase.from('certifications') as any)
-      .select(
-        `
-      *,
-      certification_tags (
-        tag_id,
-        tags (
-          id,
-          name,
-          color
-        )
-      )
-    `
-      )
-      .eq('id', id)
-      .eq('is_deleted', false)
-      .single()
+    // Fetch certification with tags using typed query helper
+    const { data: certification, error } = await queries.certifications.getByIdWithTags(
+      supabase,
+      id
+    )
 
     if (error) {
-      if (error.code === 'PGRST116') {
+      if (error.message.includes('PGRST116')) {
         throw new ApiError('Certification not found', 404)
       }
       throw new ApiError(error.message, 500)
+    }
+
+    if (!certification) {
+      throw new ApiError('Certification not found', 404)
     }
 
     // Transform tags structure
     const transformedCertification = {
       ...certification,
       tags:
-        certification.certification_tags?.map((ct: { tags: unknown }) => ct.tags).filter(Boolean) ||
-        [],
+        certification.certification_tags
+          ?.map((ct) => ct.tags)
+          .filter((tag): tag is Tag => tag !== null) || [],
       certification_tags: undefined,
     }
 
@@ -110,22 +103,18 @@ export const PATCH = withApiHandler(
     }
 
     // First check if certification exists and belongs to user
-    const { data: existing, error: checkError } = await (supabase.from('certifications') as any)
-      .select('id')
-      .eq('id', id)
-      .eq('is_deleted', false)
-      .single()
+    const { data: existing, error: checkError } = await queries.certifications.getById(supabase, id)
 
     if (checkError || !existing) {
       throw new ApiError('Certification not found', 404)
     }
 
-    // Update the certification
-    const { data: certification, error } = await (supabase.from('certifications') as any)
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single()
+    // Update the certification using typed query helper
+    const { data: certification, error } = await queries.certifications.update(
+      supabase,
+      id,
+      updates
+    )
 
     if (error) {
       throw new ApiError(error.message, 500)
@@ -153,20 +142,14 @@ export const DELETE = withApiHandler(
     }
 
     // First check if certification exists and belongs to user
-    const { data: existing, error: checkError } = await (supabase.from('certifications') as any)
-      .select('id')
-      .eq('id', id)
-      .eq('is_deleted', false)
-      .single()
+    const { data: existing, error: checkError } = await queries.certifications.getById(supabase, id)
 
     if (checkError || !existing) {
       throw new ApiError('Certification not found', 404)
     }
 
-    // Soft delete by setting is_deleted = true
-    const { error } = await (supabase.from('certifications') as any)
-      .update({ is_deleted: true })
-      .eq('id', id)
+    // Soft delete using typed query helper
+    const { error } = await queries.certifications.softDelete(supabase, id)
 
     if (error) {
       throw new ApiError(error.message, 500)

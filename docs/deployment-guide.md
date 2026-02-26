@@ -89,10 +89,10 @@ Add the following environment variables in the Vercel project settings:
 
 | Variable | Description | Required |
 |----------|-------------|----------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL | ✅ |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous/public key | ✅ |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (keep secret!) | ✅ |
-| `GROQ_API_KEY` | Groq API key for AI features | ✅ |
+| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL | Yes |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous/public key | Yes |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (keep secret!) | Yes |
+| `GROQ_API_KEY` | Groq API key for AI features | Yes |
 | `UPSTASH_REDIS_REST_URL` | Upstash Redis URL for rate limiting | Optional |
 | `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis token | Optional |
 
@@ -307,6 +307,68 @@ ALTER TABLE tags ENABLE ROW LEVEL SECURITY;
 ```bash
 npm install @sentry/nextjs
 npx @sentry/wizard -i nextjs
+```
+
+---
+
+## GitHub Pages Export Feature
+
+The GitHub Pages export feature allows users to deploy their portfolios directly to GitHub Pages. This section covers the deployment configuration needed for this feature.
+
+### How It Works
+
+1. **User-Provided Token**: Users provide their own GitHub Personal Access Token when deploying
+2. **Static Site Generation**: The app generates a static HTML/CSS site from portfolio data
+3. **GitHub API**: The app uses the GitHub REST API to create/update repositories and push files
+4. **GitHub Actions**: A workflow file is included to enable automatic GitHub Pages deployment
+
+### User Requirements
+
+Users need to create a GitHub Personal Access Token with the `repo` scope:
+
+1. Go to [GitHub Settings > Developer Settings > Personal Access Tokens](https://github.com/settings/tokens)
+2. Click "Generate new token (classic)"
+3. Select the **`repo`** scope (Full control of private repositories)
+4. Generate and save the token securely
+
+> **Note:** The token is sent directly to the GitHub API and is NOT stored in your application's database.
+
+### Optional: GitHub OAuth Integration (Future Enhancement)
+
+For a seamless user experience, you can configure GitHub OAuth in Supabase:
+
+1. **Create a GitHub OAuth App:**
+   - Go to [GitHub Developer Settings > OAuth Apps](https://github.com/settings/developers)
+   - Click "New OAuth App"
+   - Set Authorization callback URL to `https://your-supabase-project.supabase.co/auth/v1/callback`
+   - Note the Client ID and Client Secret
+
+2. **Configure Supabase:**
+   - Go to Supabase Dashboard → Authentication → Providers
+   - Enable GitHub provider
+   - Enter Client ID and Client Secret
+   - Add required scopes: `repo,read:user`
+
+3. **Update Redirect URLs:**
+   - Add your production URL to Supabase Auth redirect URLs:
+     ```
+     https://your-domain.com/auth/callback
+     ```
+
+### Post-Deployment Checklist for Exports
+
+- [ ] Tested "Download ZIP" functionality
+- [ ] Tested "Deploy to GitHub Pages" with a GitHub PAT
+- [ ] Verified generated static sites render correctly
+- [ ] Rate limiting configured for export endpoints (recommend 5/min for GitHub, 10/min for ZIP)
+
+### Database Migration
+
+Ensure the `portfolio_exports` table is created by running the latest schema:
+
+```sql
+-- From supabase/schema.sql
+-- The portfolio_exports table tracks export history and deployment status
 ```
 
 ---

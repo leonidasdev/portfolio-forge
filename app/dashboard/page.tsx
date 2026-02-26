@@ -9,6 +9,7 @@
  */
 
 import { LogoutButton } from '@/app/(auth)/logout/LogoutButton'
+import { queries } from '@/lib/supabase/queries'
 import { createServerClient, getSession, getUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
@@ -34,30 +35,21 @@ export default async function DashboardPage() {
   const supabase = await createServerClient()
 
   // Fetch user's portfolios (RLS ensures only their portfolios are returned)
-  const { data: portfolios, error: portfoliosError } = await (supabase.from('portfolios') as any)
-    .select('*')
-    .eq('is_deleted', false)
-    .order('created_at', { ascending: false })
+  const { data: portfolios, error: portfoliosError } = await queries.portfolios.list(supabase, {
+    orderBy: 'created_at',
+  })
 
   // Fetch user's certifications
-  const { data: certifications, error: certificationsError } = await (
-    supabase.from('certifications') as any
+  const { data: certifications, error: certificationsError } = await queries.certifications.list(
+    supabase,
+    { limit: 5 }
   )
-    .select('*')
-    .eq('is_deleted', false)
-    .order('created_at', { ascending: false })
-    .limit(5)
 
   // Fetch user's tags
-  const { data: tags, error: tagsError } = await (supabase.from('tags') as any)
-    .select('*')
-    .order('name', { ascending: true })
+  const { data: tags, error: tagsError } = await queries.tags.list(supabase)
 
   // Fetch user profile
-  const { data: profile } = await (supabase.from('profiles') as any)
-    .select('*')
-    .eq('id', user.id)
-    .single()
+  const { data: profile } = await queries.profiles.getByUserId(supabase, user.id)
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -83,7 +75,7 @@ export default async function DashboardPage() {
         )}
         {portfolios && portfolios.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {portfolios.map((portfolio: any) => (
+            {portfolios.map((portfolio) => (
               <div key={portfolio.id} className="border rounded-lg p-4">
                 <h3 className="font-semibold">{portfolio.title}</h3>
                 <p className="text-sm text-gray-600">{portfolio.description}</p>
@@ -117,7 +109,7 @@ export default async function DashboardPage() {
         )}
         {certifications && certifications.length > 0 && (
           <div className="space-y-3">
-            {certifications.map((cert: any) => (
+            {certifications.map((cert) => (
               <div key={cert.id} className="border rounded-lg p-4">
                 <h3 className="font-semibold">{cert.title}</h3>
                 <p className="text-sm text-gray-600">{cert.issuing_organization}</p>
@@ -140,7 +132,7 @@ export default async function DashboardPage() {
         )}
         {tags && tags.length > 0 && (
           <div className="flex flex-wrap gap-2">
-            {tags.map((tag: any) => (
+            {tags.map((tag) => (
               <span
                 key={tag.id}
                 className="px-3 py-1 rounded-full text-sm"

@@ -13,6 +13,7 @@
  */
 
 import { requireUserId } from '@/lib/auth/requireSession'
+import { queries } from '@/lib/supabase/queries'
 import { createServerClient } from '@/lib/supabase/server'
 import { WelcomeMessage } from './WelcomeMessage'
 
@@ -23,46 +24,18 @@ export default async function DashboardOverviewPage() {
   const supabase = await createServerClient()
 
   // Fetch user profile
-  const { data: profile } = await (supabase.from('profiles') as any)
-    .select('*')
-    .eq('id', userId)
-    .single()
+  const { data: profile } = await queries.profiles.getByUserId(supabase, userId)
 
-  // Fetch quick stats
-  const [
-    { count: portfolioCount },
-    { count: certificationCount },
-    { count: projectCount },
-    { count: skillCount },
-  ] = await Promise.all([
-    (supabase.from('portfolios') as any)
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .eq('is_deleted', false),
-
-    (supabase.from('certifications') as any)
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .eq('is_deleted', false),
-
-    (supabase.from('projects') as any)
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .eq('is_deleted', false),
-
-    (supabase.from('skills') as any)
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .eq('is_deleted', false),
+  // Fetch quick stats using typed count queries
+  const [portfolioCounts, certificationCounts, projectCounts, skillCounts] = await Promise.all([
+    queries.counts.portfolios(supabase, userId),
+    queries.counts.certifications(supabase, userId),
+    queries.counts.projects(supabase, userId),
+    queries.counts.skills(supabase, userId),
   ])
 
   // Fetch recent activity (last 5 items)
-  const { data: recentPortfolios } = await (supabase.from('portfolios') as any)
-    .select('id, title, created_at, updated_at')
-    .eq('user_id', userId)
-    .eq('is_deleted', false)
-    .order('updated_at', { ascending: false })
-    .limit(5)
+  const { data: recentPortfolios } = await queries.portfolios.list(supabase, { limit: 5 })
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -73,25 +46,25 @@ export default async function DashboardOverviewPage() {
       <section className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Portfolios"
-          count={portfolioCount ?? 0}
+          count={portfolioCounts.count}
           color="blue"
           description="Active portfolios"
         />
         <StatCard
           title="Certifications"
-          count={certificationCount ?? 0}
+          count={certificationCounts.count}
           color="green"
           description="Verified credentials"
         />
         <StatCard
           title="Projects"
-          count={projectCount ?? 0}
+          count={projectCounts.count}
           color="purple"
           description="Showcased projects"
         />
         <StatCard
           title="Skills"
-          count={skillCount ?? 0}
+          count={skillCounts.count}
           color="orange"
           description="Technical skills"
         />
@@ -102,7 +75,7 @@ export default async function DashboardOverviewPage() {
         <h2 className="text-2xl font-semibold mb-4">Recent Activity</h2>
         {recentPortfolios && recentPortfolios.length > 0 ? (
           <div className="bg-white rounded-lg shadow divide-y">
-            {recentPortfolios.map((portfolio: any) => (
+            {recentPortfolios.map((portfolio) => (
               <div key={portfolio.id} className="p-4 hover:bg-gray-50">
                 <h3 className="font-semibold">{portfolio.title}</h3>
                 <p className="text-sm text-gray-600 mt-1">

@@ -10,6 +10,7 @@
 
 import { requireAuth } from '@/lib/api/auth-middleware'
 import { ApiError, withApiHandler } from '@/lib/api/route-handler'
+import { queries } from '@/lib/supabase/queries'
 import { randomBytes } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -35,11 +36,8 @@ export const POST = withApiHandler(
       throw new ApiError('Portfolio ID is required', 400)
     }
 
-    // Verify portfolio exists and belongs to user
-    const { data: portfolio, error: fetchError } = await (supabase.from('portfolios') as any)
-      .select('id, public_link_token')
-      .eq('id', id)
-      .single()
+    // Verify portfolio exists and belongs to user using typed query helper
+    const { data: portfolio, error: fetchError } = await queries.portfolios.getById(supabase, id)
 
     if (fetchError || !portfolio) {
       throw new ApiError('Portfolio not found', 404)
@@ -48,14 +46,12 @@ export const POST = withApiHandler(
     // Generate a new token (even if one exists, regenerate for security)
     const newToken = generatePublicToken()
 
-    // Update the portfolio with the new token
-    const { data: updatedPortfolio, error: updateError } = await (
-      supabase.from('portfolios') as any
+    // Update the portfolio with the new token using typed query helper
+    const { data: updatedPortfolio, error: updateError } = await queries.portfolios.update(
+      supabase,
+      id,
+      { public_link_token: newToken }
     )
-      .update({ public_link_token: newToken })
-      .eq('id', id)
-      .select()
-      .single()
 
     if (updateError || !updatedPortfolio) {
       throw new ApiError('Failed to generate public link', 500)
@@ -81,24 +77,19 @@ export const DELETE = withApiHandler(
       throw new ApiError('Portfolio ID is required', 400)
     }
 
-    // Verify portfolio exists and belongs to user
-    const { data: portfolio, error: fetchError } = await (supabase.from('portfolios') as any)
-      .select('id')
-      .eq('id', id)
-      .single()
+    // Verify portfolio exists and belongs to user using typed query helper
+    const { data: portfolio, error: fetchError } = await queries.portfolios.getById(supabase, id)
 
     if (fetchError || !portfolio) {
       throw new ApiError('Portfolio not found', 404)
     }
 
-    // Revoke the public link by setting token to null
-    const { data: updatedPortfolio, error: updateError } = await (
-      supabase.from('portfolios') as any
+    // Revoke the public link by setting token to null using typed query helper
+    const { data: updatedPortfolio, error: updateError } = await queries.portfolios.update(
+      supabase,
+      id,
+      { public_link_token: null }
     )
-      .update({ public_link_token: null })
-      .eq('id', id)
-      .select()
-      .single()
 
     if (updateError) {
       throw new ApiError('Failed to revoke public link', 500)

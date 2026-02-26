@@ -20,6 +20,7 @@ This document provides a comprehensive reference for the Portfolio Forge REST AP
    - [Templates](#templates)
    - [Themes](#themes)
    - [AI Services](#ai-services)
+   - [Export Services](#export-services)
 
 ---
 
@@ -925,6 +926,116 @@ Generates a formatted resume from portfolio data.
 
 ---
 
+### Export Services
+
+Portfolio export and deployment services for GitHub Pages and ZIP downloads.
+
+#### Deploy to GitHub Pages
+
+```
+POST /api/v1/export/github
+```
+
+Generates a static site from your portfolio and deploys it to GitHub Pages.
+
+**Request Body:**
+
+```json
+{
+  "portfolioId": "uuid",
+  "githubToken": "ghp_xxxxxxxxxxxxxxxxxxxx",
+  "repoName": "my-portfolio",
+  "customDomain": "portfolio.example.com",
+  "isPrivate": false
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| portfolioId | uuid | Yes | Portfolio to export |
+| githubToken | string | Yes | GitHub Personal Access Token with `repo` scope |
+| repoName | string | No | Repository name (default: "portfolio") |
+| customDomain | string | No | Custom domain for GitHub Pages |
+| isPrivate | boolean | No | Whether to create a private repository (default: false) |
+
+**Response:** `200 OK`
+
+```json
+{
+  "success": true,
+  "repoUrl": "https://github.com/username/my-portfolio",
+  "pagesUrl": "https://username.github.io/my-portfolio",
+  "filesCount": 8,
+  "totalSize": 25600
+}
+```
+
+**Error Responses:**
+
+- `400 Bad Request` - Invalid portfolio ID or missing GitHub token
+- `401 Unauthorized` - User not authenticated
+- `404 Not Found` - Portfolio not found or doesn't belong to user
+- `500 Internal Server Error` - GitHub API error or deployment failure
+
+**Notes:**
+- Requires a GitHub Personal Access Token with `repo` scope
+- Creates the repository if it doesn't exist
+- Automatically enables GitHub Pages with GitHub Actions deployment
+- Rate limited: 5 requests per minute
+
+---
+
+#### Download as ZIP
+
+```
+POST /api/v1/export/download
+```
+
+Generates a static site package and downloads it as a ZIP file.
+
+**Request Body:**
+
+```json
+{
+  "portfolioId": "uuid"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| portfolioId | uuid | Yes | Portfolio to export |
+
+**Response:** `200 OK`
+
+Returns binary ZIP file with `Content-Type: application/zip` and `Content-Disposition: attachment; filename="portfolio-title.zip"`.
+
+**ZIP Contents:**
+```
+portfolio-title/
+├── index.html          # Main portfolio page
+├── 404.html            # Custom 404 page
+├── robots.txt          # SEO robots file
+├── sitemap.xml         # SEO sitemap
+├── .nojekyll           # Disables Jekyll processing
+└── .github/
+    └── workflows/
+        └── deploy.yml  # GitHub Actions workflow (optional)
+```
+
+**Error Responses:**
+
+- `400 Bad Request` - Invalid or missing portfolio ID
+- `401 Unauthorized` - User not authenticated
+- `404 Not Found` - Portfolio not found or doesn't belong to user
+- `500 Internal Server Error` - Export generation failure
+
+**Notes:**
+- Downloaded ZIP can be manually deployed to any static hosting service
+- Includes all necessary files for GitHub Pages, Netlify, Vercel, etc.
+- Rate limited: 10 requests per minute
+
+---
+
 ## Webhooks (Coming Soon)
 
 Future versions will support webhooks for:
@@ -959,6 +1070,11 @@ await apiClient.delete(`/portfolios/${id}`)
 ---
 
 ## Changelog
+
+### v1.1.0 (2026-02)
+- Export Services: GitHub Pages deployment
+- Export Services: ZIP download
+- New database table: `portfolio_exports`
 
 ### v1.0.0 (2024-01)
 - Initial API release

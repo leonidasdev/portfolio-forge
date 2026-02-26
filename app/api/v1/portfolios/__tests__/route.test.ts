@@ -9,9 +9,7 @@ import { NextRequest } from 'next/server'
 
 // Mock the auth middleware
 const mockUser = { id: 'user-123', email: 'test@example.com' }
-const mockSupabase = {
-  from: jest.fn(),
-}
+const mockSupabase = {}
 
 jest.mock('@/lib/api/auth-middleware', () => ({
   requireAuth: jest.fn().mockResolvedValue({
@@ -26,6 +24,18 @@ jest.mock('@/lib/api/auth-middleware', () => ({
       super(message)
       this.name = 'AuthError'
     }
+  },
+}))
+
+// Mock the queries module
+const mockPortfolioQueries = {
+  listSummary: jest.fn(),
+  create: jest.fn(),
+}
+
+jest.mock('@/lib/supabase/queries', () => ({
+  queries: {
+    portfolios: mockPortfolioQueries,
   },
 }))
 
@@ -64,11 +74,7 @@ describe('Portfolios API Routes', () => {
         },
       ]
 
-      mockSupabase.from.mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          order: jest.fn().mockResolvedValue({ data: mockPortfolios, error: null }),
-        }),
-      })
+      mockPortfolioQueries.listSummary.mockResolvedValue({ data: mockPortfolios, error: null })
 
       const response = await GET(createRequest())
       const data = await response.json()
@@ -76,15 +82,11 @@ describe('Portfolios API Routes', () => {
       expect(response.status).toBe(200)
       expect(data.portfolios).toEqual(mockPortfolios)
       expect(data.portfolios).toHaveLength(2)
-      expect(mockSupabase.from).toHaveBeenCalledWith('portfolios')
+      expect(mockPortfolioQueries.listSummary).toHaveBeenCalledWith(mockSupabase)
     })
 
     it('should return empty array when no portfolios exist', async () => {
-      mockSupabase.from.mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          order: jest.fn().mockResolvedValue({ data: [], error: null }),
-        }),
-      })
+      mockPortfolioQueries.listSummary.mockResolvedValue({ data: [], error: null })
 
       const response = await GET(createRequest())
       const data = await response.json()
@@ -94,13 +96,9 @@ describe('Portfolios API Routes', () => {
     })
 
     it('should return 500 on database error', async () => {
-      mockSupabase.from.mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          order: jest.fn().mockResolvedValue({
-            data: null,
-            error: { message: 'Database connection failed' },
-          }),
-        }),
+      mockPortfolioQueries.listSummary.mockResolvedValue({
+        data: null,
+        error: { message: 'Database connection failed' },
       })
 
       const response = await GET(createRequest())
@@ -116,21 +114,6 @@ describe('Portfolios API Routes', () => {
       const response = await GET(createRequest())
 
       expect(response.status).toBe(401)
-    })
-
-    it('should order portfolios by updated_at descending', async () => {
-      mockSupabase.from.mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          order: jest.fn().mockResolvedValue({ data: [], error: null }),
-        }),
-      })
-
-      await GET(createRequest())
-
-      const selectMock = mockSupabase.from.mock.results[0].value.select
-      const orderMock = selectMock.mock.results[0].value.order
-
-      expect(orderMock).toHaveBeenCalledWith('updated_at', { ascending: false })
     })
   })
 
@@ -154,13 +137,7 @@ describe('Portfolios API Routes', () => {
         updated_at: '2026-01-31T00:00:00Z',
       }
 
-      mockSupabase.from.mockReturnValue({
-        insert: jest.fn().mockReturnValue({
-          select: jest.fn().mockReturnValue({
-            single: jest.fn().mockResolvedValue({ data: newPortfolio, error: null }),
-          }),
-        }),
-      })
+      mockPortfolioQueries.create.mockResolvedValue({ data: newPortfolio, error: null })
 
       const response = await POST(
         createRequest({
@@ -184,13 +161,7 @@ describe('Portfolios API Routes', () => {
         user_id: mockUser.id,
       }
 
-      mockSupabase.from.mockReturnValue({
-        insert: jest.fn().mockReturnValue({
-          select: jest.fn().mockReturnValue({
-            single: jest.fn().mockResolvedValue({ data: publicPortfolio, error: null }),
-          }),
-        }),
-      })
+      mockPortfolioQueries.create.mockResolvedValue({ data: publicPortfolio, error: null })
 
       const response = await POST(
         createRequest({
@@ -206,20 +177,15 @@ describe('Portfolios API Routes', () => {
     })
 
     it('should default is_public to false when not provided', async () => {
-      const insertMock = jest.fn().mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue({
-            data: { id: 'test', is_public: false },
-            error: null,
-          }),
-        }),
+      mockPortfolioQueries.create.mockResolvedValue({
+        data: { id: 'test', is_public: false },
+        error: null,
       })
-
-      mockSupabase.from.mockReturnValue({ insert: insertMock })
 
       await POST(createRequest({ title: 'Test Portfolio' }))
 
-      expect(insertMock).toHaveBeenCalledWith(
+      expect(mockPortfolioQueries.create).toHaveBeenCalledWith(
+        mockSupabase,
         expect.objectContaining({
           is_public: false,
         })
@@ -243,15 +209,9 @@ describe('Portfolios API Routes', () => {
     })
 
     it('should return 500 on database insert error', async () => {
-      mockSupabase.from.mockReturnValue({
-        insert: jest.fn().mockReturnValue({
-          select: jest.fn().mockReturnValue({
-            single: jest.fn().mockResolvedValue({
-              data: null,
-              error: { message: 'Insert failed' },
-            }),
-          }),
-        }),
+      mockPortfolioQueries.create.mockResolvedValue({
+        data: null,
+        error: { message: 'Insert failed' },
       })
 
       const response = await POST(createRequest({ title: 'Failed Portfolio' }))
@@ -270,20 +230,15 @@ describe('Portfolios API Routes', () => {
     })
 
     it('should include user_id in the insert', async () => {
-      const insertMock = jest.fn().mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue({
-            data: { id: 'test', user_id: mockUser.id },
-            error: null,
-          }),
-        }),
+      mockPortfolioQueries.create.mockResolvedValue({
+        data: { id: 'test', user_id: mockUser.id },
+        error: null,
       })
-
-      mockSupabase.from.mockReturnValue({ insert: insertMock })
 
       await POST(createRequest({ title: 'User Portfolio' }))
 
-      expect(insertMock).toHaveBeenCalledWith(
+      expect(mockPortfolioQueries.create).toHaveBeenCalledWith(
+        mockSupabase,
         expect.objectContaining({
           user_id: mockUser.id,
         })
