@@ -181,7 +181,7 @@ describe('Configuration Module', () => {
 
   describe('Environment Mode', () => {
     it('should detect test environment', async () => {
-      process.env.NODE_ENV = 'test'
+      ;(process.env as any).NODE_ENV = 'test'
       const { config } = await import('../index')
 
       expect(config.env).toBe('test')
@@ -190,7 +190,7 @@ describe('Configuration Module', () => {
     })
 
     it('should detect development environment', async () => {
-      process.env.NODE_ENV = 'development'
+      ;(process.env as any).NODE_ENV = 'development'
       const { config } = await import('../index')
 
       expect(config.env).toBe('development')
@@ -199,7 +199,7 @@ describe('Configuration Module', () => {
     })
 
     it('should detect production environment', async () => {
-      process.env.NODE_ENV = 'production'
+      ;(process.env as any).NODE_ENV = 'production'
       const { config } = await import('../index')
 
       expect(config.env).toBe('production')
