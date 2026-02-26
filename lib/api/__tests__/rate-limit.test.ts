@@ -29,14 +29,14 @@ jest.mock('@/lib/api/auth-middleware', () => ({
 }))
 
 // Import after mocks
-import {
-  withRateLimit,
-  rateLimitConfigs,
-  checkRateLimitStatus,
-  resetRateLimit,
-  rateLimitStore,
-} from '../rate-limit'
 import type { RateLimitConfig } from '@/lib/config'
+import {
+  checkRateLimitStatus,
+  rateLimitConfigs,
+  rateLimitStore,
+  resetRateLimit,
+  withRateLimit,
+} from '../rate-limit'
 
 describe('rateLimitStore', () => {
   beforeEach(() => {
@@ -181,6 +181,21 @@ describe('withRateLimit', () => {
     return request
   }
 
+  const createMockRequestWithRealIp = (ip: string): NextRequest => {
+    const url = 'http://localhost:3000/api/test'
+    const request = new NextRequest(url, {
+      headers: {
+        'x-real-ip': ip,
+      },
+    })
+    return request
+  }
+
+  const createMockRequestWithoutIp = (): NextRequest => {
+    const url = 'http://localhost:3000/api/test'
+    return new NextRequest(url)
+  }
+
   it('should call handler when within rate limit', async () => {
     const rateLimitedHandler = withRateLimit(mockHandler, {
       maxRequests: 100,
@@ -193,6 +208,42 @@ describe('withRateLimit', () => {
 
     expect(mockHandler).toHaveBeenCalled()
     expect(response.status).toBe(200)
+  })
+
+  it('should use x-real-ip header when x-forwarded-for is not present', async () => {
+    const rateLimitedHandler = withRateLimit(mockHandler, {
+      maxRequests: 1,
+      windowSeconds: 60,
+      perUser: false,
+    })
+
+    // First request with x-real-ip should succeed
+    const request1 = createMockRequestWithRealIp('10.0.0.1')
+    const response1 = await rateLimitedHandler(request1)
+    expect(response1.status).toBe(200)
+
+    // Second request with same IP should be rate limited
+    const request2 = createMockRequestWithRealIp('10.0.0.1')
+    const response2 = await rateLimitedHandler(request2)
+    expect(response2.status).toBe(429)
+  })
+
+  it('should use unknown as IP when no IP headers are present', async () => {
+    const rateLimitedHandler = withRateLimit(mockHandler, {
+      maxRequests: 1,
+      windowSeconds: 60,
+      perUser: false,
+    })
+
+    // First request without IP should succeed
+    const request1 = createMockRequestWithoutIp()
+    const response1 = await rateLimitedHandler(request1)
+    expect(response1.status).toBe(200)
+
+    // Second request without IP should be rate limited (uses 'unknown' as key)
+    const request2 = createMockRequestWithoutIp()
+    const response2 = await rateLimitedHandler(request2)
+    expect(response2.status).toBe(429)
   })
 
   it('should add rate limit headers to response', async () => {
